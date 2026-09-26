@@ -72,6 +72,15 @@ input[type=range]{width:100%;accent-color:var(--brass);height:28px;margin:0;curs
 
 /* ---------- hero ---------- */
 .hero{padding-block:clamp(40px,7vw,80px) clamp(28px,4vw,44px);display:grid;gap:22px}
+.easy{justify-self:start;font-size:15px;color:var(--paper);background:var(--panel-2);border:1px solid var(--faint);border-radius:999px;padding:6px 16px;text-decoration:none}
+.easy:hover{border-color:var(--paper)}
+.easy b{color:var(--brass)}
+details.adv{border-top:1px solid var(--line);padding-top:14px}
+details.adv summary{cursor:pointer;font-weight:700;color:var(--muted);list-style:none;display:flex;justify-content:space-between;gap:8px}
+details.adv summary::-webkit-details-marker{display:none}
+details.adv summary::after{content:"＋";color:var(--brass)}
+details.adv[open] summary::after{content:"−"}
+details.adv .advbody{display:grid;gap:22px;margin-top:16px}
 .hero h1{font-size:clamp(44px,9vw,96px);line-height:1.08;letter-spacing:.04em}
 .hero h1 .w{color:var(--waste)}
 .hero h1 .s{color:var(--short)}
@@ -228,6 +237,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
 <div class="wrap">
 
 <header class="hero">
+  <a class="easy" href="simple.html">はじめての人は <b>かんたん版</b> から →</a>
   <h1><span class="s">品切れ</span>か、<br><span class="w">廃棄</span>か。</h1>
   <p class="lede">あなたはコンビニの店長。毎朝、弁当を何個仕入れるか決めます。余れば捨てる。足りなければ客が帰る。明日いくつ売れるかは、だれにも分かりません。</p>
   <div class="rule3">
@@ -361,6 +371,9 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
         </div>
         <p class="hint" id="mdHint"></p>
       </div>
+      <details class="adv" id="adv">
+        <summary>くわしい設定（捨てる費用・客離れの損）</summary>
+        <div class="advbody">
       <div class="ctl">
         <label for="wc">捨てる1個あたりの追加の費用 <output id="wOut" class="num">0<small>円</small></output></label>
         <input id="wc" type="range" min="0" max="500" step="50" value="0">
@@ -371,6 +384,8 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
         <input id="gw" type="range" min="0" max="5000" step="100" value="0">
         <p class="hint">品切れで客がほかの店に移り、次から来なくなるかもしれない分。例：店を変える確率5% × その客の1年分の粗利2万円 ＝ 1,000円。</p>
       </div>
+        </div>
+      </details>
     </div>
 
     <div class="results">
@@ -428,7 +443,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
     <h3 style="font-size:18px">諸経費を入れないのはなぜか</h3>
     <p>店には、家賃・人件費・電気代などの諸経費もかかります。これらは、弁当をもう1個仕入れても仕入れなくても、金額が変わらない費用（固定費）です。</p>
     <p>固定費は、何個仕入れても同じ額だけ引かれます。そのため、店の手元に残るお金の額は下がりますが、「何個仕入れると一番得か」という答えは変わりません。答えを決めるのは、1個増やしたときに増える費用だけです。</p>
-    <p>反対に、捨てる1個ごとにかかる処理費のような費用は、答えを変えます。実験の「捨てる1個あたりの追加の費用」で確かめられます。</p>
+    <p>反対に、捨てる1個ごとにかかる処理費のような費用は、答えを変えます。実験の「くわしい設定」にある「捨てる1個あたりの追加の費用」で確かめられます。</p>
   </div>
   <div style="display:grid;gap:10px">
     <p class="big-claim"><span id="claimLead">粗利が最大になる店は、</span><br><em id="claim2">10日のうち6日</em>、品切れを起こしている。</p>
@@ -452,7 +467,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
     <p class="fnote">平均100個、予測のブレ±20個、値引きなし、追加の費用なしの場合の理論値です。臨界比 ＝ (200 ＋ 信用の損) ÷ (500 ＋ 信用の損)。</p>
     <p>長い目で見ると、品切れを減らすほうへ答えが動きます。ただし「絶対に品切れさせない」（品切れの日が100日に1日）が最適になるのは、買えなかった客1人につき約3万円の損が出る場合だけです。弁当1個の粗利200円の約150倍です。</p>
     <p>一方で、品切れに出会っても、多くの客は店を変えません。小売店の欠品を調べた国際調査では、欠品に出会った客のうち、ほかの店で買う人はおよそ3割でした。残りは、同じ店で別の商品に替える、買うのを先に延ばす、買うのをやめる、のどれかでした。弁当が品切れでも、別の弁当やおにぎりを買う客は多いはずです。</p>
-    <p>どこまで品切れを許すかは、信用の損をどう見積もるかという<b>経営の判断</b>です。その判断が、捨てられる食べ物の量を左右しています。実験の「信用の損」で確かめられます。</p>
+    <p>どこまで品切れを許すかは、信用の損をどう見積もるかという<b>経営の判断</b>です。その判断が、捨てられる食べ物の量を左右しています。実験の「くわしい設定」にある「信用の損」で確かめられます。</p>
   </div>
 </section>
 
@@ -480,7 +495,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
     </div>
     <div class="panel">
       <div class="ctl">
-        <label for="kc">配送1回あたりの費用 <output id="kOut" class="num">1,500<small>円</small></output></label>
+        <label for="kc">配送1回あたりの費用 <output id="dvKOut" class="num">1,500<small>円</small></output></label>
         <input id="kc" type="range" min="0" max="6000" step="250" value="1500">
         <p class="hint">この店の弁当の分として負担する、トラック1回分の費用（仮の数字）。予測のブレ・追加の費用・信用の損は、上の実験の設定を使います。</p>
       </div>
@@ -935,7 +950,7 @@ function dvBest(k, sigma, w, g){
 }
 function renderDelivery(){
   var K = +$("kc").value, extra = state.w > 0 || state.g > 0;
-  $("kOut").innerHTML = yen(K) + "<small>円</small>";
+  $("dvKOut").innerHTML = yen(K) + "<small>円</small>";
   $("thDv").textContent = extra ? "1日の粗利 − 追加の損" : "1日の粗利";
   var rows = [1,2,3].map(function(k){ var b = dvBest(k, state.sigma, state.w, state.g); return {k:k, b:b, cost:K*k, net:b.profit - K*k}; });
   var bi = 0; rows.forEach(function(r,i){ if (r.net > rows[bi].net) bi = i; });

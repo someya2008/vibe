@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>品切れか廃棄か かんたん版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=BIZ+UDPGothic:wght@400;700&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --ground:#181613;
+  --panel:#211e1a;
+  --panel-2:#2a2621;
+  --line:#3b362f;
+  --paper:#ebe5d9;
+  --muted:#a69d8e;
+  --faint:#6f685d;
+  --waste:#c0503f;
+  --short:#7f9bb2;
+  --short-deep:#3d5264;
+  --brass:#c9a55e;
+  --sold:#5a5349;
+  --display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  --body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--ground)}
+body{margin:0;background:var(--ground);color:var(--paper);font-family:var(--body);font-size:17px;line-height:1.8;padding-inline:clamp(16px,4vw,40px);-webkit-text-size-adjust:100%}
+.wrap{max-width:880px;margin-inline:auto;display:grid;gap:40px;padding-block:clamp(36px,6vw,64px) 56px}
+h1,h2,h3{font-family:var(--display);font-weight:800;margin:0;line-height:1.3;text-wrap:balance}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.top a{color:var(--brass)}
+.hero{display:grid;gap:16px}
+.hero h1{font-size:clamp(40px,9vw,76px);line-height:1.1;letter-spacing:.04em}
+.hero h1 .w{color:var(--waste)}.hero h1 .s{color:var(--short)}
+.hero p{font-size:clamp(17px,2.4vw,20px);max-width:32em}
+
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.rules{grid-template-columns:minmax(0,1fr)}}
+.rule{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;display:grid;gap:4px}
+.rule .t{font-size:15px;color:var(--muted)}
+.rule .y{font-family:var(--display);font-size:34px;font-weight:800;line-height:1.2}
+.rule .n{font-size:13px;color:var(--muted)}
+.rule.g .y{color:var(--brass)}.rule.w .y{color:var(--waste)}.rule.s .y{color:var(--short)}
+
+.play{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:clamp(18px,3vw,28px);display:grid;gap:20px}
+.play h2{font-size:clamp(24px,4vw,32px)}
+.fc{font-size:16px;color:var(--muted)}
+.fc b{font-family:var(--display);font-size:24px;color:var(--paper)}
+.stepper{display:grid;grid-template-columns:72px minmax(0,1fr) 72px;gap:10px;max-width:440px}
+.stepper button{font:inherit;font-size:34px;font-weight:700;background:var(--panel-2);color:var(--paper);border:1px solid var(--faint);border-radius:8px;cursor:pointer;line-height:1}
+.stepper button:hover{border-color:var(--paper)}
+.stepper button:active{transform:translateY(1px)}
+.stepper button:disabled,.go:disabled{opacity:.4;cursor:not-allowed}
+.stepper .val{display:grid;place-items:center;background:var(--ground);border:1px solid var(--line);border-radius:8px;font-family:var(--display);font-size:48px;font-weight:800;line-height:1;padding:12px 0}
+.stepper .val small{font-family:var(--body);font-size:14px;font-weight:400;color:var(--muted)}
+.hintline{font-size:15px;color:var(--muted)}
+.go{font:inherit;font-size:20px;font-weight:700;background:var(--brass);color:var(--ground);border:0;border-radius:8px;padding:16px 24px;cursor:pointer;box-shadow:0 4px 0 #8a6d33;justify-self:start}
+.go:hover{background:#d9b66e}
+.go:active{box-shadow:0 1px 0 #8a6d33;transform:translateY(3px)}
+
+.days{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
+@media (max-width:620px){.days{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.day{border-radius:6px;background:var(--panel-2);min-height:78px;padding:6px 4px;display:grid;align-content:center;justify-items:center;gap:0;text-align:center;font-size:12px;color:var(--muted);transition:background .2s}
+.day b{font-family:var(--display);font-size:22px;line-height:1.2;font-variant-numeric:tabular-nums}
+.day.w{background:var(--waste);color:#fff}
+.day.s{background:var(--short-deep);color:#dfe8f0;box-shadow:inset 0 0 0 1px var(--short)}
+.day.e{background:var(--sold);color:var(--paper)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:middle;margin-right:6px}
+
+.sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:560px){.sum{grid-template-columns:minmax(0,1fr)}}
+.sum div{background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:12px 16px;display:grid}
+.sum .k{font-size:14px;color:var(--muted)}
+.sum .v{font-family:var(--display);font-size:clamp(30px,5vw,40px);font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+.sum .v small{font-family:var(--body);font-size:14px;font-weight:400;color:var(--muted);margin-left:3px}
+.sum .w .v{color:var(--waste)}.sum .s .v{color:var(--short)}.sum .g .v{color:var(--brass)}
+
+.cmp{display:none;gap:14px}
+.cmp.show{display:grid}
+.cmp h3{font-size:22px}
+.shops{display:grid;gap:8px}
+.shop{display:grid;grid-template-columns:minmax(0,11em) repeat(3,minmax(0,1fr));gap:8px 12px;align-items:center;background:var(--ground);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+@media (max-width:620px){.shop{grid-template-columns:repeat(3,minmax(0,1fr))}.shop .nm{grid-column:1/-1}}
+.shop.you{border-color:var(--brass)}
+.shop .nm b{font-family:var(--display);font-size:18px;display:block;line-height:1.3}
+.shop .nm span{font-size:13px;color:var(--muted)}
+.shop .c{display:grid;font-variant-numeric:tabular-nums}
+.shop .c span{font-size:12px;color:var(--muted)}
+.shop .c b{font-size:20px}
+.shop .c.w b{color:var(--waste)}.shop .c.s b{color:var(--short)}.shop .c.g b{color:var(--brass)}
+.shop.top1{box-shadow:inset 3px 0 0 var(--brass)}
+
+.learn{display:grid;gap:14px}
+.learn h2{font-size:clamp(24px,4vw,32px)}
+.learn ol{margin:0;padding:0;list-style:none;display:grid;gap:12px;counter-reset:l}
+.learn li{counter-increment:l;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px 16px 60px;position:relative}
+.learn li::before{content:counter(l);position:absolute;left:18px;top:14px;width:28px;height:28px;border-radius:50%;background:var(--brass);color:var(--ground);font-family:var(--display);font-weight:800;display:grid;place-items:center}
+.learn li b{font-family:var(--display);font-size:19px;display:block;margin-bottom:2px}
+.more{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:24px;font-size:15px;color:var(--muted)}
+.more a{font-weight:700;color:var(--ground);background:var(--paper);border-radius:8px;padding:12px 18px;text-decoration:none}
+.note{font-size:13px;color:var(--faint)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><span>かんたん版</span><a href="index.html">くわしい版へ →</a></div>
+
+  <header class="hero">
+    <h1><span class="s">品切れ</span>か、<br><span class="w">廃棄</span>か。</h1>
+    <p>あなたはコンビニの店長です。毎朝、お弁当を何個仕入れるか決めます。でも、その日に何個売れるかは、だれにも分かりません。</p>
+  </header>
+
+  <div class="rules">
+    <div class="rule g"><span class="t">1個売れると</span><span class="y">＋200円</span><span class="n">500円で売って、仕入れは300円</span></div>
+    <div class="rule w"><span class="t">1個余ると</span><span class="y">−300円</span><span class="n">夜に捨てる。仕入れたお金がむだになる</span></div>
+    <div class="rule s"><span class="t">1個足りないと</span><span class="y">0円</span><span class="n">お金は減らない。でも、売れたはずの200円をもうけそこねる</span></div>
+  </div>
+
+  <section class="play" aria-labelledby="playTitle">
+    <h2 id="playTitle">10日間、お店を開けてみよう</h2>
+    <p class="fc">売れる数は、平均すると <b>1日100個</b>。でも日によって、80個の日もあれば、120個の日もあります。</p>
+    <div class="stepper">
+      <button type="button" id="minus" aria-label="5個へらす">−</button>
+      <div class="val num" id="qv">100<small>個</small></div>
+      <button type="button" id="plus" aria-label="5個ふやす">＋</button>
+    </div>
+    <p class="hintline" id="hint">毎日この数を仕入れます。</p>
+    <button type="button" class="go" id="go">10日間 お店を開ける ▶</button>
+
+    <div class="days" id="days" aria-label="10日間の結果"></div>
+    <div class="legend"><span><i style="background:var(--waste)"></i>お弁当を捨てた日</span><span><i style="background:var(--short-deep);box-shadow:inset 0 0 0 1px var(--short)"></i>足りなかった日</span><span><i style="background:var(--sold)"></i>ぴったり売り切れた日</span></div>
+
+    <div class="sum">
+      <div class="w"><span class="k">捨てたお弁当</span><span class="v" id="sW">—</span></div>
+      <div class="s"><span class="k">買えなかったお客さん</span><span class="v" id="sL">—</span></div>
+      <div class="g"><span class="k">もうけ</span><span class="v" id="sP">—</span></div>
+    </div>
+
+    <div class="cmp" id="cmp">
+      <h3>同じ10日間で、ほかのお店とくらべると</h3>
+      <div class="shops" id="shops"></div>
+      <p class="note">4つのお店には、毎日同じ人数のお客さんが来たとして計算しています。10日間だけだと、運で順位が入れ替わることがあります。何回かやってみましょう。</p>
+    </div>
+  </section>
+
+  <section class="learn">
+    <h2>わかること</h2>
+    <ol>
+      <li><b>「絶対に品切れさせない」と、たくさん捨てることになる。</b>売れる数が分からないので、足りなくならないように多めに仕入れると、ほとんどの日に売れ残ります。</li>
+      <li><b>いちばんもうかるのは、ときどき品切れするお店。</b>余ると300円の損、足りないと200円のもうけそこね。余るほうが損が大きいので、少しひかえめに仕入れるのが得になります。</li>
+      <li><b>捨てる量も、品切れも、両方へらすには「予想を当てる」こと。</b>天気や曜日から、売れる数をもっと正しく読めれば、どちらも少なくなります。</li>
+    </ol>
+  </section>
+
+  <div class="more">
+    <span>値引き・予想の当たりやすさ・配送の回数も調べられます。</span>
+    <a href="index.html">くわしい版で調べる →</a>
+  </div>
+  <p class="note">金額は説明のための仮の数字です。売れる数は、平均100個・ばらつき20個の正規分布で作っています。</p>
+</div>
+
+<script>
+(function(){
+"use strict";
+var P = 500, C = 300, MU = 100, SD = 20, DAYS = 10;
+var SHOPS = [
+  {q:80,  nm:"ひかえめなお店", ds:"80個"},
+  {q:95,  nm:"ちょうどいいお店", ds:"95個（計算で一番もうかる数）"},
+  {q:147, nm:"品切れさせないお店", ds:"147個（100日に1日しか足りなくならない）"}
+];
+var q = 100, running = false, timer = null;
+var $ = function(id){ return document.getElementById(id); };
+function yen(v){ return (v<0?"−":"") + Math.abs(Math.round(v)).toLocaleString("ja-JP"); }
+function normal(){ var u = 1-Math.random(), v = Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function day(q, d){ var sold = Math.min(q, d); return {sold:sold, waste:q-sold, lost:d-sold, profit:P*sold - C*q}; }
+function total(q, ds){ var t = {waste:0, lost:0, profit:0}; ds.forEach(function(d){ var r = day(q,d); t.waste+=r.waste; t.lost+=r.lost; t.profit+=r.profit; }); return t; }
+
+var daysEl = $("days");
+for (var i=0;i<DAYS;i++){ var c = document.createElement("div"); c.className = "day"; c.innerHTML = (i+1) + "日目"; daysEl.appendChild(c); }
+
+function setQ(v){
+  q = Math.max(50, Math.min(160, v));
+  $("qv").innerHTML = q + "<small>個</small>";
+  var d = q - MU;
+  $("hint").textContent = d === 0 ? "毎日この数を仕入れます。平均と同じ数です。" : "毎日この数を仕入れます。平均より " + Math.abs(d) + "個 " + (d>0 ? "多め" : "少なめ") + "です。";
+}
+$("minus").addEventListener("click", function(){ if(!running) setQ(q-5); });
+$("plus").addEventListener("click", function(){ if(!running) setQ(q+5); });
+
+function lock(on){ running = on; $("go").disabled = on; $("minus").disabled = on; $("plus").disabled = on; }
+
+$("go").addEventListener("click", function(){
+  if (running) return;
+  var ds = []; for (var i=0;i<DAYS;i++) ds.push(Math.max(0, Math.round(MU + SD*normal())));
+  var cells = daysEl.children, k = 0, tw = 0, tl = 0, tp = 0;
+  Array.prototype.forEach.call(cells, function(c,i){ c.className = "day"; c.innerHTML = (i+1) + "日目"; });
+  $("cmp").classList.remove("show");
+  ["sW","sL","sP"].forEach(function(id){ $(id).textContent = "—"; });
+  lock(true);
+  function step(){
+    var r = day(q, ds[k]), c = cells[k];
+    if (r.waste > 0){ c.className = "day w"; c.innerHTML = "捨てた<b>" + r.waste + "</b>個"; }
+    else if (r.lost > 0){ c.className = "day s"; c.innerHTML = "足りない<b>" + r.lost + "</b>人"; }
+    else { c.className = "day e"; c.innerHTML = "<b>ぴったり</b>"; }
+    tw += r.waste; tl += r.lost; tp += r.profit;
+    $("sW").innerHTML = tw + "<small>個</small>";
+    $("sL").innerHTML = tl + "<small>人</small>";
+    $("sP").innerHTML = yen(tp) + "<small>円</small>";
+    k++;
+    if (k >= DAYS){ clearInterval(timer); timer = null; lock(false); showCompare(ds); }
+  }
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce){ while (k < DAYS) step(); } else { timer = setInterval(step, 280); }
+});
+
+function showCompare(ds){
+  var list = [{q:q, nm:"あなたのお店", ds:q + "個", you:true}].concat(SHOPS).map(function(s){ var t = total(s.q, ds); t.s = s; return t; });
+  var best = list.reduce(function(a,b){ return b.profit > a.profit ? b : a; });
+  $("shops").innerHTML = list.map(function(t){
+    return '<div class="shop' + (t.s.you ? ' you' : '') + (t === best ? ' top1' : '') + '">'
+      + '<div class="nm"><b>' + t.s.nm + (t === best ? '（一番もうかった）' : '') + '</b><span>毎日 ' + t.s.ds + '</span></div>'
+      + '<div class="c w"><span>捨てた</span><b>' + t.waste + '個</b></div>'
+      + '<div class="c s"><span>買えなかった</span><b>' + t.lost + '人</b></div>'
+      + '<div class="c g"><span>もうけ</span><b>' + yen(t.profit) + '円</b></div></div>';
+  }).join("");
+  $("cmp").classList.add("show");
+}
+setQ(100);
+})();
+</script>
+</body>
+</html>
