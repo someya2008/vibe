@@ -69,8 +69,9 @@ button{font:inherit;cursor:pointer}
 .menu{
   position:absolute;right:0;top:calc(100% + 8px);z-index:80;min-width:230px;
   background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px;display:grid;gap:2px;
-  box-shadow:0 12px 30px rgba(120,90,30,.18);animation:fadein .15s ease;
+  box-shadow:0 12px 30px rgba(120,90,30,.18);animation:menuin .15s ease;
 }
+@keyframes menuin{from{opacity:0}to{opacity:1}}
 .menu button{border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:10px;font-size:16px;font-weight:700;color:var(--ink);white-space:nowrap}
 .menu button:hover{background:#f4efe3}
 .menu button[aria-checked="true"]{background:#eef8f2;color:var(--accent-deep)}
