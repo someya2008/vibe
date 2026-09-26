@@ -65,6 +65,17 @@ button{font:inherit;cursor:pointer}
 .tbtn[aria-pressed="true"]{color:var(--accent-deep);border-color:var(--accent);background:#eef8f2}
 .tbtn:hover{transform:translateY(-1px)}
 
+.menuwrap{position:relative}
+.menu{
+  position:absolute;right:0;top:calc(100% + 8px);z-index:80;min-width:230px;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px;display:grid;gap:2px;
+  box-shadow:0 12px 30px rgba(120,90,30,.18);animation:fadein .15s ease;
+}
+.menu button{border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:10px;font-size:16px;font-weight:700;color:var(--ink);white-space:nowrap}
+.menu button:hover{background:#f4efe3}
+.menu button[aria-checked="true"]{background:#eef8f2;color:var(--accent-deep)}
+.menu button[aria-checked="true"]::after{content:" ✓";color:var(--accent)}
+
 /* ---------- screens ---------- */
 .screen{display:none;animation:fadein .35s ease}
 .screen.on{display:grid;gap:18px}
@@ -233,7 +244,15 @@ footer a{color:var(--accent-deep)}
     <div class="brand"><span class="logo">🍙</span>もったいないクイズ</div>
     <div class="tools">
       <button class="tbtn" id="btnSe" aria-pressed="true" title="効果音">🔔<span>効果音</span></button>
-      <button class="tbtn" id="btnBgm" aria-pressed="true" title="音楽">🎵<span>音楽</span></button>
+      <div class="menuwrap">
+        <button class="tbtn" id="btnBgm" aria-pressed="true" aria-haspopup="menu" aria-expanded="false" title="音楽をえらぶ">🎵<span>音楽</span></button>
+        <div class="menu" id="bgmMenu" role="menu" hidden>
+          <button role="menuitemradio" data-t="uke">🎸 ウクレレ</button>
+          <button role="menuitemradio" data-t="jazz">☕ カフェジャズ</button>
+          <button role="menuitemradio" data-t="auto">🔀 おまかせ（ラウンドごと）</button>
+          <button role="menuitemradio" data-t="off">🔇 音楽を止める</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -652,16 +671,29 @@ const Sound = (() => {
     },
     setSe(on){ seOn = on; LS.set("se", on); if (seGain) seGain.gain.value = on ? 1 : 0; },
     setBgm(on){ bgmOn = on; LS.set("bgm", on); if (!on) api.stopBgm(); label(); },
-    _debug(){ const a = curKey && audios[curKey]; return { curKey, useSynth, synth: bgmPlaying, playing: !!(a && !a.paused), volume: a ? a.volume : null, duration: a ? a.duration : null }; },
+    _debug(){ const a = curKey && audios[curKey]; return { curKey, useSynth, synth: bgmPlaying, playing: !!(a && !a.paused), volume: a ? a.volume : null, duration: a ? a.duration : null, othersPlaying: Object.keys(audios).filter(k => k !== curKey && !audios[k].paused) }; },
     get track(){ return trackPref; },
-    setTrack(t){ trackPref = t; LS.set("track", t); if (bgmOn && t !== "auto") api.startBgm(); },
+    // 曲の設定を変える。ON なら即座にその曲へ切りかえる（おまかせは今の曲を維持、未再生なら選ぶ）
+    setTrack(t){ trackPref = t; LS.set("track", t); if (bgmOn) switchTo(t === "auto" ? (curKey || pickKey()) : t); },
     get failed(){ return useSynth; },
     // ラウンド開始時に呼ぶ：曲を（必要なら新しく）選んで再生
+    // ラウンド開始時（newRound=true）は設定にしたがって曲を選び直す。それ以外は今の曲を続ける
     startBgm(newRound = false){
       if (!bgmOn) return;
-      if (useSynth) { synthStart(); return; }
-      let key = curKey;
-      if (newRound || !key) key = (trackPref === "auto") ? pickKey() : trackPref;
+      const pref = () => (trackPref === "auto" ? pickKey() : trackPref);
+      switchTo(newRound ? pref() : (curKey || pref()));
+    },
+    stopBgm(){
+      Object.values(audios).forEach(a => { if (!a.paused) fade(a, 0, 500, () => a.pause()); });
+      synthStop();
+    },
+    pauseBgm(){ Object.values(audios).forEach(a => { if (!a.paused) a.pause(); }); synthStop(); },
+    resumeBgm(){ if (!bgmOn) return; if (useSynth) { synthStart(); return; } if (curKey && audios[curKey]) { const a = audios[curKey]; a.volume = BGM_VOL; const p = a.play(); if (p && p.catch) p.catch(() => {}); } },
+  };
+  // 指定した曲へ切りかえて再生する（別の曲が鳴っていればクロスフェード）
+  function switchTo(key){
+      if (!bgmOn) return;
+      if (useSynth) { curKey = key; label(); synthStart(); return; }
       if (key !== curKey && curKey && audios[curKey]) { const old = audios[curKey]; fade(old, 0, 700, () => old.pause()); }
       curKey = key; label();
       const a = audioFor(key);
@@ -673,14 +705,7 @@ const Sound = (() => {
         else if (err && err.name !== "AbortError") { useSynth = true; label(); toast("BGM ファイルを再生できないため、かんたんな合成音楽で代用します。"); synthStart(); }
       });
       fade(a, BGM_VOL, 1200);
-    },
-    stopBgm(){
-      Object.values(audios).forEach(a => { if (!a.paused) fade(a, 0, 500, () => a.pause()); });
-      synthStop();
-    },
-    pauseBgm(){ Object.values(audios).forEach(a => { if (!a.paused) a.pause(); }); synthStop(); },
-    resumeBgm(){ if (!bgmOn) return; if (useSynth) { synthStart(); return; } if (curKey && audios[curKey]) { const a = audios[curKey]; a.volume = BGM_VOL; const p = a.play(); if (p && p.catch) p.catch(() => {}); } },
-  };
+  }
   // ---- 合成 BGM（mp3 が使えないときの予備）----
   function synthStart(){
       if (!bgmOn || !ensure() || bgmPlaying) return;
@@ -922,12 +947,7 @@ $("#btnNext").addEventListener("click", next);
 $("#btnAgain").addEventListener("click", start);
 $("#btnTitle").addEventListener("click", () => { Sound.click(); show("#s-title"); refreshTitle(); });
 $("#btnQuit").addEventListener("click", () => { Sound.click(); clearTimeout(G.explTimer); returnUnseen(); show("#s-title"); refreshTitle(); });
-$("#segBgm").addEventListener("click", e => {
-  const b = e.target.closest("button"); if (!b) return;
-  Sound.unlock(); Sound.click();
-  Sound.setTrack(b.dataset.t);
-  $("#segBgm").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
-});
+$("#segBgm").addEventListener("click", e => { const b = e.target.closest("button"); if (b) chooseBgm(b.dataset.t); });
 $("#segN").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   Sound.unlock(); Sound.click();
@@ -936,10 +956,23 @@ $("#segN").addEventListener("click", e => {
   LS.set("n", G.n); refreshTitle();
 });
 $("#btnSe").addEventListener("click", e => { const on = !Sound.seOn; Sound.unlock(); Sound.setSe(on); e.currentTarget.setAttribute("aria-pressed", on); if (on) Sound.click(); });
-$("#btnBgm").addEventListener("click", () => {
-  const on = !Sound.bgmOn; Sound.unlock(); Sound.setBgm(on);
-  if (on) Sound.startBgm();
-});
+// 音楽の設定 UI（ヘッダーのメニュー／タイトル画面の選択）を同じ状態にそろえる
+function syncBgmUI(){
+  $("#segBgm").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.t === Sound.track));
+  $("#bgmMenu").querySelectorAll("button").forEach(x => x.setAttribute("aria-checked", Sound.bgmOn ? x.dataset.t === Sound.track : x.dataset.t === "off"));
+}
+function chooseBgm(t){
+  Sound.unlock(); Sound.click();
+  if (t === "off") Sound.setBgm(false);
+  else { if (!Sound.bgmOn) Sound.setBgm(true); Sound.setTrack(t); }
+  syncBgmUI();
+}
+const bgmMenu = $("#bgmMenu");
+function toggleMenu(open){ const o = open ?? bgmMenu.hidden; bgmMenu.hidden = !o; $("#btnBgm").setAttribute("aria-expanded", o); }
+$("#btnBgm").addEventListener("click", e => { e.stopPropagation(); Sound.unlock(); toggleMenu(); });
+bgmMenu.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; e.stopPropagation(); chooseBgm(b.dataset.t); toggleMenu(false); });
+document.addEventListener("click", () => { if (!bgmMenu.hidden) toggleMenu(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !bgmMenu.hidden) toggleMenu(false); });
 document.addEventListener("keydown", e => {
   if (!$("#s-quiz").classList.contains("on")) return;
   const k = e.key.toUpperCase();
@@ -954,8 +987,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) Sound
 (function init(){
   G.n = LS.get("n", 10);
   $("#segN").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.n === G.n));
-  $("#btnSe").setAttribute("aria-pressed", Sound.seOn); Sound.setBgm(Sound.bgmOn);
-  $("#segBgm").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.t === Sound.track));
+  $("#btnSe").setAttribute("aria-pressed", Sound.seOn); Sound.setBgm(Sound.bgmOn); syncBgmUI();
   refreshTitle();
   // データの健全性チェック（選択肢は必ず4つ・重複なし）
   QUESTIONS.forEach((q, i) => { if (q.c.length !== 4 || new Set(q.c).size !== 4) console.warn("選択肢の数がおかしい問題:", i, q.q); });
