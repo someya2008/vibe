@@ -619,8 +619,8 @@ class Household{
     const bought=[]; let sum=0;
     const wEff = FOODS.map(f => f.w * (f.life >= days+1 ? 1 : 0.35)); // 何日分も買うときは日持ちする物を選びがち
     const totalW = wEff.reduce((s,w)=>s+w,0);
-    let guard=0;
-    while(sum < target && guard++ < 60){
+    let guard=0; const maxIter = Math.ceil(target/100) + 5; // 最小パック 100 g なので、目標量に必ず届く回数
+    while(sum < target && guard++ < maxIter){
       let r=this.rnd()*totalW, f=FOODS[0];
       for(let i=0;i<FOODS.length;i++){ r-=wEff[i]; if(r<=0){f=FOODS[i];break;} }
       const life = Math.max(1, f.life + Math.round((this.rnd()-0.5)*2));
@@ -631,7 +631,7 @@ class Household{
       const it=this.addItem(f.k, f.pkg, f.life); bought.push(it); sum+=f.pkg;
     }
     this.tot.bought += sum; this.tot.trips++;
-    this.events.push({t:'shop', ids:bought.map(b=>b.id), g:sum, n:bought.length, checked:check});
+    this.events.push({t:'shop', ids:bought.map(b=>b.id), items:bought.map(b=>({id:b.id,k:b.k})), g:sum, n:bought.length, checked:check});
     return sum;
   }
   cook(){
@@ -796,12 +796,13 @@ class Scene{
     const seen=new Set();
     const place=(it,idx)=>{ const p=this.slotPos(it,idx); let sp=this.sprites.get(it.id);
       if(!sp){ sp={kind:it.k,x:p.x,y:p.y,s:p.s,a:1,tx:p.x,ty:p.y,ts:p.s,ta:1,spoiled:false}; this.sprites.set(it.id,sp); }
-      sp.tx=p.x; sp.ty=p.y; sp.ts=p.s; sp.ta=1; sp.hidden = it.pos==='back' && it.depth>=V; sp.back = it.pos==='back'; sp.lifeFrac=it.life/Math.max(1,it.maxLife);
+      sp.tx=p.x; sp.ty=p.y; sp.ts=p.s; sp.ta=1; sp.hidden = it.pos==='back' && it.depth>=V; sp.back = it.pos==='back'; sp.lifeFrac=it.life/Math.max(1,it.maxLife); sp.leaving=!!it.leaving;
       if(!animate){sp.x=p.x;sp.y=p.y;sp.s=p.s;sp.a=1;} seen.add(it.id); };
     fi.forEach(place); bi.forEach((it,i)=>place(it,i));
-    for(const [id,sp] of this.sprites){ if(!seen.has(id) && !sp.leaving) this.sprites.delete(id); }
+    for(const id of this.sprites.keys()){ if(!seen.has(id)) this.sprites.delete(id); }
   }
   after(ms, fn){ this.timers.push({at:this.t+ms, fn}); }
+  flush(){ this.timers=[]; const fl=this.flyers; this.flyers=[]; fl.forEach(f=>{ f.onDone&&f.onDone(); }); this.bag=0; }
   fly(kind, from, to, dur, opts={}){ this.flyers.push(Object.assign({kind,from,to,t0:this.t,dur,s:opts.s||56,arc:opts.arc??-90,onDone:opts.onDone,spoiled:opts.spoiled,shrink:opts.shrink},{})); }
   puff(x,y,color,n=10,spread=2.2){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, v=Math.random()*spread; this.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1.5,life:1,decay:.02+Math.random()*.02,r:2+Math.random()*3,color}); } }
   // --- 1日のイベントをアニメーションに変換 ---
@@ -812,16 +813,16 @@ class Scene{
     for(const ev of events){
       if(ev.t==='shop'){
         this.after(t, ()=>{ this.bag=1; this.bagT=this.t; });
-        ev.ids.forEach((id,i)=>{ this.after(t+120+i*stagger, ()=>{ const it=h.items.find(x=>x.id===id); if(!it) return; const sp=this.sprites.get(id); if(sp){ sp.a=0; }
-          this.fly(it.k,{x:BAG.x,y:BAG.y-30},{x:sp?sp.tx:300,y:sp?sp.ty:300},Math.max(260,T*.18),{s:60,arc:-120,onDone:()=>{ if(sp){sp.a=1;} }}); }); });
-        t += 120 + ev.ids.length*stagger + T*.12;
+        ev.items.forEach((b,i)=>{ this.after(t+120+i*stagger, ()=>{ const sp=this.sprites.get(b.id); if(sp){ sp.a=0; }
+          this.fly(b.k,{x:BAG.x,y:BAG.y-30},{x:sp?sp.tx:300,y:sp?sp.ty:300},Math.max(260,T*.18),{s:60,arc:-120,onDone:()=>{ if(sp){sp.a=1;} }}); }); });
+        t += 120 + ev.items.length*stagger + T*.12;
         this.after(t, ()=>{ this.bag=0; });
       }
       else if(ev.t==='cook'){
         const t0=t;
-        ev.used.forEach((u,i)=>{ this.after(t0+i*stagger, ()=>{ const sp=this.sprites.get(u.id); const from=sp?{x:sp.x,y:sp.y}:{x:200,y:300};
-          this.fly(u.k,from,{x:POT.x,y:POT.y-30},Math.max(280,T*.2),{s:sp?sp.s:50,arc:-70,shrink:true,onDone:()=>{ this.steam=1.2; if(FOOD_BY[u.k]&&FOOD_BY[u.k].veg&&h.p.T>0){ this.puff(POT.x+40,POT.y+10,'#7fe3bb',4,1.4); } }});
-          if(u.gone && sp){ sp.leaving=true; this.after(Math.max(280,T*.2), ()=>{ this.sprites.delete(u.id); }); } }); });
+        ev.used.forEach((u,i)=>{ this.after(t0+i*stagger, ()=>{ const sp=this.sprites.get(u.id); const from=sp?{x:sp.x,y:sp.y}:{x:FRONT_X[0],y:SHELF_Y[0]-34};
+          if(u.gone && sp){ sp.a=0; sp.ta=0; }
+          this.fly(u.k,from,{x:POT.x,y:POT.y-30},Math.max(280,T*.2),{s:sp?sp.s:50,arc:-70,shrink:true,onDone:()=>{ this.steam=1.2; if(u.gone) this.sprites.delete(u.id); if(FOOD_BY[u.k]&&FOOD_BY[u.k].veg&&h.p.T>0){ this.puff(POT.x+40,POT.y+10,'#7fe3bb',4,1.4); } }}); }); });
         t += ev.used.length*stagger + T*.28;
         if(ev.trim>0) this.after(t-T*.1, ()=>{ this.fly('trim',{x:POT.x+30,y:POT.y+20},{x:BIN.x+BIN.w/2,y:BIN.y},Math.max(240,T*.15),{s:20,arc:20,onDone:()=>{this.puff(BIN.x+BIN.w/2,BIN.y+6,COL.trim,8);}}); });
         if(ev.dumpedLeft>0) this.after(t, ()=>{ this.fly('plate',{x:POT.x,y:POT.y-10},{x:BIN.x+BIN.w/2,y:BIN.y},Math.max(300,T*.18),{s:40,arc:-40,onDone:()=>{this.puff(BIN.x+BIN.w/2,BIN.y+6,COL.eat,12);}}); });
@@ -829,7 +830,7 @@ class Scene{
         t += T*.12;
       }
       else if(ev.t==='spoil'){
-        ev.gone.forEach((g,i)=>{ this.after(t+i*stagger, ()=>{ const sp=this.sprites.get(g.id); const from=sp?{x:sp.x,y:sp.y}:{x:200,y:300}; if(sp){ sp.spoiled=true; sp.leaving=true; }
+        ev.gone.forEach((g,i)=>{ this.after(t+i*stagger, ()=>{ const sp=this.sprites.get(g.id); const from=sp?{x:sp.x,y:sp.y}:{x:FRONT_X[0],y:SHELF_Y[0]-34}; if(sp){ sp.spoiled=true; sp.leaving=true; }
           this.after(160, ()=>{ if(sp) sp.a=0; this.fly(g.k,from,{x:BIN.x+BIN.w/2,y:BIN.y},Math.max(320,T*.2),{s:sp?sp.s:50,arc:-60,spoiled:true,shrink:true,onDone:()=>{ this.puff(BIN.x+BIN.w/2,BIN.y+6,g.k==='leftover'?COL.eat:COL.dump,14); this.sprites.delete(g.id); }}); }); }); });
         t += ev.gone.length*stagger + T*.25;
       }
@@ -839,7 +840,7 @@ class Scene{
   frame(ts){
     const dt=Math.min(50, ts-this.lastTs); this.lastTs=ts; this.t+=dt;
     // timers
-    this.timers=this.timers.filter(tm=>{ if(this.t>=tm.at){ tm.fn(); return false; } return true; });
+    const due=[]; this.timers=this.timers.filter(tm=>{ if(this.t>=tm.at){ due.push(tm); return false; } return true; }); due.forEach(tm=>tm.fn()); // 実行中に登録される入れ子のタイマーを失わない
     // tween sprites
     const k=1-Math.pow(0.001, dt/600);
     for(const sp of this.sprites.values()){ sp.x=lerp(sp.x,sp.tx,k); sp.y=lerp(sp.y,sp.ty,k); sp.s=lerp(sp.s,sp.ts,k); sp.a=lerp(sp.a,sp.ta,k*1.5); }
@@ -952,11 +953,18 @@ function stop(){ playing=false; $('#play').textContent='▶ 再生'; clearTimeou
 function stepDay(animate=true){
   if(!H0) resetSim();
   if(H0.day>=DAYS){ stop(); $('#phase').textContent='60日 終了'; return; }
+  const before=H0.items.map(it=>Object.assign({},it));
   const rec=H0.step(); const dayMs = speed===0?0:1700/speed;
   $('#dayN').textContent=H0.day;
   const ev=H0.events;
   if(animate && speed>0){
-    scene.sync(H0.items, H0.p.V, true);
+    // その日に使い切られた・期限切れになった食材も、アニメーションが終わるまでスプライトを残す
+    const cur=new Set(H0.items.map(i=>i.id));
+    const removed=before.filter(i=>!cur.has(i.id)).map(i=>Object.assign({},i,{leaving:true}));
+    const shopEv=ev.find(e=>e.t==='shop');
+    const boughtGone=shopEv?shopEv.items.filter(b=>!cur.has(b.id)&&!removed.some(r=>r.id===b.id)).map(b=>({id:b.id,k:b.k,pos:'front',depth:0,life:1,maxLife:1,age:0,leaving:true})):[];
+    scene.flush(); // 前日のアニメーションが残っていれば終わらせる
+    scene.sync([...H0.items, ...removed, ...boughtGone], H0.p.V, true);
     const ph=ev.find(e=>e.t==='shop')?'買い物 → 調理':'調理'; $('#phase').textContent=ph;
     const len=scene.playDay(H0, ev, dayMs, H0.p.V);
     dayBusyUntil=scene.t+len;
@@ -1018,7 +1026,8 @@ SLIDERS.forEach(k=>{ $('#'+k).addEventListener('input',()=>{ updateOutputs(); if
 $('#play').addEventListener('click',()=>{ if(!H0||H0.day>=DAYS) resetSim(); if(playing){ stop(); } else { playing=true; $('#play').textContent='❚❚ 一時停止'; if(speed===0){ runAll(); stop(); } else stepDay(true); } });
 $('#stepBtn').addEventListener('click',()=>{ stop(); if(!H0||H0.day>=DAYS) resetSim(); stepDay(true); });
 $('#resetBtn').addEventListener('click',resetSim);
-$('#speed').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; [...$('#speed').children].forEach(x=>x.setAttribute('aria-pressed',x===b)); speed=+b.dataset.v; });
+$('#speed').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; [...$('#speed').children].forEach(x=>x.setAttribute('aria-pressed',x===b)); speed=+b.dataset.v;
+  if(speed===0 && playing){ runAll(); stop(); } });
 document.querySelectorAll('.presets button').forEach(b=>b.addEventListener('click',()=>{ const p=JSON.parse(b.dataset.p); for(const k in p) $('#'+k).value=p[k]; updateOutputs(); resetSim(); logLine('👪',`「${b.firstChild.textContent}」の家庭にしました。▶ で始めます。`); }));
 
 // ---- タブ ----
