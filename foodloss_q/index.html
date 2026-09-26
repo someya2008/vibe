@@ -244,6 +244,12 @@ footer a{color:var(--accent-deep)}
           <button data-n="20" aria-pressed="false">20問</button>
           <button data-n="50" aria-pressed="false">全50問</button>
         </div>
+        <div class="lbl">BGM</div>
+        <div class="seg" id="segBgm" role="group" aria-label="BGM">
+          <button data-t="uke" aria-pressed="false">🎸 ウクレレ</button>
+          <button data-t="jazz" aria-pressed="false">☕ カフェジャズ</button>
+          <button data-t="auto" aria-pressed="true">🔀 おまかせ</button>
+        </div>
       </div>
       <button class="big" id="btnStart">スタート！</button>
       <div class="howto">
@@ -308,6 +314,7 @@ footer a{color:var(--accent-deep)}
 
   <footer>
     数値は農林水産省・消費者庁・環境省・FAO・UNEP などの公表資料にもとづきます（各解説に出典を記載）。
+    BGM は Suno で制作（Pro プラン）。効果音はブラウザ内で合成。
     姉妹アプリ：<a href="../foodloss/index.html">品切れか廃棄か</a>
   </footer>
 </div>
@@ -537,12 +544,42 @@ const LV = { 1: { name: "やさしい", pts: 100 }, 2: { name: "ふつう", pts:
 const KEYS = ["A", "B", "C", "D"];
 
 /* =========================================================
-   サウンド（Web Audio で合成。外部ファイル不要）
+   サウンド
+   効果音: Web Audio で合成（外部ファイル不要）
+   BGM   : bgm/ の mp3 を 2 曲（読み込めない場合は合成 BGM に自動で切りかえ）
    ========================================================= */
+const TRACKS = {
+  uke:  { file: "bgm/counting_with_a_ukulele.mp3", name: "ウクレレ" },
+  jazz: { file: "bgm/cafe_jazz_hop.mp3",           name: "カフェジャズ" },
+};
+const BGM_VOL = 0.35;
 const Sound = (() => {
   let ctx = null, master = null, seGain = null, bgmGain = null;
   let seOn = LS.get("se", true), bgmOn = LS.get("bgm", true);
-  let bgmTimer = null, bgmStep = 0, bgmNext = 0, bgmPlaying = false;
+  let bgmTimer = null, bgmStep = 0, bgmNext = 0, bgmPlaying = false; // 合成 BGM 用
+  let trackPref = LS.get("track", "auto");   // "uke" | "jazz" | "auto"
+  const audios = {};                          // key -> HTMLAudioElement
+  let curKey = null, fades = new Map(), useSynth = false;
+  function audioFor(key){
+    if (audios[key]) return audios[key];
+    const a = new Audio(TRACKS[key].file);
+    a.loop = true; a.preload = "auto"; a.volume = 0;
+    a.addEventListener("error", () => { console.warn("BGM を読み込めません:", TRACKS[key].file); if (curKey === key) { useSynth = true; if (bgmOn) synthStart(); } });
+    audios[key] = a; return a;
+  }
+  // 音量をなめらかに変える（終わったら onDone）
+  function fade(a, to, ms, onDone){
+    clearInterval(fades.get(a));
+    const from = a.volume, t0 = performance.now();
+    const id = setInterval(() => {
+      const p = Math.min(1, (performance.now() - t0) / ms);
+      a.volume = from + (to - from) * p;
+      if (p >= 1) { clearInterval(id); fades.delete(a); onDone && onDone(); }
+    }, 40);
+    fades.set(a, id);
+  }
+  function pickKey(){ return trackPref === "auto" ? (Math.random() < 0.5 ? "uke" : "jazz") : trackPref; }
+  function label(){ const el = $("#btnBgm span"); if (el) el.textContent = bgmOn && curKey ? TRACKS[curKey].name : "音楽"; }
 
   function ensure(){
     if (ctx) { if (ctx.state === "suspended") ctx.resume(); return true; }
@@ -590,21 +627,45 @@ const Sound = (() => {
       [N.E6].forEach(f => tone(f, t + 1.3, 1.2, { type: "sine", vol: 0.08 }));
     },
     setSe(on){ seOn = on; LS.set("se", on); if (seGain) seGain.gain.value = on ? 1 : 0; },
-    setBgm(on){ bgmOn = on; LS.set("bgm", on); if (on) api.startBgm(); else api.stopBgm(); },
-    startBgm(){
+    setBgm(on){ bgmOn = on; LS.set("bgm", on); if (!on) api.stopBgm(); label(); },
+    _debug(){ const a = curKey && audios[curKey]; return { curKey, useSynth, synth: bgmPlaying, playing: !!(a && !a.paused), volume: a ? a.volume : null, duration: a ? a.duration : null }; },
+    get track(){ return trackPref; },
+    setTrack(t){ trackPref = t; LS.set("track", t); },
+    // ラウンド開始時に呼ぶ：曲を（必要なら新しく）選んで再生
+    startBgm(newRound = false){
+      if (!bgmOn) return;
+      if (useSynth) { synthStart(); return; }
+      let key = curKey;
+      if (newRound || !key) key = (trackPref === "auto") ? pickKey() : trackPref;
+      if (key !== curKey && curKey && audios[curKey]) { const old = audios[curKey]; fade(old, 0, 700, () => old.pause()); }
+      curKey = key; label();
+      const a = audioFor(key);
+      if (!a.paused && a.volume > 0) { fade(a, BGM_VOL, 400); return; }
+      const p = a.play();
+      if (p && p.catch) p.catch(err => { console.warn("BGM を再生できません:", err && err.message); if (err && err.name !== "NotAllowedError") { useSynth = true; synthStart(); } });
+      fade(a, BGM_VOL, 1200);
+    },
+    stopBgm(){
+      Object.values(audios).forEach(a => { if (!a.paused) fade(a, 0, 500, () => a.pause()); });
+      synthStop();
+    },
+    pauseBgm(){ Object.values(audios).forEach(a => { if (!a.paused) a.pause(); }); synthStop(); },
+    resumeBgm(){ if (!bgmOn) return; if (useSynth) { synthStart(); return; } if (curKey && audios[curKey]) { const a = audios[curKey]; a.volume = BGM_VOL; const p = a.play(); if (p && p.catch) p.catch(() => {}); } },
+  };
+  // ---- 合成 BGM（mp3 が使えないときの予備）----
+  function synthStart(){
       if (!bgmOn || !ensure() || bgmPlaying) return;
       bgmPlaying = true; bgmStep = 0; bgmNext = ctx.currentTime + 0.1;
       bgmGain.gain.cancelScheduledValues(ctx.currentTime);
       bgmGain.gain.setValueAtTime(0, ctx.currentTime);
       bgmGain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 1.2);
       bgmTimer = setInterval(schedule, 120);
-    },
-    stopBgm(){
+  }
+  function synthStop(){
       if (!bgmPlaying) return;
       bgmPlaying = false; clearInterval(bgmTimer);
       const t = ctx.currentTime; bgmGain.gain.cancelScheduledValues(t); bgmGain.gain.setValueAtTime(bgmGain.gain.value, t); bgmGain.gain.linearRampToValueAtTime(0, t + 0.5);
-    }
-  };
+  }
   // ゆったりしたペンタトニックのループ（8分音符、112BPM、4小節）
   const STEP = 60 / 112 / 2;
   const MEL = [
@@ -686,7 +747,7 @@ function drawQuestions(n){
 }
 
 function start(){
-  Sound.unlock(); Sound.click(); Sound.startBgm();
+  Sound.unlock(); Sound.click(); Sound.startBgm(true);
   Object.assign(G, { list: drawQuestions(G.n), i: 0, score: 0, correct: 0, streak: 0, maxStreak: 0, log: [], locked: false, lv3ok: 0, lv3n: 0 });
   $("#qTotal").textContent = G.n; $("#score").textContent = 0; updateCombo();
   show("#s-quiz"); render();
@@ -828,6 +889,12 @@ $("#btnNext").addEventListener("click", next);
 $("#btnAgain").addEventListener("click", start);
 $("#btnTitle").addEventListener("click", () => { Sound.click(); show("#s-title"); refreshTitle(); });
 $("#btnQuit").addEventListener("click", () => { Sound.click(); Sound.stopBgm(); show("#s-title"); refreshTitle(); });
+$("#segBgm").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  Sound.unlock(); Sound.click();
+  Sound.setTrack(b.dataset.t);
+  $("#segBgm").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+});
 $("#segN").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   Sound.unlock(); Sound.click();
@@ -836,7 +903,10 @@ $("#segN").addEventListener("click", e => {
   LS.set("n", G.n); refreshTitle();
 });
 $("#btnSe").addEventListener("click", e => { const on = !Sound.seOn; Sound.unlock(); Sound.setSe(on); e.currentTarget.setAttribute("aria-pressed", on); if (on) Sound.click(); });
-$("#btnBgm").addEventListener("click", e => { const on = !Sound.bgmOn; Sound.unlock(); Sound.setBgm(on); e.currentTarget.setAttribute("aria-pressed", on); });
+$("#btnBgm").addEventListener("click", e => {
+  const on = !Sound.bgmOn; Sound.unlock(); Sound.setBgm(on); e.currentTarget.setAttribute("aria-pressed", on);
+  if (on && !$("#s-title").classList.contains("on")) Sound.startBgm();
+});
 document.addEventListener("keydown", e => {
   if (!$("#s-quiz").classList.contains("on")) return;
   const k = e.key.toUpperCase();
@@ -845,13 +915,14 @@ document.addEventListener("keydown", e => {
   else if (G.locked && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); next(); }
 });
 // 画面が隠れたら音楽を止める（タブ切りかえ・スリープ対策）
-document.addEventListener("visibilitychange", () => { if (document.hidden) Sound.stopBgm(); else if (Sound.bgmOn && !$("#s-title").classList.contains("on")) Sound.startBgm(); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) Sound.pauseBgm(); else if (!$("#s-title").classList.contains("on")) Sound.resumeBgm(); });
 
 /* ---------- 初期化 ---------- */
 (function init(){
   G.n = LS.get("n", 10);
   $("#segN").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.n === G.n));
   $("#btnSe").setAttribute("aria-pressed", Sound.seOn); $("#btnBgm").setAttribute("aria-pressed", Sound.bgmOn);
+  $("#segBgm").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.t === Sound.track));
   refreshTitle();
   // データの健全性チェック（選択肢は必ず4つ・重複なし）
   QUESTIONS.forEach((q, i) => { if (q.c.length !== 4 || new Set(q.c).size !== 4) console.warn("選択肢の数がおかしい問題:", i, q.q); });
