@@ -210,6 +210,12 @@ footer a{color:var(--accent-deep)}
 .flash.ok{background:rgba(47,158,109,.18);animation:flash .5s ease}
 .flash.ng{background:rgba(232,83,63,.18);animation:flash .5s ease}
 @keyframes flash{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.toast{
+  position:fixed;left:50%;bottom:18px;transform:translate(-50%,20px);z-index:70;max-width:min(92vw,560px);
+  background:#2b2a26;color:#fff;border-radius:14px;padding:12px 18px;font-size:16px;line-height:1.5;box-shadow:0 10px 30px rgba(0,0,0,.25);
+  opacity:0;transition:.3s;pointer-events:none;
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
 .float{
   position:fixed;z-index:60;pointer-events:none;font-family:var(--display);font-weight:900;font-size:34px;color:var(--sun-deep);
   text-shadow:0 2px 0 #fff;animation:floatup 1s ease forwards;
@@ -321,6 +327,7 @@ footer a{color:var(--accent-deep)}
 </div>
 <canvas id="fx"></canvas>
 <div class="flash" id="flash"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* =========================================================
@@ -565,7 +572,10 @@ const Sound = (() => {
     if (audios[key]) return audios[key];
     const a = new Audio(TRACKS[key].file);
     a.loop = true; a.preload = "auto"; a.volume = 0;
-    a.addEventListener("error", () => { console.warn("BGM を読み込めません:", TRACKS[key].file); if (curKey === key) { useSynth = true; if (bgmOn) synthStart(); } });
+    a.addEventListener("error", () => {
+      console.warn("BGM を読み込めません:", TRACKS[key].file, a.error && a.error.code);
+      if (curKey === key) { useSynth = true; label(); toast("BGM ファイル（bgm/ フォルダの mp3）を読み込めないため、かんたんな合成音楽で代用します。"); if (bgmOn) synthStart(); }
+    });
     audios[key] = a; return a;
   }
   // 音量をなめらかに変える（終わったら onDone）
@@ -580,7 +590,20 @@ const Sound = (() => {
     fades.set(a, id);
   }
   function pickKey(){ return trackPref === "auto" ? (Math.random() < 0.5 ? "uke" : "jazz") : trackPref; }
-  function label(){ const el = $("#btnBgm span"); if (el) el.textContent = bgmOn && curKey ? TRACKS[curKey].name : "音楽"; }
+  function label(){
+    const btn = $("#btnBgm"); if (!btn) return;
+    btn.setAttribute("aria-pressed", bgmOn);
+    btn.innerHTML = bgmOn ? `🎵<span>${curKey && !useSynth ? TRACKS[curKey].name : "音楽 ON"}</span>` : `🔇<span>音楽 OFF</span>`;
+  }
+  let toastTimer = null;
+  function toast(msg, ms = 4500){ const t = $("#toast"); if (!t) return; t.textContent = msg; t.classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), ms); }
+  // 自動再生がブロックされたときは、次のタップ／キー操作で再試行する
+  let retryArmed = false;
+  function armRetry(){
+    if (retryArmed) return; retryArmed = true;
+    const h = () => { retryArmed = false; document.removeEventListener("pointerdown", h, true); document.removeEventListener("keydown", h, true); if (bgmOn) api.startBgm(); };
+    document.addEventListener("pointerdown", h, true); document.addEventListener("keydown", h, true);
+  }
 
   function ensure(){
     if (ctx) { if (ctx.state === "suspended") ctx.resume(); return true; }
@@ -631,7 +654,8 @@ const Sound = (() => {
     setBgm(on){ bgmOn = on; LS.set("bgm", on); if (!on) api.stopBgm(); label(); },
     _debug(){ const a = curKey && audios[curKey]; return { curKey, useSynth, synth: bgmPlaying, playing: !!(a && !a.paused), volume: a ? a.volume : null, duration: a ? a.duration : null }; },
     get track(){ return trackPref; },
-    setTrack(t){ trackPref = t; LS.set("track", t); },
+    setTrack(t){ trackPref = t; LS.set("track", t); if (bgmOn && t !== "auto") api.startBgm(); },
+    get failed(){ return useSynth; },
     // ラウンド開始時に呼ぶ：曲を（必要なら新しく）選んで再生
     startBgm(newRound = false){
       if (!bgmOn) return;
@@ -643,7 +667,11 @@ const Sound = (() => {
       const a = audioFor(key);
       if (!a.paused && a.volume > 0) { fade(a, BGM_VOL, 400); return; }
       const p = a.play();
-      if (p && p.catch) p.catch(err => { console.warn("BGM を再生できません:", err && err.message); if (err && err.name !== "NotAllowedError") { useSynth = true; synthStart(); } });
+      if (p && p.catch) p.catch(err => {
+        console.warn("BGM を再生できません:", err && err.name, err && err.message);
+        if (err && err.name === "NotAllowedError") { toast("ブラウザが音の自動再生をブロックしました。画面をもう一度タップすると再生します。"); armRetry(); }
+        else if (err && err.name !== "AbortError") { useSynth = true; label(); toast("BGM ファイルを再生できないため、かんたんな合成音楽で代用します。"); synthStart(); }
+      });
       fade(a, BGM_VOL, 1200);
     },
     stopBgm(){
@@ -893,7 +921,7 @@ $("#btnStart").addEventListener("click", start);
 $("#btnNext").addEventListener("click", next);
 $("#btnAgain").addEventListener("click", start);
 $("#btnTitle").addEventListener("click", () => { Sound.click(); show("#s-title"); refreshTitle(); });
-$("#btnQuit").addEventListener("click", () => { Sound.click(); Sound.stopBgm(); clearTimeout(G.explTimer); returnUnseen(); show("#s-title"); refreshTitle(); });
+$("#btnQuit").addEventListener("click", () => { Sound.click(); clearTimeout(G.explTimer); returnUnseen(); show("#s-title"); refreshTitle(); });
 $("#segBgm").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   Sound.unlock(); Sound.click();
@@ -908,9 +936,9 @@ $("#segN").addEventListener("click", e => {
   LS.set("n", G.n); refreshTitle();
 });
 $("#btnSe").addEventListener("click", e => { const on = !Sound.seOn; Sound.unlock(); Sound.setSe(on); e.currentTarget.setAttribute("aria-pressed", on); if (on) Sound.click(); });
-$("#btnBgm").addEventListener("click", e => {
-  const on = !Sound.bgmOn; Sound.unlock(); Sound.setBgm(on); e.currentTarget.setAttribute("aria-pressed", on);
-  if (on && !$("#s-title").classList.contains("on")) Sound.startBgm();
+$("#btnBgm").addEventListener("click", () => {
+  const on = !Sound.bgmOn; Sound.unlock(); Sound.setBgm(on);
+  if (on) Sound.startBgm();
 });
 document.addEventListener("keydown", e => {
   if (!$("#s-quiz").classList.contains("on")) return;
@@ -920,13 +948,13 @@ document.addEventListener("keydown", e => {
   else if (G.locked && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); next(); }
 });
 // 画面が隠れたら音楽を止める（タブ切りかえ・スリープ対策）
-document.addEventListener("visibilitychange", () => { if (document.hidden) Sound.pauseBgm(); else if (!$("#s-title").classList.contains("on")) Sound.resumeBgm(); });
+document.addEventListener("visibilitychange", () => { if (document.hidden) Sound.pauseBgm(); else Sound.resumeBgm(); });
 
 /* ---------- 初期化 ---------- */
 (function init(){
   G.n = LS.get("n", 10);
   $("#segN").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.n === G.n));
-  $("#btnSe").setAttribute("aria-pressed", Sound.seOn); $("#btnBgm").setAttribute("aria-pressed", Sound.bgmOn);
+  $("#btnSe").setAttribute("aria-pressed", Sound.seOn); Sound.setBgm(Sound.bgmOn);
   $("#segBgm").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.t === Sound.track));
   refreshTitle();
   // データの健全性チェック（選択肢は必ず4つ・重複なし）
