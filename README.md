@@ -6,7 +6,7 @@
 |---|---|---|
 | `foodloss/` | 品切れか廃棄か（食品ロス教材） | HTML をブラウザで開くだけ |
 | `todo/` | MyTodo（個人用 Todo 管理） | `cd todo && npm install && npm run dev` |
-| `refrigerator/` | （準備中） | — |
+| `refrigerator/` | 冷蔵庫エージェント・シミュレーション（準備中） | — |
 
 ---
 
