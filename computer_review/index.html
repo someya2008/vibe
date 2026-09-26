@@ -72,14 +72,14 @@ mark{background:#fff2a8;color:#1c2333;border-radius:4px;padding:0 3px}
 
 /* ---------- layout ---------- */
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.topbar .in{max-width:1080px;margin-inline:auto;padding:10px clamp(16px,4vw,32px);display:flex;align-items:center;gap:12px}
+.topbar .in{max-width:1480px;margin-inline:auto;padding:10px clamp(16px,4vw,32px);display:flex;align-items:center;gap:12px}
 .brand{font-family:var(--display);font-weight:900;font-size:17px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--c1),var(--c2));display:grid;place-items:center;color:#fff;font-size:16px}
 .topbar .spacer{flex:1}
 .progress-pill{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);white-space:nowrap}
 .progress-pill .bar{width:110px;height:8px;background:var(--bg2);border-radius:999px;overflow:hidden}
 .progress-pill .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c1),var(--c4));border-radius:999px;transition:width .5s}
-.page{max-width:1080px;margin-inline:auto;padding:clamp(18px,3vw,36px) clamp(16px,4vw,32px) 80px}
+.page{max-width:1480px;margin-inline:auto;padding:clamp(18px,3vw,36px) clamp(16px,4vw,32px) 80px}
 .view{animation:fadeup .35s ease both}
 @keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .grid{display:grid;gap:16px}
@@ -118,7 +118,7 @@ textarea{font-family:var(--mono);line-height:1.6}
 
 /* ---------- home ---------- */
 .hero{display:grid;gap:18px;grid-template-columns:1.2fr .8fr;align-items:center;margin-bottom:28px}
-.hero .lead{font-size:17px;color:var(--muted);max-width:40em}
+.hero .lead{font-size:17px;color:var(--muted)}
 .hero .art{justify-self:center;width:min(100%,360px)}
 @media (max-width:760px){.hero{grid-template-columns:1fr}.hero .art{width:min(100%,260px)}}
 .chapters{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
@@ -158,10 +158,12 @@ textarea{font-family:var(--mono);line-height:1.6}
 .sec .card{display:grid;gap:14px}
 .sec h2{display:flex;gap:10px;align-items:baseline}
 .sec h2 .n{font-size:14px;color:var(--accent);letter-spacing:.1em}
-.prose{max-width:46em;display:grid;gap:.75em}
+.prose{display:grid;gap:.75em}
 .prose ul,.prose ol{margin:0;padding-left:1.4em}
 .prose li{margin-block:.15em}
-.prose table{border-collapse:collapse;width:100%;font-size:14.5px}
+.prose table{border-collapse:collapse;width:100%;font-size:15px}
+.prose th,.prose td:first-child{white-space:nowrap}
+.tblwrap{overflow-x:auto;max-width:100%}
 .prose th,.prose td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
 .prose th{background:var(--paper2);font-weight:700}
 .point{border-left:5px solid var(--accent);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:12px 16px;display:grid;gap:4px}
@@ -171,7 +173,7 @@ textarea{font-family:var(--mono);line-height:1.6}
 .lab{border:2px solid var(--accent-soft);background:linear-gradient(180deg,var(--paper),var(--paper2));border-radius:16px;padding:16px;display:grid;gap:12px}
 .lab .lab-title{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:900;color:var(--accent);font-size:15px}
 .lab .lab-title::before{content:"🔬"}
-.fig{display:block;width:100%;height:auto;background:#fff;border-radius:12px}
+.fig{display:block;width:100%;max-width:860px;height:auto;background:#fff;border-radius:12px}
 .two{display:grid;gap:16px;grid-template-columns:1fr 1fr;align-items:start}
 @media (max-width:700px){.two{grid-template-columns:1fr}}
 .secfoot{display:flex;justify-content:flex-end}
@@ -187,7 +189,7 @@ textarea{font-family:var(--mono);line-height:1.6}
 .pill.warn{background:var(--warnbg);color:var(--warntx)}
 
 /* ---------- quiz ---------- */
-.quiz{max-width:760px;margin-inline:auto;display:grid;gap:16px}
+.quiz{max-width:880px;margin-inline:auto;display:grid;gap:16px}
 .qhead{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
 .qhead .bar{flex:1;height:8px;background:var(--bg2);border-radius:999px;overflow:hidden}
 .qhead .bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
@@ -301,9 +303,9 @@ footer{margin-top:40px;text-align:center;font-size:12.5px;color:var(--faint)}
 
 /* ---------- スマホ幅で横にはみ出さないための保険 ---------- */
 .sec .card>*,.prose>*,.two>*,.grid>*,.lab,.lab-body,.lab-body>*,.stack>*,.quiz>*{min-width:0}
-.prose,.prose li,.prose p,.point,.why,.expl,.review .item{overflow-wrap:anywhere}
-.prose table{display:block;overflow-x:auto;max-width:100%}
-code{white-space:normal;overflow-wrap:anywhere}
+.prose,.prose li,.prose p,.point,.why,.expl,.review .item{overflow-wrap:break-word;line-break:strict}
+
+code{white-space:nowrap}
 .readout{max-width:100%}
 
 </style>
@@ -1601,7 +1603,7 @@ function renderChapter(c){
       <span class="icon">${ICONS[c.icon]}</span>
       <div><span class="eyebrow">CHAPTER ${c.no}</span><h1>${c.title}</h1></div>
     </div>
-    <p class="muted" style="max-width:46em">${c.intro}</p>
+    <p class="muted">${c.intro}</p>
     <nav class="chnav" aria-label="この章の目次">${nav}</nav>
     ${secs}
     <div class="chend card">
@@ -1624,6 +1626,8 @@ function renderChapter(c){
     const i = +cb.dataset.sec; if(cb.checked) markVisited(c.id,i); else unmarkVisited(c.id,i);
     const a = app.querySelector(`.chnav a[data-i="${i}"]`); a.classList.toggle("done", cb.checked);
   }));
+  // 表を横スクロール可能な枠で包む（狭い画面でページ全体が横に広がらないように）
+  app.querySelectorAll(".prose table").forEach(t=>{ const w=document.createElement("div"); w.className="tblwrap"; t.replaceWith(w); w.append(t); });
   // 体験コーナーを初期化
   app.querySelectorAll("[data-widget]").forEach(el=>{
     const fn = WIDGETS[el.dataset.widget];
