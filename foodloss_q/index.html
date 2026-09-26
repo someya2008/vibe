@@ -89,8 +89,9 @@ button{font:inherit;cursor:pointer}
 }
 .opts{display:grid;gap:10px;justify-items:center}
 .opts .lbl{font-size:16px;color:var(--muted);font-weight:700}
-.seg{display:inline-flex;background:#f4efe3;border-radius:999px;padding:4px;gap:4px}
-.seg button{border:0;background:transparent;border-radius:999px;padding:10px 20px;font-weight:700;font-size:18px;color:var(--muted);transition:.15s}
+.seg{display:inline-flex;flex-wrap:wrap;justify-content:center;background:#f4efe3;border-radius:28px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:10px 20px;font-weight:700;font-size:18px;color:var(--muted);transition:.15s;white-space:nowrap}
+@media (max-width:420px){.seg button{padding:9px 14px;font-size:16px}}
 .seg button[aria-pressed="true"]{background:var(--card);color:var(--accent-deep);box-shadow:0 2px 8px rgba(0,0,0,.10)}
 .big{
   border:0;border-radius:999px;padding:18px 44px;font-family:var(--display);font-weight:900;font-size:clamp(22px,3.4vw,28px);
@@ -235,7 +236,7 @@ footer a{color:var(--accent-deep)}
     <div class="card hero">
       <div class="emoji"><span>🥕</span><span>🍞</span><span>🍅</span></div>
       <h1><small>FOOD LOSS QUIZ</small>フードロス 50問クイズ</h1>
-      <p class="lead">まだ食べられるのに捨てられる食べ物。<br>4つの中から答えをえらんで、「もったいない」の理由を知ろう。</p>
+      <p class="lead">まだ食べられるのに捨てられる食べ物。4つの中から答えをえらんで、「もったいない」の理由を知ろう。</p>
       <div class="best" id="bestBox" hidden>🏆 ベストスコア <b class="num" id="bestScore">0</b> 点 ／ 学習ずみ <b class="num" id="seenCount">0</b>/50 問</div>
       <div class="opts">
         <div class="lbl">1回にちょうせんする問題数</div>
