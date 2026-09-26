@@ -1,0 +1,1723 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>コンピュータ概論Ⅰ ふりかえりラボ</title>
+<meta name="description" content="コンピュータ概論Ⅱ 第1回：前期（コンピュータ概論Ⅰ）の6分野（ハードウェア・デジタルデータ・ファイルとディレクトリ・OSとアプリケーション・表計算・データベース）を、アニメーションと体験コーナー、クイズで自主的に復習する教材。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* ============================================================
+   コンピュータ概論Ⅰ ふりかえりラボ  style.css
+   ライトテーマ・教室のプロジェクタでも見やすいコントラスト
+   ============================================================ */
+:root{
+  color-scheme:light;
+  --bg:#f4f6fb; --bg2:#e9edf6; --paper:#ffffff; --paper2:#f8f9fd;
+  --line:#dde3ef; --line2:#c4cde0;
+  --text:#1c2333; --muted:#5b6579; --faint:#8b95a8;
+  --ink:#233a7d;
+  --c1:#3b7be9; --c1s:#e5efff;   /* ハードウェア */
+  --c2:#8b5cf6; --c2s:#f0e9ff;   /* デジタルデータ */
+  --c3:#f0a020; --c3s:#fff3dc;   /* ファイル */
+  --c4:#22a36b; --c4s:#e2f7ec;   /* OS */
+  --c5:#0e9fb0; --c5s:#dff6f8;   /* 表計算 */
+  --c6:#e5567a; --c6s:#ffe6ec;   /* データベース */
+  --ok:#1f9d61; --ng:#d9484f; --warn:#e08a00;
+  --okbg:#e6f7ee; --oktx:#166a41; --okln:#9bd7b6;
+  --ngbg:#fdecec; --ngtx:#9b2c31; --ngln:#f2b3b6;
+  --warnbg:#fff3dc; --warntx:#8a5200; --pinkbg:#ffe6ec;
+  --readout-bg:#1c2333; --readout-tx:#e8eefc;
+  --accent:var(--c1); --accent-soft:var(--c1s);
+  --display:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;
+  --body:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --r:18px; --r2:12px;
+  --shadow:0 10px 30px rgba(30,45,90,.08), 0 1px 2px rgba(30,45,90,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){color-scheme:dark;
+    --bg:#0f1420; --bg2:#1a2132; --paper:#161d2c; --paper2:#1b2334; --line:#2a3448; --line2:#3a4660;
+    --text:#e6ebf5; --muted:#a3adc2; --faint:#7b8599; --ink:#c7d3ff;
+    --c1s:#1c2c4d; --c2s:#2b2250; --c3s:#3d2e14; --c4s:#143224; --c5s:#0f3238; --c6s:#3f1c28;
+    --okbg:#143224; --oktx:#8fe0b4; --okln:#2e6b4b; --ngbg:#3f1c22; --ngtx:#ffb3b8; --ngln:#7a3a40;
+    --warnbg:#3d2e14; --warntx:#ffd08a; --pinkbg:#3f1c28; --shadow:0 10px 30px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.4);}
+}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#0f1420; --bg2:#1a2132; --paper:#161d2c; --paper2:#1b2334; --line:#2a3448; --line2:#3a4660;
+  --text:#e6ebf5; --muted:#a3adc2; --faint:#7b8599; --ink:#c7d3ff;
+  --c1s:#1c2c4d; --c2s:#2b2250; --c3s:#3d2e14; --c4s:#143224; --c5s:#0f3238; --c6s:#3f1c28;
+  --okbg:#143224; --oktx:#8fe0b4; --okln:#2e6b4b; --ngbg:#3f1c22; --ngtx:#ffb3b8; --ngln:#7a3a40;
+  --warnbg:#3d2e14; --warntx:#ffd08a; --pinkbg:#3f1c28; --shadow:0 10px 30px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.4);}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.8;-webkit-text-size-adjust:100%;overflow-x:hidden;min-height:100vh}
+h1,h2,h3,h4{font-family:var(--display);font-weight:900;margin:0;line-height:1.3;letter-spacing:.01em;text-wrap:balance}
+h1{font-size:clamp(26px,4vw,40px)}
+h2{font-size:clamp(22px,3vw,30px)}
+h3{font-size:clamp(17px,2.2vw,21px);font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+button{font-family:inherit}
+:focus-visible{outline:3px solid #ffbf47;outline-offset:2px}
+.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13.5px;line-height:1.7}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+kbd{font-family:var(--mono);font-size:.85em;background:var(--paper2);border:1px solid var(--line2);border-bottom-width:2px;border-radius:6px;padding:1px 6px}
+code{font-family:var(--mono);font-size:.92em;background:var(--paper2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;white-space:nowrap}
+mark{background:#fff2a8;color:#1c2333;border-radius:4px;padding:0 3px}
+
+/* ---------- layout ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:1080px;margin-inline:auto;padding:10px clamp(16px,4vw,32px);display:flex;align-items:center;gap:12px}
+.brand{font-family:var(--display);font-weight:900;font-size:17px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--c1),var(--c2));display:grid;place-items:center;color:#fff;font-size:16px}
+.topbar .spacer{flex:1}
+.progress-pill{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);white-space:nowrap}
+.progress-pill .bar{width:110px;height:8px;background:var(--bg2);border-radius:999px;overflow:hidden}
+.progress-pill .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c1),var(--c4));border-radius:999px;transition:width .5s}
+.page{max-width:1080px;margin-inline:auto;padding:clamp(18px,3vw,36px) clamp(16px,4vw,32px) 80px}
+.view{animation:fadeup .35s ease both}
+@keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:clamp(16px,2.4vw,26px);box-shadow:var(--shadow)}
+.card.soft{background:var(--paper2);box-shadow:none}
+.eyebrow{font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.14em;color:var(--accent);text-transform:uppercase}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);letter-spacing:.04em}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.stack{display:grid;gap:12px}
+
+/* ---------- buttons ---------- */
+.btn{font:inherit;font-size:15px;font-weight:700;background:var(--paper);color:var(--text);border:1px solid var(--line2);border-radius:12px;padding:10px 18px;cursor:pointer;line-height:1.3;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .08s,background .15s,border-color .15s,box-shadow .2s;text-decoration:none}
+.btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn.primary:hover{filter:brightness(1.07);background:var(--accent)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--accent-soft)}
+.btn.sm{font-size:13.5px;padding:7px 13px;border-radius:10px}
+.btn.lg{font-size:17px;padding:14px 26px;border-radius:14px}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px;background:var(--bg2);padding:4px;border-radius:12px}
+.seg button{font:inherit;font-size:14px;font-weight:700;background:transparent;color:var(--muted);border:0;border-radius:9px;padding:6px 14px;cursor:pointer;transition:.15s}
+.seg button.on{background:var(--paper);color:var(--accent);box-shadow:0 2px 8px rgba(30,45,90,.12)}
+.chip{font:inherit;font-size:14px;font-weight:700;background:var(--paper);border:2px solid var(--line2);border-radius:999px;padding:7px 14px;cursor:pointer;transition:.15s;color:var(--text)}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip.ok{background:var(--okbg);border-color:var(--ok);color:var(--oktx)}
+.chip.ng{background:var(--ngbg);border-color:var(--ng);color:var(--ngtx)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=text],input[type=number],select,textarea{font:inherit;font-size:15px;padding:9px 12px;border:1.5px solid var(--line2);border-radius:10px;background:var(--paper);color:var(--text);min-width:0}
+input[type=text]:focus,input[type=number]:focus,textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+textarea{font-family:var(--mono);line-height:1.6}
+
+/* ---------- home ---------- */
+.hero{display:grid;gap:18px;grid-template-columns:1.2fr .8fr;align-items:center;margin-bottom:28px}
+.hero .lead{font-size:17px;color:var(--muted);max-width:40em}
+.hero .art{justify-self:center;width:min(100%,360px)}
+@media (max-width:760px){.hero{grid-template-columns:1fr}.hero .art{width:min(100%,260px)}}
+.chapters{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.chcard{position:relative;display:grid;gap:10px;padding:20px;border-radius:var(--r);border:1px solid var(--line);background:var(--paper);box-shadow:var(--shadow);cursor:pointer;text-align:left;transition:transform .15s,box-shadow .2s;overflow:hidden;color:var(--text);font:inherit}
+.chcard:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(30,45,90,.14)}
+.chcard::before{content:"";position:absolute;inset:0 0 auto 0;height:6px;background:var(--accent)}
+.chcard .icon{width:56px;height:56px;border-radius:16px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent)}
+.topbar{background:color-mix(in srgb,var(--paper) 86%,transparent)}
+.chnav{background:color-mix(in srgb,var(--bg) 92%,transparent)}
+.chcard .icon svg{width:34px;height:34px}
+.chcard h3{font-size:19px}
+.chcard .no{font-family:var(--display);font-weight:900;color:var(--accent);font-size:13px;letter-spacing:.1em}
+.chcard .meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
+.chcard .pbar{height:6px;background:var(--bg2);border-radius:999px;overflow:hidden}
+.chcard .pbar i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .5s}
+.chcard .badge{position:absolute;top:14px;right:14px;font-size:22px}
+.final-cta{margin-top:26px;display:grid;gap:16px;grid-template-columns:1fr auto;align-items:center;background:linear-gradient(135deg,#1d2b64,#3b4ea8);color:#fff;border-radius:var(--r);padding:clamp(18px,3vw,28px)}
+.final-cta h2{color:#fff}
+.final-cta p{color:#d6dcff}
+.final-cta .btn{white-space:nowrap}
+@media (max-width:640px){.final-cta{grid-template-columns:1fr}}
+.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.bdg{display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:8px 14px;font-size:14px;font-weight:700}
+.bdg.locked{opacity:.4;filter:grayscale(1)}
+.bdg .e{font-size:22px}
+
+/* ---------- chapter ---------- */
+.chhead{display:flex;gap:16px;align-items:center;margin-bottom:8px}
+.chhead .icon{width:64px;height:64px;border-radius:18px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);flex:none}
+.chhead .icon svg{width:40px;height:40px}
+.chnav{position:sticky;top:calc(56px + env(safe-area-inset-top,0px));z-index:40;backdrop-filter:blur(8px);padding:8px 0;margin:10px -4px 18px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.chnav::-webkit-scrollbar{display:none}
+.chnav a{flex:none;font-size:13px;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--paper);border:1px solid var(--line);color:var(--muted);text-decoration:none;white-space:nowrap}
+.chnav a.done{border-color:var(--accent);color:var(--accent)}
+.chnav a.done::before{content:"✓ "}
+.sec{margin-bottom:26px;scroll-margin-top:120px}
+.sec .card{display:grid;gap:14px}
+.sec h2{display:flex;gap:10px;align-items:baseline}
+.sec h2 .n{font-size:14px;color:var(--accent);letter-spacing:.1em}
+.prose{max-width:46em;display:grid;gap:.75em}
+.prose ul,.prose ol{margin:0;padding-left:1.4em}
+.prose li{margin-block:.15em}
+.prose table{border-collapse:collapse;width:100%;font-size:14.5px}
+.prose th,.prose td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+.prose th{background:var(--paper2);font-weight:700}
+.point{border-left:5px solid var(--accent);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:12px 16px;display:grid;gap:4px}
+.point b{color:var(--accent)}
+.why{border:1.5px dashed var(--line2);border-radius:12px;padding:12px 16px;background:var(--paper2)}
+.why summary{cursor:pointer;font-weight:700;color:var(--ink)}
+.lab{border:2px solid var(--accent-soft);background:linear-gradient(180deg,var(--paper),var(--paper2));border-radius:16px;padding:16px;display:grid;gap:12px}
+.lab .lab-title{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:900;color:var(--accent);font-size:15px}
+.lab .lab-title::before{content:"🔬"}
+.fig{display:block;width:100%;height:auto;background:#fff;border-radius:12px}
+.two{display:grid;gap:16px;grid-template-columns:1fr 1fr;align-items:start}
+@media (max-width:700px){.two{grid-template-columns:1fr}}
+.secfoot{display:flex;justify-content:flex-end}
+.check{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;user-select:none}
+.check input{width:20px;height:20px;accent-color:var(--accent)}
+.chend{margin-top:30px;text-align:center;display:grid;gap:12px;justify-items:center}
+.readout{font-family:var(--mono);font-size:15px;background:var(--readout-bg);color:var(--readout-tx);border-radius:12px;padding:12px 16px;overflow-x:auto;line-height:1.7}
+.readout b{color:#ffd166}
+.readout .hl{color:#8be9fd}
+.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:var(--bg2);color:var(--muted)}
+.pill.ok{background:var(--okbg);color:var(--oktx)}
+.pill.ng{background:var(--ngbg);color:var(--ngtx)}
+.pill.warn{background:var(--warnbg);color:var(--warntx)}
+
+/* ---------- quiz ---------- */
+.quiz{max-width:760px;margin-inline:auto;display:grid;gap:16px}
+.qhead{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
+.qhead .bar{flex:1;height:8px;background:var(--bg2);border-radius:999px;overflow:hidden}
+.qhead .bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
+.qcard{display:grid;gap:14px}
+.qtext{font-size:clamp(17px,2.4vw,21px);font-weight:700;line-height:1.6}
+.opts{display:grid;gap:10px}
+.opt{font:inherit;font-size:16px;text-align:left;display:flex;gap:12px;align-items:flex-start;background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;transition:.15s;color:var(--text);line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.opt .k{flex:none;width:30px;height:30px;border-radius:9px;background:var(--bg2);display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:14px}
+.opt.correct{border-color:var(--ok);background:var(--okbg)}
+.opt.correct .k{background:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--ng);background:var(--ngbg)}
+.opt.wrong .k{background:var(--ng);color:#fff}
+.opt:disabled{cursor:default;opacity:.85}
+.expl{border-radius:14px;padding:14px 16px;display:grid;gap:8px;animation:fadeup .3s ease both}
+.expl.ok{background:var(--okbg);border:1.5px solid var(--okln)}
+.expl.ng{background:var(--ngbg);border:1.5px solid var(--ngln)}
+.expl .verdict{font-family:var(--display);font-weight:900;font-size:18px}
+.expl.ok .verdict{color:var(--oktx)}.expl.ng .verdict{color:var(--ngtx)}
+.result{text-align:center;display:grid;gap:14px;justify-items:center}
+.result .score{font-family:var(--display);font-weight:900;font-size:clamp(44px,8vw,72px);color:var(--accent);line-height:1}
+.result .score small{font-size:.4em;color:var(--muted)}
+.ring{width:150px;height:150px}
+.review{display:grid;gap:10px;text-align:left;width:100%}
+.review .item{border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14.5px;display:grid;gap:4px}
+.review .item.ok{border-color:var(--okln)}
+.review .item.ng{border-color:var(--ngln)}
+
+/* ---------- 紙吹雪 ---------- */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:100;overflow:hidden}
+.confetti i{position:absolute;top:-10px;width:10px;height:14px;border-radius:2px;animation:fall 2.6s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.2}}
+
+/* ---------- widgets ---------- */
+.switches{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.sw{display:grid;justify-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.sw button{width:52px;height:64px;border-radius:12px;border:2px solid var(--line2);background:var(--paper);cursor:pointer;font:inherit;font-family:var(--mono);font-size:22px;font-weight:700;color:var(--faint);transition:.15s;box-shadow:inset 0 -4px 0 rgba(0,0,0,.06)}
+.sw button.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 40%,transparent)}
+.sw .w{font-family:var(--mono);font-weight:700}
+.bigval{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.bigval div{text-align:center;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px 18px;min-width:120px}
+.bigval .l{font-size:12px;color:var(--muted);font-weight:700}
+.bigval .v{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--accent)}
+.steps{display:grid;gap:6px;font-family:var(--mono);font-size:15px}
+.steps div{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 12px;opacity:0;transform:translateX(-8px);animation:slidein .35s ease forwards}
+@keyframes slidein{to{opacity:1;transform:none}}
+.sorter{display:grid;gap:12px;justify-items:center}
+.sorter .item{font-family:var(--display);font-weight:900;font-size:22px;background:var(--paper);border:2px solid var(--line2);border-radius:16px;padding:16px 26px;min-width:220px;text-align:center;box-shadow:var(--shadow);animation:fadeup .3s}
+.sorter .bins{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.sorter .bins .btn{min-width:110px}
+.scoreline{font-size:14px;color:var(--muted)}
+.tree{font-family:var(--mono);font-size:15px;line-height:1.9;display:grid;gap:2px}
+.tree .node{display:flex;align-items:center;gap:6px;padding:2px 8px;border-radius:8px;cursor:pointer;border:1.5px solid transparent;width:max-content;max-width:100%}
+.tree .node:hover{background:var(--accent-soft)}
+.tree .node.cur{background:var(--accent);color:#fff}
+.tree .node.target{border-color:var(--c6);background:var(--pinkbg)}
+.tree .node.cur.target{background:var(--c6);color:#fff}
+.sheet{overflow-x:auto}
+.sheet table{border-collapse:collapse;font-family:var(--mono);font-size:14px;min-width:520px}
+.sheet th{background:var(--bg2);font-weight:700;color:var(--muted);padding:4px 8px;border:1px solid var(--line2);text-align:center;font-size:12.5px}
+.sheet td{border:1px solid var(--line2);padding:0;min-width:96px;height:34px;background:var(--paper);position:relative}
+.sheet td input{width:100%;height:34px;border:0;background:transparent;font:inherit;padding:0 8px;color:var(--text);outline:none}
+.sheet td.sel{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
+.sheet td.ref{background:var(--warnbg)}
+.sheet td.err input{color:var(--ng)}
+.sheet td.num input{text-align:right}
+.fbar{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:14px}
+.fbar .addr{background:var(--bg2);padding:6px 10px;border-radius:8px;font-weight:700;min-width:48px;text-align:center}
+.fbar input{flex:1;font-family:var(--mono)}
+.dbtbl{overflow-x:auto}
+.dbtbl table{border-collapse:collapse;font-size:14px;min-width:360px}
+.dbtbl th{background:var(--accent-soft);color:var(--accent);padding:6px 10px;border:1px solid var(--line2);text-align:left;white-space:nowrap}
+.dbtbl td{padding:5px 10px;border:1px solid var(--line2);white-space:nowrap;background:var(--paper)}
+.dbtbl tr.hit td{background:var(--warnbg)}
+.dbtbl th.pk::after{content:" 🔑";font-size:12px}
+.dbtbl th.fk::after{content:" 🔗";font-size:12px}
+.dbtbl td.dim,.dbtbl th.dim{opacity:.28}
+.dbtbl caption{caption-side:top;text-align:left;font-weight:700;font-size:13px;color:var(--muted);padding:4px 0}
+.layers{display:grid;gap:8px;max-width:420px;margin-inline:auto}
+.layer{font-family:var(--display);font-weight:900;text-align:center;padding:14px;border-radius:12px;border:2px solid var(--line2);background:var(--paper);cursor:pointer;transition:.2s;font-size:16px}
+.layer.placed{cursor:default}
+.layer.slot{border-style:dashed;color:var(--faint);font-weight:700;background:var(--paper2)}
+.tl{display:grid;gap:6px}
+.tl .lane{display:grid;grid-template-columns:90px 1fr;align-items:center;gap:8px;font-size:13.5px;font-weight:700}
+.tl .track{height:22px;background:var(--bg2);border-radius:6px;position:relative;overflow:hidden}
+.tl .track i{position:absolute;top:0;bottom:0;border-radius:6px}
+.tl .cursor{position:absolute;top:0;bottom:0;width:3px;background:var(--text);left:0}
+.rgbbox{width:100%;height:90px;border-radius:14px;border:1px solid var(--line);transition:background .1s;display:grid;place-items:center;font-family:var(--mono);font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.pxcanvas{width:100%;max-width:260px;image-rendering:pixelated;border-radius:12px;border:1px solid var(--line);background:var(--paper);display:block;margin-inline:auto}
+.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.matchgrid .col{display:grid;gap:8px}
+.mbtn{font:inherit;font-size:14px;font-weight:700;padding:10px;border-radius:12px;border:2px solid var(--line2);background:var(--paper);cursor:pointer;text-align:center;transition:.15s;color:var(--text)}
+.mbtn.on{border-color:var(--accent);background:var(--accent-soft)}
+.mbtn.done{border-color:var(--ok);background:var(--okbg);color:var(--oktx);cursor:default}
+.mbtn.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.wave{width:100%;height:auto;display:block}
+.cmp{display:grid;gap:8px}
+.cmp .bar{display:grid;grid-template-columns:120px 1fr 90px;gap:10px;align-items:center;font-size:13.5px;font-weight:700}
+.cmp .bar i{display:block;height:16px;border-radius:6px;background:var(--accent);transform-origin:left;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.tokenline{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.byte{font-family:var(--mono);font-size:13.5px;background:var(--paper);border:1.5px solid var(--line2);border-radius:8px;padding:3px 8px}
+.byte.u{border-color:var(--c2);background:var(--c2s)}
+.status{min-height:1.6em;font-weight:700}
+.status.ok{color:var(--ok)}.status.ng{color:var(--ng)}
+.chart-sel{display:flex;gap:6px;flex-wrap:wrap}
+.reset{font-size:12.5px;color:var(--faint);background:none;border:0;cursor:pointer;text-decoration:underline}
+footer{margin-top:40px;text-align:center;font-size:12.5px;color:var(--faint)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media print{.topbar,.chnav,.chend,.lab{display:none}}
+
+/* ---------- スマホ幅で横にはみ出さないための保険 ---------- */
+.sec .card>*,.prose>*,.two>*,.grid>*,.lab,.lab-body,.lab-body>*,.stack>*,.quiz>*{min-width:0}
+.prose,.prose li,.prose p,.point,.why,.expl,.review .item{overflow-wrap:anywhere}
+.prose table{display:block;overflow-x:auto;max-width:100%}
+code{white-space:normal;overflow-wrap:anywhere}
+.readout{max-width:100%}
+
+</style>
+</head>
+<body>
+<!--
+  コンピュータ概論Ⅰ ふりかえりラボ（1ファイル完結版）
+  このファイルをブラウザで開くだけで動きます。
+  構成：<style> デザイン ／ content.js 相当（各章の本文・図）／ quiz.js 相当（QUIZ：問題）／
+        widgets.js 相当（体験コーナー）／ app.js 相当（画面切り替え・進捗・クイズエンジン）
+-->
+<header class="topbar">
+  <div class="in">
+    <a class="brand" href="#home"><span class="logo">💻</span><span>概論Ⅰ ふりかえりラボ</span></a>
+    <span class="spacer"></span>
+    <div class="progress-pill" title="学習の進みぐあい"><span id="pprog-label">0%</span><span class="bar"><i id="pprog"></i></span></div>
+  </div>
+</header>
+<main class="page" id="app" aria-live="polite"></main>
+<footer>コンピュータ概論Ⅱ 第1回 ── コンピュータ概論Ⅰのまとめ ／ 学習の記録はこのブラウザにだけ保存されます</footer>
+<script>
+/* ============================================================
+   content.js ── 各章の本文・図・体験コーナーの指定
+   （クイズは quiz.js、体験コーナーの動きは widgets.js）
+   ============================================================ */
+const FINAL_N = 18;   // 総合テストの出題数（6章×3問）
+
+const ICONS = {
+  chip:`<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="12" width="24" height="24" rx="4"/><rect x="19" y="19" width="10" height="10" rx="2"/><path d="M18 4v8M24 4v8M30 4v8M18 36v8M24 36v8M30 36v8M4 18h8M4 24h8M4 30h8M36 18h8M36 24h8M36 30h8"/></svg>`,
+  binary:`<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="8" width="10" height="14" rx="5"/><path d="M27 8v14M23 10l4-2"/><rect x="32" y="26" width="10" height="14" rx="5"/><path d="M11 26v14M7 28l4-2"/><rect x="19" y="26" width="10" height="14" rx="5" opacity=".45"/><path d="M40 8v14M36 10l4-2" opacity=".45"/></svg>`,
+  folder:`<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14a4 4 0 0 1 4-4h9l4 4h15a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z"/><path d="M6 20h36"/><path d="M15 30h8M15 34h5" opacity=".6"/></svg>`,
+  layers:`<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M24 6 42 15 24 24 6 15z"/><path d="M6 24l18 9 18-9"/><path d="M6 33l18 9 18-9"/></svg>`,
+  grid:`<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="8" width="36" height="32" rx="3"/><path d="M6 18h36M6 28h36M18 8v32M30 8v32"/><path d="M21 33l3 3 5-6" stroke-width="3"/></svg>`,
+  db:`<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="24" cy="12" rx="16" ry="6"/><path d="M8 12v24c0 3.3 7.2 6 16 6s16-2.7 16-6V12"/><path d="M8 24c0 3.3 7.2 6 16 6s16-2.7 16-6"/></svg>`,
+  hero:`<svg viewBox="0 0 360 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="hg1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#3b7be9"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+    <ellipse cx="180" cy="270" rx="150" ry="16" fill="#e2e7f4"/>
+    <rect x="50" y="40" width="260" height="170" rx="18" fill="#1c2333"/>
+    <rect x="62" y="52" width="236" height="146" rx="10" fill="url(#hg1)"/>
+    <rect x="150" y="212" width="60" height="22" fill="#c9d2e6"/><rect x="110" y="232" width="140" height="12" rx="6" fill="#aeb9d3"/>
+    <g fill="#fff">
+      <circle cx="140" cy="115" r="12"><animate attributeName="ry" dur="4s" repeatCount="indefinite" values="12;12;1;12;12" keyTimes="0;.45;.5;.55;1"/></circle>
+      <circle cx="220" cy="115" r="12"><animate attributeName="ry" dur="4s" repeatCount="indefinite" values="12;12;1;12;12" keyTimes="0;.45;.5;.55;1"/></circle>
+      <path d="M150 150 Q180 175 210 150" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/>
+    </g>
+    <g font-family="JetBrains Mono, monospace" font-weight="700" font-size="16" fill="#fff" opacity=".85">
+      <text x="76" y="76">0110</text><text x="250" y="76">1001</text><text x="76" y="188">1010</text><text x="240" y="188">0011</text>
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0" dur="3s" repeatCount="indefinite"/>
+    </g>
+    <g transform="translate(20 120)"><rect width="46" height="30" rx="6" fill="#f0a020"/><rect x="6" y="6" width="20" height="4" rx="2" fill="#fff"/><animateTransform attributeName="transform" type="translate" values="20 120;20 110;20 120" dur="2.6s" repeatCount="indefinite"/></g>
+    <g transform="translate(300 90)"><ellipse cx="22" cy="10" rx="22" ry="8" fill="#e5567a"/><path d="M0 10v26c0 4.4 9.8 8 22 8s22-3.6 22-8V10" fill="#e5567a"/><path d="M0 22c0 4.4 9.8 8 22 8s22-3.6 22-8" stroke="#fff" stroke-width="3" fill="none"/><animateTransform attributeName="transform" type="translate" values="300 90;300 82;300 90" dur="3.2s" repeatCount="indefinite"/></g>
+  </svg>`
+};
+
+/* 図：五大装置 */
+const FIG_FIVE = `<svg class="fig" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" font-family="Zen Kaku Gothic New, Noto Sans JP, sans-serif" font-weight="700" font-size="15" id="fig5">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5 0 10z" fill="#5b6579"/></marker>
+  <marker id="arrc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5 0 10z" fill="#e5567a"/></marker></defs>
+  <rect x="220" y="20" width="200" height="120" rx="14" fill="#e5efff" stroke="#3b7be9" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="320" y="42" text-anchor="middle" fill="#3b7be9" font-size="13">CPU（中央処理装置）</text>
+  <g id="u-ctrl"><rect x="235" y="52" width="170" height="36" rx="8" fill="#fff" stroke="#e5567a" stroke-width="2"/><text x="320" y="76" text-anchor="middle" fill="#1c2333">制御装置</text></g>
+  <g id="u-alu"><rect x="235" y="96" width="170" height="36" rx="8" fill="#fff" stroke="#3b7be9" stroke-width="2"/><text x="320" y="120" text-anchor="middle" fill="#1c2333">演算装置</text></g>
+  <g id="u-mem"><rect x="220" y="180" width="200" height="50" rx="10" fill="#fff" stroke="#22a36b" stroke-width="2"/><text x="320" y="204" text-anchor="middle">主記憶装置</text><text x="320" y="222" text-anchor="middle" font-size="11" fill="#5b6579" font-weight="400">メモリ（プログラムとデータ）</text></g>
+  <g id="u-in"><rect x="20" y="180" width="140" height="50" rx="10" fill="#fff" stroke="#f0a020" stroke-width="2"/><text x="90" y="204" text-anchor="middle">入力装置</text><text x="90" y="222" text-anchor="middle" font-size="11" fill="#5b6579" font-weight="400">キーボード・マウス</text></g>
+  <g id="u-out"><rect x="480" y="180" width="140" height="50" rx="10" fill="#fff" stroke="#8b5cf6" stroke-width="2"/><text x="550" y="204" text-anchor="middle">出力装置</text><text x="550" y="222" text-anchor="middle" font-size="11" fill="#5b6579" font-weight="400">ディスプレイ・プリンタ</text></g>
+  <g id="u-aux"><rect x="200" y="250" width="240" height="40" rx="10" fill="#fff" stroke="#22a36b" stroke-width="2" stroke-dasharray="5 3"/><text x="320" y="275" text-anchor="middle">補助記憶装置（SSD・HDD）</text></g>
+  <g stroke="#5b6579" stroke-width="2.2" fill="none" marker-end="url(#arr)">
+    <path id="p-in" d="M160 205 H218"/><path id="p-out" d="M422 205 H478"/>
+    <path id="p-m2a" d="M300 178 V134"/><path id="p-a2m" d="M340 134 V178"/>
+    <path d="M300 250 V232" /><path d="M340 232 V250"/>
+  </g>
+  <g stroke="#e5567a" stroke-width="1.8" fill="none" stroke-dasharray="4 3" marker-end="url(#arrc)" id="ctrl-lines">
+    <path d="M235 70 H200 V170 H90 V178"/><path d="M405 70 H440 V170 H550 V178"/><path d="M320 88 V96"/><path d="M215 70 V205 H218" opacity="0"/><path d="M235 62 H190 V205 H215" opacity="0"/><path d="M320 140 V178" transform="translate(-60 0)" opacity="0"/><path d="M260 132 V178"/>
+  </g>
+  <text x="30" y="30" font-size="12" fill="#5b6579" font-weight="400">── データの流れ　<tspan fill="#e5567a">- - 制御の流れ</tspan></text>
+  <circle id="dot" r="8" fill="#f0a020" stroke="#fff" stroke-width="2" opacity="0"/>
+</svg>`;
+
+/* 図：記憶階層ピラミッド */
+const FIG_PYRAMID = `<svg class="fig" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg" font-family="Zen Kaku Gothic New, Noto Sans JP, sans-serif" font-weight="700" font-size="15">
+  <g id="pyr">
+    <polygon points="320,20 380,70 260,70" fill="#3b7be9"/><text x="320" y="55" text-anchor="middle" fill="#fff" font-size="13">レジスタ</text>
+    <polygon points="255,78 385,78 420,128 220,128" fill="#5a93ee"/><text x="320" y="108" text-anchor="middle" fill="#fff">キャッシュメモリ</text>
+    <polygon points="214,136 426,136 464,186 176,186" fill="#8fb6f3"/><text x="320" y="166" text-anchor="middle" fill="#1c2333">主記憶（メインメモリ）</text>
+    <polygon points="170,194 470,194 510,244 130,244" fill="#c9dcf8"/><text x="320" y="224" text-anchor="middle" fill="#1c2333">補助記憶（SSD・HDD）</text>
+  </g>
+  <g font-size="13" fill="#5b6579" font-weight="400">
+    <text x="30" y="40">↑ 速い</text><text x="30" y="60">↑ 高価（容量あたり）</text><text x="30" y="80">↑ 容量が小さい</text>
+    <text x="30" y="200">↓ 遅い</text><text x="30" y="220">↓ 安価（容量あたり）</text><text x="30" y="240">↓ 容量が大きい</text>
+    <text x="530" y="60">CPU の中</text><text x="530" y="160">電源を切ると</text><text x="530" y="178">消える（揮発性）</text><text x="530" y="222">電源を切っても</text><text x="530" y="240">残る（不揮発性）</text>
+  </g>
+</svg>`;
+
+/* 図：ディレクトリの木 */
+const FIG_TREE = `<svg class="fig" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace" font-weight="700" font-size="14">
+  <g stroke="#c4cde0" stroke-width="2" fill="none"><path d="M320 52 V80 H160 V108 M320 80 V108 M320 80 H480 V108 M160 140 V170 H100 V196 M160 170 H220 V196 M480 140 V170 H420 V196 M480 170 H540 V196"/></g>
+  <g>
+    <rect x="270" y="20" width="100" height="32" rx="8" fill="#f0a020"/><text x="320" y="42" text-anchor="middle" fill="#fff">/（ルート）</text>
+    <rect x="110" y="108" width="100" height="32" rx="8" fill="#fff3dc" stroke="#f0a020" stroke-width="2"/><text x="160" y="130" text-anchor="middle">home</text>
+    <rect x="270" y="108" width="100" height="32" rx="8" fill="#fff3dc" stroke="#f0a020" stroke-width="2"/><text x="320" y="130" text-anchor="middle">etc</text>
+    <rect x="430" y="108" width="100" height="32" rx="8" fill="#fff3dc" stroke="#f0a020" stroke-width="2"/><text x="480" y="130" text-anchor="middle">usr</text>
+    <rect x="50" y="196" width="100" height="32" rx="8" fill="#fff3dc" stroke="#f0a020" stroke-width="2"/><text x="100" y="218" text-anchor="middle">taro</text>
+    <rect x="170" y="196" width="100" height="32" rx="8" fill="#fff3dc" stroke="#f0a020" stroke-width="2"/><text x="220" y="218" text-anchor="middle">hanako</text>
+    <rect x="370" y="196" width="100" height="32" rx="8" fill="#fff" stroke="#8b5cf6" stroke-width="2"/><text x="420" y="218" text-anchor="middle" fill="#8b5cf6">bin</text>
+    <rect x="490" y="196" width="100" height="32" rx="8" fill="#fff" stroke="#8b5cf6" stroke-width="2"/><text x="540" y="218" text-anchor="middle" fill="#8b5cf6">lib</text>
+  </g>
+  <text x="20" y="240" font-family="Noto Sans JP, sans-serif" font-size="12" fill="#5b6579" font-weight="400">上ほど「親」、下ほど「子」。木を逆さにした形なので「木構造（ツリー構造）」とよぶ</text>
+</svg>`;
+
+/* 図：ソフトウェアの層 */
+const FIG_LAYERS = `<svg class="fig" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg" font-family="Zen Kaku Gothic New, Noto Sans JP, sans-serif" font-weight="700" font-size="15">
+  <g>
+    <rect x="120" y="14" width="400" height="40" rx="10" fill="#fff" stroke="#22a36b" stroke-width="2"/><text x="320" y="40" text-anchor="middle">👤 利用者（ユーザ）</text>
+    <rect x="120" y="62" width="400" height="40" rx="10" fill="#e2f7ec" stroke="#22a36b" stroke-width="2"/><text x="320" y="88" text-anchor="middle">応用ソフトウェア（アプリ）</text>
+    <rect x="120" y="110" width="400" height="34" rx="10" fill="#f0fbf5" stroke="#22a36b" stroke-width="2" stroke-dasharray="5 3"/><text x="320" y="133" text-anchor="middle" font-size="14">ミドルウェア（DBMS・Webサーバなど）</text>
+    <rect x="120" y="152" width="400" height="40" rx="10" fill="#22a36b"/><text x="320" y="178" text-anchor="middle" fill="#fff">基本ソフトウェア（OS）</text>
+    <rect x="120" y="200" width="400" height="26" rx="8" fill="#1c2333"/><text x="320" y="218" text-anchor="middle" fill="#fff" font-size="13">ハードウェア（CPU・メモリ・ディスク・周辺機器）</text>
+  </g>
+  <g font-size="12" fill="#5b6579" font-weight="400"><text x="530" y="90">ワープロ・表計算・</text><text x="530" y="106">ブラウザ・ゲーム</text><text x="530" y="176">Windows・macOS・</text><text x="530" y="192">Linux・iOS・Android</text><text x="20" y="176">ハードを管理し</text><text x="20" y="192">アプリに共通機能を提供</text></g>
+</svg>`;
+
+const CHAPTERS = [
+/* ============================================================ 1. ハードウェア */
+{ id:"hw", no:1, icon:"chip", title:"コンピュータ（ハードウェア）", lead:"五大装置・CPU・メモリ・記憶装置・入出力",
+  intro:"コンピュータは「入力 → 記憶 → 演算 → 出力」を制御装置が指揮して動く機械です。まず全体の構造を思い出し、CPU と記憶装置のしくみ、周辺機器の役割を確認します。",
+  sections:[
+  { title:"コンピュータの五大装置", short:"五大装置", widget:"fiveUnits", labTitle:"データの流れを動かしてみよう",
+    html:`<div class="prose">
+      <p>コンピュータのハードウェアは、はたらきによって <b>5つの装置</b> に分けられます。これを <b>五大装置</b> といいます。</p>
+      <table><tr><th>装置</th><th>役割</th><th>例</th></tr>
+      <tr><td><b>入力装置</b></td><td>外からデータや指示を受け取る</td><td>キーボード、マウス、タッチパネル、スキャナ、マイク</td></tr>
+      <tr><td><b>記憶装置</b></td><td>プログラムとデータをたくわえる（主記憶と補助記憶）</td><td>メモリ（RAM）、SSD、HDD</td></tr>
+      <tr><td><b>演算装置</b></td><td>四則演算や比較（大小・等しい）を行う</td><td rowspan="2">CPU（中央処理装置）</td></tr>
+      <tr><td><b>制御装置</b></td><td>プログラムの命令を解読し、他の装置に指示を出す</td></tr>
+      <tr><td><b>出力装置</b></td><td>処理の結果を外に出す</td><td>ディスプレイ、プリンタ、スピーカ</td></tr></table>
+      <div class="point"><b>ポイント</b><span>演算装置と制御装置をまとめて <b>CPU</b> とよびます。プログラムもデータも、いったん<b>主記憶装置</b>に置いてから CPU が処理します（プログラム内蔵方式）。</span></div>
+      <details class="why"><summary>なぜ「主記憶」と「補助記憶」に分かれているの？</summary><p>CPU はとても高速なので、それに近い速さで読み書きできるメモリ（主記憶）が必要です。しかし高速なメモリは高価で、しかも電源を切ると内容が消えます（揮発性）。そこで、電源を切っても残り（不揮発性）、安く大容量にできる SSD や HDD を「補助記憶」として組み合わせています。</p></details>
+    </div>${FIG_FIVE}` },
+  { title:"CPU（中央処理装置）の性能", short:"CPU", widget:"clock", labTitle:"クロック周波数を変えてみよう",
+    html:`<div class="prose">
+      <p>CPU は「コンピュータの頭脳」。<b>制御装置＋演算装置</b> のはたらきをする部品で、主記憶から命令を1つずつ取り出して（フェッチ）、解読し（デコード）、実行する、をくり返しています。</p>
+      <ul>
+        <li><b>クロック周波数</b>：CPU が動作のタイミングを合わせる信号（クロック）が1秒間に何回打たれるか。単位は <b>Hz（ヘルツ）</b>。3 GHz なら 1秒間に 30億回。<mark>同じ設計の CPU なら、クロック周波数が高いほど処理が速い</mark>。</li>
+        <li><b>コア数</b>：CPU の中にある「処理を行う部分」の数。マルチコアなら複数の処理を同時に進められる。</li>
+        <li><b>ビット数（32ビット／64ビット）</b>：CPU が一度に扱えるデータの幅。64ビット CPU は扱えるメモリの量も大きい。</li>
+        <li><b>キャッシュメモリ</b>：CPU と主記憶の速度差を埋めるため、CPU の近くに置く小さくて速いメモリ。</li>
+      </ul>
+      <details class="why"><summary>クロック周波数が同じなら性能も同じ？</summary><p>いいえ。1クロックで進められる仕事の量は CPU の設計（アーキテクチャ）によって違います。またコア数やキャッシュの量も性能に大きく影響します。クロック周波数は「同じ設計どうしを比べるときの目安」と覚えておきましょう。</p></details>
+    </div>` },
+  { title:"記憶装置の階層（メモリの種類）", short:"記憶の階層", widget:"memHier", labTitle:"取り出す速さを比べてみよう",
+    html:`<div class="prose">
+      <p>記憶装置は「速いが高くて小さい」ものと「遅いが安くて大きい」ものを組み合わせて使います。これを <b>記憶階層</b> といいます。</p>
+      ${FIG_PYRAMID}
+      <table><tr><th>種類</th><th>主な用途</th><th>特徴</th></tr>
+      <tr><td><b>RAM</b>（Random Access Memory）</td><td>主記憶</td><td>読み書き自由。<b>揮発性</b>（電源を切ると消える）</td></tr>
+      <tr><td>　DRAM</td><td>主記憶（メインメモリ）</td><td>安価で大容量。定期的な再書き込み（リフレッシュ）が必要</td></tr>
+      <tr><td>　SRAM</td><td>キャッシュメモリ</td><td>高速だが高価。リフレッシュ不要</td></tr>
+      <tr><td><b>ROM</b>（Read Only Memory）</td><td>起動プログラム（ファームウェア）など</td><td>読み出し専用。<b>不揮発性</b></td></tr>
+      <tr><td><b>フラッシュメモリ</b></td><td>SSD、USB メモリ、SD カード</td><td>書き換えできる不揮発性メモリ</td></tr></table>
+      <div class="point"><b>覚え方</b><span>「揮発」はガソリンが蒸発するイメージ。<b>揮発性＝電源を切ると消える</b>。主記憶（RAM）は揮発性、だからファイルは補助記憶に「保存」する必要があります。</span></div>
+    </div>` },
+  { title:"補助記憶装置のいろいろ", short:"補助記憶",
+    html:`<div class="prose">
+      <table><tr><th>装置</th><th>しくみ</th><th>長所</th><th>短所</th></tr>
+      <tr><td><b>HDD</b>（ハードディスク）</td><td>磁気ディスクを回転させ、磁気ヘッドで読み書き</td><td>大容量で安い</td><td>機械部品があるので遅く、衝撃に弱い、音がする</td></tr>
+      <tr><td><b>SSD</b></td><td>フラッシュメモリに電気的に記録</td><td>高速、静か、衝撃に強い、省電力</td><td>容量あたりの価格は HDD より高い、書き換え回数に上限</td></tr>
+      <tr><td><b>光ディスク</b>（CD／DVD／BD）</td><td>レーザ光でディスク表面を読む</td><td>安価で配布・保存に向く</td><td>容量が小さい（CD 約700MB、DVD 4.7GB、BD 25GB ※片面1層）、遅い</td></tr>
+      <tr><td><b>USB メモリ・SD カード</b></td><td>フラッシュメモリ</td><td>小さくて持ち運びやすい</td><td>紛失・破損しやすい</td></tr></table>
+      <details class="why"><summary>SSD が HDD より速い根拠は？</summary><p>HDD は「目的の場所までヘッドを動かし、ディスクが回ってくるのを待つ」という<b>機械的な動作</b>が必要で、これに数ミリ秒かかります。SSD は電気信号だけでデータの場所にアクセスできるので、待ち時間が桁ちがいに短くなります（およそ0.1ミリ秒以下）。</p></details>
+    </div>` },
+  { title:"入出力装置とインタフェース", short:"入出力", widget:"sorter", labTitle:"仕分けゲーム：この装置はどれ？",
+    html:`<div class="prose">
+      <p>コンピュータ本体の外側でデータの出し入れをする機器を <b>周辺機器</b> といいます。本体とつなぐ規格（接続の決まり）を <b>インタフェース</b> といいます。</p>
+      <table><tr><th>インタフェース</th><th>用途・特徴</th></tr>
+      <tr><td><b>USB</b></td><td>最も一般的な有線接続。キーボード、マウス、USB メモリ、プリンタなど。電源を入れたまま抜き差しできる（ホットプラグ）。給電もできる。</td></tr>
+      <tr><td><b>HDMI</b></td><td>映像と音声をデジタルのまま1本で送る。ディスプレイ・プロジェクタ・テレビ。</td></tr>
+      <tr><td><b>Bluetooth</b></td><td>近距離（約10m）の無線。イヤホン、マウス、キーボード。</td></tr>
+      <tr><td><b>Wi-Fi（無線 LAN）</b></td><td>無線でネットワークにつなぐ。後期に詳しく学びます。</td></tr></table>
+      <div class="point"><b>分類のコツ</b><span>「コンピュータ<b>に入れる</b>」なら入力装置、「コンピュータ<b>から出す</b>」なら出力装置。タッチパネルは、指の位置を入力するセンサと、表示する画面（出力）が組み合わさったものです。</span></div>
+    </div>` },
+  ]},
+
+/* ============================================================ 2. デジタルデータ */
+{ id:"data", no:2, icon:"binary", title:"デジタルデータの表し方", lead:"2進数・16進数・単位・文字・画像・音",
+  intro:"コンピュータの中では、文字も画像も音も、すべて 0 と 1 の並びで表されています。「なぜ 0 と 1 なのか」「どうやって数・文字・画像・音を 0 と 1 にするのか」を、スイッチを動かしながら思い出しましょう。",
+  sections:[
+  { title:"アナログとデジタル、ビットとバイト", short:"ビットとバイト", widget:"bits", labTitle:"8個のスイッチで数を作ろう",
+    html:`<div class="prose">
+      <p><b>アナログ</b>は連続的に変化する量（時計の針、水銀の温度計）、<b>デジタル</b>は飛び飛びの値（数字）で表したものです。コンピュータは電気の ON／OFF で情報を扱うので、<b>2進数（0 と 1）</b> がもっとも都合がよいのです。</p>
+      <ul>
+        <li><b>1ビット（bit）</b>：0 か 1 の1けた。情報の最小単位。</li>
+        <li><b>1バイト（byte）</b>＝ <b>8ビット</b>。2<sup>8</sup> ＝ <b>256</b> 通りを表せる（0〜255）。</li>
+        <li>一般に n ビットで <b>2<sup>n</sup></b> 通り。ビットが1つ増えるごとに表せる数は2倍になる。</li>
+      </ul>
+      <div class="point"><b>2進数の各けたの重み</b><span>右から 1, 2, 4, 8, 16, 32, 64, 128 … と、けたが上がるごとに2倍。10進数の 1, 10, 100 … の「10」が「2」になっただけです。</span></div>
+    </div>` },
+  { title:"基数変換（2進数・10進数・16進数）", short:"基数変換", widget:"radix", labTitle:"10進数を入れると、変換の手順をアニメーションで表示",
+    html:`<div class="prose">
+      <ul>
+        <li><b>2進数 → 10進数</b>：各けたに重みを掛けて足す。例：1011<sub>(2)</sub> ＝ 8＋0＋2＋1 ＝ 11。</li>
+        <li><b>10進数 → 2進数</b>：2 で割った<b>余り</b>を、商が 0 になるまで書き出し、<b>下から順に</b>読む。</li>
+        <li><b>16進数</b>：0〜9 のあとに A〜F（10〜15）を使う。2進数 <b>4けたが 16進数 1けた</b>にぴったり対応するので、長い 2進数を短く書くために使う（例：1111 1010<sub>(2)</sub> ＝ FA<sub>(16)</sub> ＝ 250）。</li>
+      </ul>
+      <table><tr><th>10進</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+      <tr><th>2進</th><td>0000</td><td>0001</td><td>0010</td><td>0011</td><td>0100</td><td>0101</td><td>0110</td><td>0111</td><td>1000</td><td>1001</td><td>1010</td><td>1011</td><td>1100</td><td>1101</td><td>1110</td><td>1111</td></tr>
+      <tr><th>16進</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td><td>F</td></tr></table>
+      <details class="why"><summary>なぜ「2で割った余り」で2進数になるの？</summary><p>10進数の 13 を 2 で割ると「6 余り 1」。この余り 1 は「2 でまとめられずに残った 1 のけた」、つまり 2進数の最下位のけたです。商の 6 をさらに 2 で割ると、次のけたが決まります。これをくり返すと、下のけたから順に決まっていくので「下から読む」のです。</p></details>
+    </div>` },
+  { title:"データ量の単位と補助単位", short:"単位", widget:"units", labTitle:"バイト数を入れると、単位を換算",
+    html:`<div class="prose">
+      <table><tr><th>記号</th><th>読み</th><th>大きさ</th><th>記号</th><th>読み</th><th>大きさ</th></tr>
+      <tr><td>k</td><td>キロ</td><td>10<sup>3</sup>（千）</td><td>m</td><td>ミリ</td><td>10<sup>-3</sup></td></tr>
+      <tr><td>M</td><td>メガ</td><td>10<sup>6</sup>（百万）</td><td>μ</td><td>マイクロ</td><td>10<sup>-6</sup></td></tr>
+      <tr><td>G</td><td>ギガ</td><td>10<sup>9</sup>（十億）</td><td>n</td><td>ナノ</td><td>10<sup>-9</sup></td></tr>
+      <tr><td>T</td><td>テラ</td><td>10<sup>12</sup>（一兆）</td><td>p</td><td>ピコ</td><td>10<sup>-12</sup></td></tr></table>
+      <p>大きい単位はデータ量（バイト）や周波数（Hz）に、小さい単位は時間（秒）に使います。例：3 GHz ＝ 3×10<sup>9</sup> Hz、アクセス時間 10 ns ＝ 10×10<sup>-9</sup> 秒。</p>
+      <div class="point"><b>1024 の話</b><span>コンピュータでは 2<sup>10</sup> ＝ 1024 を「キロ」として扱う場面もあります（メモリ容量など）。区別するときは <b>KiB（キビバイト）＝1024 バイト</b>、<b>kB＝1000 バイト</b> と書きます。試験では「1 kB ＝ 1000 バイト」「1 KiB ＝ 1024 バイト」のように問題文の指定に従いましょう。</span></div>
+    </div>` },
+  { title:"負の数の表し方（2の補数）", short:"補数",
+    html:`<div class="prose">
+      <p>コンピュータにはマイナス記号がありません。そこで <b>2の補数</b> という表し方で負の数を扱います。</p>
+      <ol>
+        <li>絶対値を2進数で書く：5 → 0000 0101</li>
+        <li>0 と 1 を反転する：1111 1010</li>
+        <li>1 を足す：<b>1111 1011</b> ＝ −5</li>
+      </ol>
+      <p>こうすると <b>引き算を足し算で計算できます</b>。3 − 5 は 3 ＋ (−5) ＝ 0000 0011 ＋ 1111 1011 ＝ 1111 1110 ＝ −2。8ビットの2の補数で表せる範囲は <b>−128〜127</b> です。<b>先頭のビットが 1 なら負の数</b>と分かります。</p>
+      <div class="point"><b>体験</b><span>2-1 のスイッチのコーナーで「2の補数」モードに切りかえると、同じビット列が負の数として読める様子を確かめられます。</span></div>
+    </div>` },
+  { title:"文字の表し方（文字コード）", short:"文字コード", widget:"charcode", labTitle:"文字を入れると、コンピュータの中の数（バイト列）を表示",
+    html:`<div class="prose">
+      <p>文字も、1文字ずつ番号（<b>文字コード</b>）を決めて数で表します。どの番号がどの文字かを決めた表が「文字コード体系」です。</p>
+      <table><tr><th>文字コード</th><th>特徴</th></tr>
+      <tr><td><b>ASCII</b></td><td>7ビットで 128 文字。英数字と記号。「A」＝ 65（16進で 41）。世界中の文字コードの基礎。</td></tr>
+      <tr><td><b>JIS／Shift_JIS／EUC-JP</b></td><td>日本語（ひらがな・カタカナ・漢字）を <b>2バイト</b>で表す、日本独自の体系。</td></tr>
+      <tr><td><b>Unicode</b>（UTF-8、UTF-16）</td><td>世界中の文字を1つの表に集めたもの。<b>UTF-8</b> は Web の標準で、英数字は1バイト、日本語はふつう3バイト、絵文字は4バイト。</td></tr></table>
+      <details class="why"><summary>「文字化け」はなぜ起こる？</summary><p>書いた側と読む側で<b>ちがう文字コード表</b>を使うと、同じ数がちがう文字に対応づけられてしまうからです。たとえば Shift_JIS で保存した「あ」（82 A0）を UTF-8 として読むと、対応する文字がなく意味不明な記号になります。</p></details>
+    </div>` },
+  { title:"画像の表し方", short:"画像", widget:"image", labTitle:"色と解像度を動かしてみよう",
+    html:`<div class="prose">
+      <p>画像は小さな点（<b>画素、ピクセル</b>）の集まりで、各画素の色を数で表します。</p>
+      <ul>
+        <li><b>解像度</b>：画素の数（例：1920×1080）。多いほど細かい表現ができるがデータ量も増える。</li>
+        <li><b>色の表し方</b>：光の三原色 <b>R（赤）G（緑）B（青）</b> の強さを組み合わせる（<b>加法混色</b>。全部最大で白）。各色を 8ビット（0〜255）で表すと 8×3 ＝ <b>24ビット</b>、2<sup>24</sup> ＝ <b>約1677万色</b>（フルカラー）。</li>
+        <li><b>データ量</b>＝ 画素数 × 1画素あたりのビット数。例：1920×1080 画素 × 24ビット ＝ 49,766,400 ビット ≒ <b>6.2 MB</b>（圧縮しない場合）。</li>
+        <li><b>ファイル形式</b>：JPEG（写真向き・非可逆圧縮）、PNG（可逆圧縮・透明あり）、GIF（256色・アニメ）。</li>
+      </ul>
+      <div class="point"><b>色深度と色数</b><span>1ビット → 2色、8ビット → 256 色、24ビット → 16,777,216 色。ビットが1つ増えると色数は2倍です。</span></div>
+    </div>` },
+  { title:"音の表し方（標本化・量子化・符号化）", short:"音", widget:"sound", labTitle:"サンプリング周波数と量子化ビット数を動かしてみよう",
+    html:`<div class="prose">
+      <p>音（空気の振動）はアナログな波です。これをデジタルにするには、次の3ステップ（<b>PCM</b> 方式）を行います。</p>
+      <ol>
+        <li><b>標本化（サンプリング）</b>：一定の時間ごとに波の高さを測る。1秒間に測る回数が<b>サンプリング周波数</b>（CD は 44.1 kHz ＝ 1秒に 44,100 回）。</li>
+        <li><b>量子化</b>：測った高さを、決められた段階（目盛り）のうち一番近い値に丸める。段階の細かさが<b>量子化ビット数</b>（CD は 16 ビット ＝ 65,536 段階）。</li>
+        <li><b>符号化</b>：その値を 2進数で表す。</li>
+      </ol>
+      <p><b>データ量</b>＝ サンプリング周波数 × 量子化ビット数 × チャネル数 × 秒数。CD 音質（44.1 kHz、16 ビット、ステレオ 2ch）の1秒 ＝ 44,100×16×2 ＝ 1,411,200 ビット ≒ <b>176 kB</b>。</p>
+      <details class="why"><summary>サンプリング周波数はなぜ 44.1 kHz？</summary><p>人が聞こえる音は最高で約 20 kHz。「元の波を再現するには、最高周波数の<b>2倍以上</b>の周波数で標本化する必要がある」という<b>標本化定理</b>から、20 kHz の 2 倍＝40 kHz より少し余裕をもたせて 44.1 kHz が選ばれました。</p></details>
+    </div>` },
+  ]},
+
+/* ============================================================ 3. ファイルとディレクトリ */
+{ id:"file", no:3, icon:"folder", title:"ファイルとディレクトリ", lead:"階層構造・パス・拡張子・圧縮とバックアップ",
+  intro:"コンピュータはデータを「ファイル」という単位で保存し、「ディレクトリ（フォルダ）」で整理します。ファイルの場所を正確に指し示す「パス」の書き方を、木をたどりながら復習します。",
+  sections:[
+  { title:"ファイルとディレクトリの階層構造", short:"階層構造",
+    html:`<div class="prose">
+      <ul>
+        <li><b>ファイル</b>：データやプログラムを保存する単位。名前がついている。</li>
+        <li><b>ディレクトリ</b>（Windows では<b>フォルダ</b>）：ファイルやディレクトリを入れる「入れ物」。中にディレクトリを入れられるので、<b>階層構造（木構造）</b>になる。</li>
+        <li><b>ルートディレクトリ</b>：いちばん上（根っこ）のディレクトリ。「/」（Windows では「C:\\」など）で表す。</li>
+        <li><b>サブディレクトリ</b>：あるディレクトリの中にあるディレクトリ。</li>
+        <li><b>カレントディレクトリ</b>：今、自分が作業している（いる）ディレクトリ。</li>
+      </ul>
+      ${FIG_TREE}
+      <div class="point"><b>なぜ階層にするの？</b><span>ファイルが何千個もあると、平らに並べただけでは探せません。「学部 → 学科 → 学年」のように分類しておけば、同じ名前のファイルも別の場所なら共存できます。</span></div>
+    </div>` },
+  { title:"パス（絶対パスと相対パス）", short:"パス", widget:"path", labTitle:"木の中を移動して、パスを答えよう",
+    html:`<div class="prose">
+      <p><b>パス</b>はファイルやディレクトリの「住所」。ディレクトリ名を区切り文字（<b>/</b>、Windows は <b>\\</b>）でつないで書きます。</p>
+      <table><tr><th></th><th>絶対パス</th><th>相対パス</th></tr>
+      <tr><th>起点</th><td><b>ルート</b>から</td><td><b>カレントディレクトリ</b>から</td></tr>
+      <tr><th>書き方</th><td>先頭が「/」で始まる<br><code>/home/taro/report.txt</code></td><td>先頭に「/」がない<br><code>taro/report.txt</code>（カレントが /home のとき）</td></tr>
+      <tr><th>特徴</th><td>どこにいても同じ書き方で確実</td><td>短く書ける。カレントが変わると指す先も変わる</td></tr></table>
+      <ul>
+        <li><code>.</code>（ドット1つ）＝ カレントディレクトリ自身</li>
+        <li><code>..</code>（ドット2つ）＝ 1つ上（親）のディレクトリ。<code>../hanako/memo.txt</code> は「1つ上に行って、hanako の中の memo.txt」</li>
+      </ul>
+      <div class="point"><b>見分け方</b><span>先頭が「/」なら絶対パス、そうでなければ相対パス。相対パスは「今いる場所」がわからないと解けないので、問題文のカレントディレクトリを必ず確認しましょう。</span></div>
+    </div>` },
+  { title:"拡張子とファイル形式", short:"拡張子", widget:"ext", labTitle:"拡張子マッチング",
+    html:`<div class="prose">
+      <p>ファイル名の末尾の「.」以降を <b>拡張子</b> といい、ファイルの種類（形式）を表します。OS は拡張子を見て、開くアプリを決めます。</p>
+      <table><tr><th>種類</th><th>拡張子</th></tr>
+      <tr><td>テキスト</td><td>.txt（文字だけ）、.csv（カンマ区切りの表データ）、.html（Web ページ）</td></tr>
+      <tr><td>文書・表・発表</td><td>.docx（Word）、.xlsx（Excel）、.pptx（PowerPoint）、.pdf（配布用文書）</td></tr>
+      <tr><td>画像</td><td>.jpg／.jpeg（写真）、.png（図・透明）、.gif（アニメ）、.svg（ベクタ画像）</td></tr>
+      <tr><td>音声・動画</td><td>.mp3、.wav（音声）、.mp4（動画）</td></tr>
+      <tr><td>圧縮</td><td>.zip（複数ファイルをまとめて圧縮）</td></tr>
+      <tr><td>プログラム</td><td>.exe（Windows の実行ファイル）、.py、.js など（ソースコード）</td></tr></table>
+      <p class="small muted">ワイルドカード：<code>*.jpg</code> のように「*」を使うと「拡張子が jpg のすべてのファイル」を表せます（「?」は任意の1文字）。</p>
+    </div>` },
+  { title:"圧縮・バックアップ・アクセス権", short:"圧縮と管理",
+    html:`<div class="prose">
+      <ul>
+        <li><b>圧縮</b>：データ量を減らすこと。<b>可逆圧縮</b>（ZIP、PNG：完全に元に戻せる）と<b>非可逆圧縮</b>（JPEG、MP3：人が気づきにくい情報を捨てて大きく減らす。元には戻らない）がある。</li>
+        <li><b>バックアップ</b>：故障・誤操作・ウイルスに備えて、データの複製を別の場所に保存すること。<b>フルバックアップ</b>（全部）、<b>差分</b>（前回のフルからの変化分）、<b>増分</b>（前回のバックアップからの変化分）。</li>
+        <li><b>アクセス権</b>：ファイルごとに「誰が」「読む・書く・実行する」をできるかを決めるしくみ。共有のコンピュータで、他人のファイルを勝手に書き換えられないようにする。</li>
+      </ul>
+      <div class="point"><b>3-2-1 ルール</b><span>大切なデータは <b>3</b>つのコピーを、<b>2</b>種類以上の媒体に、うち<b>1</b>つは別の場所（クラウドなど）に。USB メモリ1本だけに保存するのは「バックアップ」とはいえません。</span></div>
+    </div>` },
+  ]},
+
+/* ============================================================ 4. OS とアプリケーション */
+{ id:"os", no:4, icon:"layers", title:"OSとアプリケーション", lead:"ソフトウェアの分類・OSの役割・UI・ライセンス",
+  intro:"ハードウェアは、ソフトウェアがなければただの箱です。ソフトウェアを「基本ソフト（OS）」と「応用ソフト（アプリ）」に分け、OS が裏側で何をしているのかを、積み木とタイムラインで確かめます。",
+  sections:[
+  { title:"ソフトウェアの分類（層の構造）", short:"ソフトの分類", widget:"layers", labTitle:"積み木を正しい順に積もう",
+    html:`<div class="prose">
+      <p>ソフトウェアは、ハードウェアの上に<b>層（レイヤ）</b>のように積み重なっています。</p>
+      ${FIG_LAYERS}
+      <ul>
+        <li><b>基本ソフトウェア（OS：オペレーティングシステム）</b>：ハードウェアを直接管理し、アプリに共通の機能を提供する。Windows、macOS、Linux、iOS、Android など。</li>
+        <li><b>ミドルウェア</b>：OS とアプリの中間で、多くのアプリが共通に使う機能を提供する。DBMS（データベース管理システム）、Web サーバなど。</li>
+        <li><b>応用ソフトウェア（アプリケーション）</b>：利用者の目的に直接役立つソフト。ワープロ、表計算、ブラウザ、ゲームなど。</li>
+      </ul>
+      <div class="point"><b>なぜ層に分けるの？</b><span>アプリを作る人が、キーボードの読み取りやディスクへの書き込みを毎回ゼロから作るのは大変です。OS がその部分を引き受け、<b>API</b>（アプリから OS の機能を呼び出す窓口）として提供することで、どのアプリも同じやり方でハードウェアを使えます。</span></div>
+    </div>` },
+  { title:"OS の役割", short:"OSの役割", widget:"multitask", labTitle:"マルチタスク：CPU はどう切りかえている？",
+    html:`<div class="prose">
+      <table><tr><th>役割</th><th>内容</th></tr>
+      <tr><td><b>ハードウェアの管理</b></td><td>CPU・メモリ・入出力装置を管理する。周辺機器ごとの制御プログラムを <b>デバイスドライバ</b> という。</td></tr>
+      <tr><td><b>タスク（プロセス）管理</b></td><td>複数のプログラムを同時に動かしているように見せる（<b>マルチタスク</b>）。CPU の時間を細かく区切って順番に割り当てる。</td></tr>
+      <tr><td><b>メモリ管理</b></td><td>各プログラムに主記憶を割り当てる。主記憶が足りないとき、補助記憶の一部をメモリのように使う（<b>仮想記憶</b>）。</td></tr>
+      <tr><td><b>ファイル管理</b></td><td>ディレクトリ構造、アクセス権、読み書き（第3章）。</td></tr>
+      <tr><td><b>ユーザ管理</b></td><td>ユーザ名とパスワードによるログイン、権限の管理。</td></tr>
+      <tr><td><b>ユーザインタフェースの提供</b></td><td>GUI や CUI（次のセクション）。</td></tr></table>
+      <details class="why"><summary>マルチタスクの根拠：本当に「同時」に動いているの？</summary><p>1つのコアは、ある瞬間には1つの命令しか実行できません。OS は、たとえば数ミリ秒ごとにプログラムを切りかえます（<b>タイムスライス</b>）。切りかえが人間には速すぎるので、同時に動いているように見えるのです。マルチコア CPU なら、コアの数だけ本当に同時に実行できます。</p></details>
+    </div>` },
+  { title:"いろいろな OS とユーザインタフェース", short:"OSとUI", widget:"osmatch", labTitle:"OS の名前と説明を結ぼう",
+    html:`<div class="prose">
+      <table><tr><th>OS</th><th>特徴</th></tr>
+      <tr><td><b>Windows</b></td><td>Microsoft 社。パソコン用として最も普及。</td></tr>
+      <tr><td><b>macOS</b></td><td>Apple 社。Mac 用。UNIX 系。</td></tr>
+      <tr><td><b>Linux</b></td><td>オープンソース（OSS）の UNIX 系 OS。サーバやスーパーコンピュータ、組込み機器で広く使われる。</td></tr>
+      <tr><td><b>iOS ／ Android</b></td><td>スマートフォン・タブレット用。Android は Linux をもとにした OSS。</td></tr></table>
+      <p><b>ユーザインタフェース（UI）</b>：人とコンピュータのやりとりの方法。</p>
+      <ul>
+        <li><b>GUI</b>（Graphical User Interface）：アイコンやウィンドウをマウスやタッチで操作。直感的。</li>
+        <li><b>CUI</b>（Character User Interface）：キーボードから文字でコマンドを入力。自動化や遠隔操作に強い。</li>
+      </ul>
+    </div>` },
+  { title:"アプリケーションとソフトウェアのライセンス", short:"ライセンス",
+    html:`<div class="prose">
+      <p>ソフトウェアは著作物です。買ったのは「使う権利（<b>使用許諾、ライセンス</b>）」であって、コピーして配る権利ではありません。</p>
+      <table><tr><th>区分</th><th>内容</th></tr>
+      <tr><td><b>OSS</b>（オープンソースソフトウェア）</td><td>ソースコード（プログラムの設計図）が公開され、ライセンスの条件のもとで自由に利用・改変・再配布できる。Linux、Firefox など。</td></tr>
+      <tr><td><b>フリーウェア</b></td><td>無料で使えるが、ソースコードは公開されていないことが多い。</td></tr>
+      <tr><td><b>シェアウェア</b></td><td>試用は無料、継続して使うなら料金を払う。</td></tr>
+      <tr><td><b>パッケージ／サブスクリプション</b></td><td>買い切りで使う／月額・年額で使う権利を借りる（Microsoft 365 など）。</td></tr>
+      <tr><td><b>サイトライセンス</b></td><td>学校や企業など、組織の中で人数を限定せず使える契約。</td></tr></table>
+      <div class="point"><b>注意</b><span>「無料＝何をしてもよい」ではありません。OSS にもライセンス（GPL、MIT など）があり、改変して配るときの条件が決められています。</span></div>
+    </div>` },
+  ]},
+
+/* ============================================================ 5. 表計算ソフト */
+{ id:"sheet", no:5, icon:"grid", title:"表計算ソフト", lead:"セル・数式・関数・相対参照と絶対参照・グラフ",
+  intro:"表計算ソフト（Excel など）は「セルに数式を書くと、参照先が変わったとき自動で計算し直してくれる」道具です。この章では、本物のように動くミニ表計算で、数式のコピーと参照のしくみを体験します。",
+  sections:[
+  { title:"セルと番地、数式の基本", short:"セルと数式",
+    html:`<div class="prose">
+      <ul>
+        <li>表のマス目を <b>セル</b>、横の並びを <b>行</b>（1, 2, 3…）、縦の並びを <b>列</b>（A, B, C…）という。</li>
+        <li>セルの位置は「列＋行」で <b>A1</b>、<b>C5</b> のように表す（<b>セル番地</b>）。範囲は <b>A1:C3</b> のように「:」でつなぐ。</li>
+        <li>数式は <b>=（イコール）</b> で始める。<code>=A1+B1</code>、<code>=B2*C2</code>。演算子は + − * /、べき乗は ^。</li>
+        <li>数式にセル番地を書くことを <b>参照</b> という。参照先の値が変わると、数式の結果も自動で変わる。</li>
+      </ul>
+      <div class="point"><b>値を直接書かず、参照を使う理由</b><span>「単価×数量」を <code>=120*3</code> と書くと、単価が変わるたびに数式を書き直すことになります。<code>=B2*C2</code> と書いておけば、B2 を直すだけで済み、ミスも減ります。</span></div>
+    </div>` },
+  { title:"よく使う関数", short:"関数", widget:"sheet", labTitle:"ミニ表計算：数式を入力してみよう（数式は = で始める）",
+    html:`<div class="prose">
+      <table><tr><th>関数</th><th>意味</th><th>例</th></tr>
+      <tr><td><b>SUM</b></td><td>合計</td><td><code>=SUM(B2:B6)</code></td></tr>
+      <tr><td><b>AVERAGE</b></td><td>平均</td><td><code>=AVERAGE(B2:B6)</code></td></tr>
+      <tr><td><b>MAX ／ MIN</b></td><td>最大値／最小値</td><td><code>=MAX(B2:B6)</code></td></tr>
+      <tr><td><b>COUNT</b></td><td>数値が入っているセルの個数</td><td><code>=COUNT(B2:B6)</code></td></tr>
+      <tr><td><b>IF</b></td><td>条件によって値を変える</td><td><code>=IF(B2>=60,"合格","不合格")</code></td></tr>
+      <tr><td><b>ROUND</b></td><td>四捨五入（けた数を指定）</td><td><code>=ROUND(B2/3,1)</code></td></tr>
+      <tr><td><b>INT ／ MOD</b></td><td>整数部分／割り算の余り</td><td><code>=MOD(7,3)</code> → 1</td></tr></table>
+      <p class="small muted">関数の書き方：<b>関数名(引数1, 引数2, …)</b>。引数にはセル番地・範囲・数値・文字列（"　"で囲む）を指定します。</p>
+    </div>` },
+  { title:"相対参照と絶対参照", short:"相対と絶対", widget:"refcopy", labTitle:"数式をコピーすると、参照はどう変わる？",
+    html:`<div class="prose">
+      <p>数式をほかのセルに<b>コピー</b>すると、セル番地は「コピー先との位置関係を保ったまま」自動的にずれます。これを <b>相対参照</b> といいます。</p>
+      <p>ずれてほしくないセル（税率、単価表など）には <b>$</b> をつけて <b>絶対参照</b> にします。</p>
+      <table><tr><th>書き方</th><th>意味</th><th>D2 から D3 にコピーすると</th></tr>
+      <tr><td><code>A1</code></td><td>相対参照（列も行もずれる）</td><td><code>A2</code></td></tr>
+      <tr><td><code>$A$1</code></td><td>絶対参照（列も行も固定）</td><td><code>$A$1</code></td></tr>
+      <tr><td><code>A$1</code></td><td>行だけ固定（複合参照）</td><td><code>A$1</code></td></tr>
+      <tr><td><code>$A1</code></td><td>列だけ固定（複合参照）</td><td><code>$A2</code></td></tr></table>
+      <div class="point"><b>覚え方</b><span><b>$ は「くぎ」</b>。$ の直後にある列名や行番号がくぎで打ちつけられて動かなくなる、と考えます。<code>A$1</code> は「1 行目にくぎ」、<code>$A1</code> は「A 列にくぎ」。</span></div>
+    </div>` },
+  { title:"グラフの選び方", short:"グラフ", widget:"charts", labTitle:"目的に合うグラフを選ぼう",
+    html:`<div class="prose">
+      <table><tr><th>グラフ</th><th>向いている目的</th><th>例</th></tr>
+      <tr><td><b>棒グラフ</b></td><td>項目どうしの<b>量の比較</b></td><td>商品ごとの売上</td></tr>
+      <tr><td><b>折れ線グラフ</b></td><td>時間による<b>変化・推移</b></td><td>月ごとの気温</td></tr>
+      <tr><td><b>円グラフ</b></td><td>全体に対する<b>割合</b>（構成比）</td><td>アンケートの回答割合</td></tr>
+      <tr><td><b>散布図</b></td><td>2つの量の<b>関係（相関）</b></td><td>身長と体重</td></tr>
+      <tr><td><b>レーダーチャート</b></td><td>複数項目の<b>バランス</b></td><td>教科ごとの成績</td></tr></table>
+      <p class="small muted">そのほか：<b>並べ替え</b>（ソート：昇順・降順）、<b>フィルタ</b>（条件に合う行だけ表示）も表計算の基本機能です。</p>
+    </div>` },
+  ]},
+
+/* ============================================================ 6. データベース */
+{ id:"db", no:6, icon:"db", title:"データベース", lead:"DBMS・関係データベース・主キー・SQL・トランザクション",
+  intro:"データベースは「たくさんのデータを、矛盾なく、みんなで安全に使う」ためのしくみです。表のつくり、主キーと外部キー、SQL による取り出し、同時更新を防ぐ排他制御まで、実際に動かして思い出しましょう。",
+  sections:[
+  { title:"データベースと DBMS", short:"DBMS",
+    html:`<div class="prose">
+      <ul>
+        <li><b>データベース（DB）</b>：目的に合わせて整理し、共有して使えるようにしたデータの集まり。</li>
+        <li><b>DBMS</b>（データベース管理システム）：データベースを管理するソフトウェア（ミドルウェア）。データの<b>一元管理</b>、<b>同時アクセス制御</b>、<b>アクセス権管理</b>、<b>障害からの回復</b>などを行う。</li>
+        <li><b>関係データベース（リレーショナルデータベース、RDB）</b>：データを<b>表（テーブル）</b>の形で管理する方式。現在もっとも広く使われている。</li>
+      </ul>
+      <div class="point"><b>表計算ソフトと何がちがう？</b><span>表計算は1人が1つのファイルを扱うのが基本。DBMS は<b>多数の利用者が同時に</b>読み書きしても矛盾が起きないように制御し、データの重複や食いちがいを防ぐ設計（正規化）を前提にしています。</span></div>
+    </div>` },
+  { title:"表の構造：主キーと外部キー", short:"主キー", widget:"keys", labTitle:"主キーになれる列はどれ？",
+    html:`<div class="prose">
+      <ul>
+        <li>表の横1行を <b>行（レコード）</b>、縦1列を <b>列（フィールド、項目）</b> という。</li>
+        <li><b>主キー</b>：1行を<b>一意に</b>（ただ1つに）特定できる列。<b>重複がなく、空（NULL）でもいけない</b>。学生番号、商品コードなど。</li>
+        <li><b>外部キー</b>：<b>他の表の主キー</b>を参照する列。表と表を関連づける（例：注文表の「学生番号」は学生表の主キーを指す）。</li>
+        <li>2つ以上の列を組み合わせて主キーにすることもある（<b>複合キー</b>）。</li>
+      </ul>
+      <details class="why"><summary>なぜ「氏名」は主キーに向かないの？</summary><p>同姓同名の人がいると、1行に特定できないからです。また、改姓で値が変わる可能性もあります。主キーには「重複せず、変わらず、必ず値がある」列（またはそのために作った番号）を使います。</p></details>
+    </div>` },
+  { title:"正規化：重複をなくして矛盾を防ぐ", short:"正規化", widget:"normalize", labTitle:"1つの表 vs 分けた表：値を書きかえてみよう",
+    html:`<div class="prose">
+      <p><b>正規化</b>とは、データの<b>重複をなくす</b>ように表を分割し、更新のときに矛盾が起きないようにする設計の手順です。</p>
+      <ul>
+        <li>1つの表に「学生番号・氏名・科目名・担当教員」を全部入れると、同じ学生の氏名が何度も現れる（<b>冗長</b>）。</li>
+        <li>その学生の氏名を直すとき、1か所でも直し忘れると<b>食いちがい（更新異常）</b>が起こる。</li>
+        <li>「学生」「科目」「履修」のように表を分け、<b>主キーと外部キー</b>でつなげば、氏名は1か所にしかないので矛盾しない。</li>
+      </ul>
+      <p class="small muted">表と表の関係（1対多など）を図にしたものを <b>E-R 図</b>（実体関連図）といいます。</p>
+    </div>` },
+  { title:"データの取り出し：関係演算と SQL", short:"SQL", widget:"sql", labTitle:"SQL を書いて、表から取り出してみよう",
+    html:`<div class="prose">
+      <p>表からデータを取り出す基本の操作は3つ。これを<b>関係演算</b>といいます。</p>
+      <table><tr><th>演算</th><th>意味</th><th>SQL では</th></tr>
+      <tr><td><b>選択</b></td><td>条件に合う<b>行</b>を取り出す</td><td><code>WHERE</code></td></tr>
+      <tr><td><b>射影</b></td><td>必要な<b>列</b>だけ取り出す</td><td><code>SELECT</code> の列指定</td></tr>
+      <tr><td><b>結合</b></td><td>2つの表を共通の列でつなぐ</td><td><code>JOIN</code>（または WHERE で条件指定）</td></tr></table>
+      <p><b>SQL</b> は DBMS に指示を出すための言語です。基本形：</p>
+      <div class="readout"><b>SELECT</b> 列名, 列名 <b>FROM</b> 表名 <b>WHERE</b> 条件 <b>ORDER BY</b> 列名;</div>
+      <ul>
+        <li><code>SELECT * FROM 学生</code> → 学生表のすべての列・行</li>
+        <li><code>SELECT 氏名 FROM 学生 WHERE 学年 = 2</code> → 2年生の氏名だけ（選択＋射影）</li>
+        <li>条件は <code>AND</code>／<code>OR</code> でつなげる。並べ替えは <code>ORDER BY 列 DESC</code>（降順）。</li>
+      </ul>
+      <div class="point"><b>覚え方</b><span>選択は「行を選ぶ」、射影は「列に光を当てて影（プロジェクション）を映す」。<b>行なら選択、列なら射影</b>。</span></div>
+    </div>` },
+  { title:"トランザクションと排他制御", short:"排他制御", widget:"lock", labTitle:"最後の1席を2人が同時に予約したら？",
+    html:`<div class="prose">
+      <ul>
+        <li><b>トランザクション</b>：「口座 A から引き落とし、口座 B に入金」のように、<b>まとめて全部成功するか、全部なかったことにするか</b>のどちらかでなければならない一連の処理。</li>
+        <li><b>コミット</b>：処理を確定する。<b>ロールバック</b>：処理を取り消して、開始前の状態に戻す。</li>
+        <li><b>排他制御（ロック）</b>：あるデータを誰かが更新している間、ほかの人が同時に更新できないようにする。同時更新による矛盾（ダブルブッキングなど）を防ぐ。</li>
+        <li><b>ACID 特性</b>：原子性（Atomicity：全部か無か）、一貫性（Consistency）、独立性（Isolation：同時実行しても互いに影響しない）、耐久性（Durability：確定した結果は失われない）。</li>
+        <li><b>障害回復</b>：更新の記録（<b>ログ、ジャーナル</b>）を使い、<b>ロールバック</b>（更新前の状態に戻す）や <b>ロールフォワード</b>（バックアップに更新後ログを反映して障害直前の状態に復元）を行う。</li>
+      </ul>
+      <details class="why"><summary>ロックがないと何が起こる？</summary><p>残席「1」を A さんと B さんが同時に読むと、2人とも「空いている」と判断し、それぞれ残席を 0 にして予約を確定してしまいます。結果は残席 0 なのに予約は 2 件、というダブルブッキングです。ロックをかければ、先に読んだ人の処理が終わるまで後の人は待たされ、待った後に残席 0 を読むので予約できません。</p></details>
+    </div>` },
+  ]},
+];
+
+/* ============================================================
+   quiz.js ── 確認クイズ・総合テストの問題
+   形式：{ q:問題文, a:[正解, 誤答, 誤答, 誤答], e:解説, tag?:補足ラベル }
+   a[0] が正解。表示時に順番はシャッフルされる。
+   ============================================================ */
+const QUIZ = {
+hw:[
+ { q:"コンピュータの五大装置のうち、プログラムの命令を解読して他の装置に指示を出す装置はどれか。",
+   a:["制御装置","演算装置","記憶装置","入力装置"],
+   e:"制御装置は命令を解読し、各装置に指示を出す「指揮者」です。演算装置は計算・比較を行います。この2つを合わせて CPU とよびます。" },
+ { q:"主記憶装置（メインメモリ）について正しい記述はどれか。",
+   a:["電源を切ると内容が消える（揮発性）","電源を切っても内容が残る（不揮発性）","CPU の中に内蔵されているレジスタのことである","HDD や SSD のことである"],
+   e:"主記憶には DRAM が使われ、揮発性です。だからファイルは補助記憶（SSD・HDD）に保存しなければなりません。CPU の中にあるのはレジスタとキャッシュです。" },
+ { q:"CPU のクロック周波数が 3 GHz であるとき、クロック信号は 1 秒間に何回打たれるか。",
+   a:["30億回","300万回","3億回","3万回"],
+   e:"G（ギガ）は 10の9乗＝10億。3 GHz は 3×10億＝30億回／秒です。" },
+ { q:"記憶装置を「CPU から見て速い順」に並べたものはどれか。",
+   a:["レジスタ → キャッシュメモリ → 主記憶 → SSD","主記憶 → キャッシュメモリ → レジスタ → SSD","SSD → 主記憶 → キャッシュメモリ → レジスタ","キャッシュメモリ → レジスタ → SSD → 主記憶"],
+   e:"CPU に近いほど速く、小さく、高価です。レジスタ（CPU 内）＞キャッシュ（SRAM）＞主記憶（DRAM）＞補助記憶（SSD・HDD）の順に遅くなります。" },
+ { q:"SSD が HDD より高速である主な理由として適切なものはどれか。",
+   a:["機械的に動く部品がなく、電気的にデータの場所へアクセスできるから","磁気ディスクの回転が速いから","容量が HDD より大きいから","電源を切ると内容が消えるから"],
+   e:"HDD はヘッドの移動とディスクの回転待ちに数ミリ秒かかります。SSD はフラッシュメモリに電気的にアクセスするので、その待ち時間がありません。SSD も不揮発性なので、電源を切っても内容は残ります。" },
+ { q:"映像と音声をデジタルのまま1本のケーブルで送るインタフェースはどれか。",
+   a:["HDMI","USB","Bluetooth","Wi-Fi"],
+   e:"HDMI はディスプレイやプロジェクタとの接続に使う、映像＋音声のデジタルインタフェースです。USB は汎用の接続、Bluetooth と Wi-Fi は無線です。" },
+],
+data:[
+ { q:"1 バイトで表せる値は何通りか。",
+   a:["256 通り","8 通り","128 通り","1024 通り"],
+   e:"1 バイト＝8 ビット。1 ビットにつき 0 か 1 の 2 通りなので、2の8乗＝256 通り（0〜255）です。" },
+ { q:"2進数 1101 を 10進数にするといくつか。",
+   a:["13","11","12","14"],
+   e:"右から 1, 2, 4, 8 の重みを掛けて足します。8＋4＋0＋1＝13。" },
+ { q:"10進数 45 を 2進数で表すとどれか。",
+   a:["101101","101011","110101","100111"],
+   e:"45 を 2 で割っていくと余りは下から 1,0,1,1,0,1。よって 101101。検算：32＋8＋4＋1＝45。" },
+ { q:"16進数 2F を 10進数にするといくつか。",
+   a:["47","32","215","41"],
+   e:"16進数の 2F は 2×16＋F(15)＝32＋15＝47。16進数は 1 けたで 0〜15 を表します。" },
+ { q:"ASCII コードの説明として適切なものはどれか。",
+   a:["7ビットで英数字と記号 128 文字を表す文字コード","日本語の漢字を 2 バイトで表す文字コード","世界中の文字を 1 つの表に集めた文字コード","画像の色を表すコード"],
+   e:"ASCII は 7 ビット＝128 文字で、英数字と記号だけを扱います。日本語を扱うのは Shift_JIS などで、世界中の文字を集めたのが Unicode です。" },
+ { q:"1 画素を 24 ビットで表すと、何色を表現できるか。",
+   a:["約 1677 万色","256 色","約 6 万 5 千色","24 色"],
+   e:"2の24乗＝16,777,216 色。R・G・B を 8 ビットずつ（256 段階ずつ）組み合わせた「フルカラー」です。" },
+ { q:"アナログの音をデジタルにするとき、一定時間ごとに波の高さを測る操作を何というか。",
+   a:["標本化（サンプリング）","量子化","符号化","圧縮"],
+   e:"標本化 → 量子化 → 符号化の順です。標本化は時間方向に区切って測ること、量子化は測った値を決まった段階に丸めること、符号化は 2 進数にすることです。" },
+ { q:"1 kB（キロバイト）＝ 1000 バイトとするとき、2 GB は何 MB か。",
+   a:["2000 MB","200 MB","20000 MB","2 MB"],
+   e:"k→M→G はそれぞれ 1000 倍。1 GB＝1000 MB なので 2 GB＝2000 MB です。" },
+],
+file:[
+ { q:"階層構造の最上位にあるディレクトリを何というか。",
+   a:["ルートディレクトリ","カレントディレクトリ","サブディレクトリ","ホームディレクトリ"],
+   e:"ルート（root）は「根」。木構造の根にあたる最上位のディレクトリで、「/」で表します。カレントは「今いる」ディレクトリです。" },
+ { q:"カレントディレクトリが /home/taro のとき、/home/hanako/memo.txt を相対パスで表したものはどれか。",
+   a:["../hanako/memo.txt","./hanako/memo.txt","/hanako/memo.txt","hanako/memo.txt"],
+   e:"「..」で 1 つ上（/home）に上がり、そこから hanako/memo.txt。「./hanako」はカレント（taro）の中の hanako を指すので誤りです。" },
+ { q:"絶対パスの説明として正しいものはどれか。",
+   a:["ルートディレクトリを起点にして書いたパス","カレントディレクトリを起点にして書いたパス","ファイル名だけを書いたパス","「..」から始まるパス"],
+   e:"絶対パスはルートから、相対パスはカレントから書きます。絶対パスは先頭が「/」で始まります。" },
+ { q:"「..」（ドット 2 つ）が表すものはどれか。",
+   a:["1 つ上（親）のディレクトリ","カレントディレクトリ自身","ルートディレクトリ","隠しファイル"],
+   e:"「.」はカレントディレクトリ自身、「..」は親ディレクトリです。" },
+ { q:"可逆圧縮の説明として正しいものはどれか。",
+   a:["圧縮したデータを完全に元に戻せる","人が気づきにくい情報を捨てて大きく圧縮する","JPEG や MP3 で使われている","圧縮後のデータは元に戻せない"],
+   e:"可逆圧縮（ZIP、PNG）は完全に元に戻せます。JPEG や MP3 は非可逆圧縮で、元には戻りません。" },
+ { q:"ファイル名 report.xlsx の拡張子から分かるファイルの種類はどれか。",
+   a:["表計算（Excel）のファイル","文書（Word）のファイル","画像ファイル","圧縮ファイル"],
+   e:".xlsx は Excel、.docx は Word、.pptx は PowerPoint のファイルです。" },
+],
+os:[
+ { q:"ソフトウェアのうち、ハードウェアを直接管理し、アプリケーションに共通の機能を提供するものはどれか。",
+   a:["基本ソフトウェア（OS）","応用ソフトウェア","デバイス","ファームウェアを除くすべてのソフトウェア"],
+   e:"OS（オペレーティングシステム）は基本ソフトウェアです。アプリ（応用ソフト）は OS の機能を API を通して利用します。" },
+ { q:"DBMS や Web サーバのように、OS とアプリケーションの中間で共通機能を提供するソフトウェアを何というか。",
+   a:["ミドルウェア","ファームウェア","デバイスドライバ","シェアウェア"],
+   e:"ミドルウェア（middle＝中間）は OS とアプリの間の層です。デバイスドライバは周辺機器を制御するプログラム、ファームウェアは機器に組み込まれたソフトです。" },
+ { q:"複数のプログラムを、CPU の時間を細かく区切って順番に割り当てることで同時に動いているように見せる OS の機能を何というか。",
+   a:["マルチタスク","仮想記憶","デバイスドライバ","GUI"],
+   e:"マルチタスク（タスク管理）です。仮想記憶は補助記憶をメモリの一部のように使う機能、GUI は画面操作のしくみです。" },
+ { q:"周辺機器を OS から制御するための、機器ごとのソフトウェアを何というか。",
+   a:["デバイスドライバ","ミドルウェア","アプリケーション","BIOS"],
+   e:"プリンタやマウスなど機器ごとに用意される制御プログラムがデバイスドライバです。" },
+ { q:"文字でコマンドを入力して操作するユーザインタフェースはどれか。",
+   a:["CUI","GUI","API","OSS"],
+   e:"CUI（Character User Interface）はキーボードから文字で操作。GUI はアイコンやウィンドウで操作。API はアプリが OS の機能を呼ぶ窓口、OSS はオープンソースソフトウェアです。" },
+ { q:"オープンソースソフトウェア（OSS）の説明として適切なものはどれか。",
+   a:["ソースコードが公開され、ライセンスの条件のもとで利用・改変・再配布できる","無料であれば何をしてもよいソフトウェア","試用は無料で、継続利用には料金が必要なソフトウェア","ソースコードが非公開の無料ソフトウェア"],
+   e:"OSS はソースコードの公開が特徴で、Linux が代表例です。無料でも GPL や MIT などのライセンス条件があります。試用無料・継続有料はシェアウェアです。" },
+],
+sheet:[
+ { q:"表計算ソフトで、セル B2 から B6 の合計を求める数式はどれか。",
+   a:["=SUM(B2:B6)","=SUM(B2,B6)","=AVERAGE(B2:B6)","=COUNT(B2:B6)"],
+   e:"範囲は「:」でつなぎます。SUM(B2,B6) は B2 と B6 の 2 つだけの合計になります。AVERAGE は平均、COUNT は数値の個数です。" },
+ { q:"セル D2 に =B2*C2 と入力し、D3 にコピーした。D3 の数式はどれになるか。",
+   a:["=B3*C3","=B2*C2","=B3*C2","=C2*D2"],
+   e:"相対参照は、コピー先との位置関係を保ってずれます。1 行下にコピーしたので、行番号が 1 つ増えて =B3*C3 になります。" },
+ { q:"セル B1 に消費税率が入っている。E2 に =D2*B1 と入力して E3 以降にコピーしても税率の参照がずれないようにするには、B1 をどう書けばよいか。",
+   a:["$B$1","B1","B$$1","#B1"],
+   e:"列と行の両方に $ をつけた絶対参照 $B$1 なら、どこにコピーしても B1 を指し続けます。行だけ固定なら B$1 でも可ですが、選択肢では $B$1 が正解です。" },
+ { q:"セル C2 に =A$1 と入力し、D3 にコピーした。D3 の数式はどれになるか。",
+   a:["=B$1","=A$1","=B$2","=A$2"],
+   e:"A$1 は行だけ固定（1 行目にくぎ）。右へ 1 列ずれるので列は A→B、行は固定のまま 1。よって =B$1 です。" },
+ { q:"=IF(B2>=60,\"合格\",\"不合格\") で、B2 が 55 のときの結果はどれか。",
+   a:["不合格","合格","60","エラー"],
+   e:"IF(条件, 真のときの値, 偽のときの値)。55>=60 は偽なので、3 番目の引数「不合格」が表示されます。" },
+ { q:"月ごとの平均気温の変化を表すのに最も適したグラフはどれか。",
+   a:["折れ線グラフ","円グラフ","散布図","レーダーチャート"],
+   e:"時間による推移は折れ線グラフ。割合は円グラフ、2 つの量の関係は散布図、バランスはレーダーチャートです。" },
+],
+db:[
+ { q:"関係データベースで、1 行を一意に特定するための列を何というか。",
+   a:["主キー","外部キー","インデックス","フィールド"],
+   e:"主キーは重複がなく NULL でもない列で、行を 1 つに特定します。外部キーは他の表の主キーを参照する列です。" },
+ { q:"主キーとして適切な列の条件はどれか。",
+   a:["値が重複せず、空（NULL）でもない","値が数値である","値が短い文字列である","値が並べ替えられている"],
+   e:"主キーの条件は一意性（重複なし）と NULL でないこと。氏名は同姓同名がありうるので不適切で、学生番号のような列を使います。" },
+ { q:"表から条件に合う行だけを取り出す関係演算はどれか。",
+   a:["選択","射影","結合","正規化"],
+   e:"行を取り出すのが選択（WHERE）、列を取り出すのが射影（SELECT の列指定）、表と表をつなぐのが結合です。正規化は表の設計手順です。" },
+ { q:"SQL 文 SELECT 氏名 FROM 学生 WHERE 学年 = 2 が行っている操作はどれか。",
+   a:["学年が 2 の行を選択し、氏名の列だけを射影している","すべての行から氏名と学年を取り出している","学生表と学年表を結合している","学年が 2 の行を削除している"],
+   e:"WHERE 学年 = 2 が選択（行の絞り込み）、SELECT 氏名 が射影（列の絞り込み）です。" },
+ { q:"データの重複をなくすように表を分割し、更新時の矛盾を防ぐ設計の手順を何というか。",
+   a:["正規化","結合","排他制御","ロールバック"],
+   e:"正規化により、同じ情報が複数の場所に重複して保存されなくなり、更新もれによる食いちがい（更新異常）を防げます。" },
+ { q:"あるデータを誰かが更新している間、他の人が同時に更新できないようにする DBMS の機能を何というか。",
+   a:["排他制御（ロック）","正規化","射影","バックアップ"],
+   e:"排他制御（ロック）です。ロックがないと、最後の 1 席を 2 人が同時に予約するようなダブルブッキングが起こります。" },
+ { q:"トランザクションの処理途中で障害が起きたとき、処理を取り消して開始前の状態に戻すことを何というか。",
+   a:["ロールバック","コミット","ロールフォワード","正規化"],
+   e:"ロールバックは開始前の状態に戻すこと、コミットは確定すること、ロールフォワードはバックアップに更新後ログを反映して障害直前の状態まで進めることです。" },
+],
+};
+CHAPTERS.forEach(c=>{ c.quiz = QUIZ[c.id] || []; });
+
+/* ============================================================
+   widgets.js ── 体験コーナー
+   WIDGETS[名前] = function(容器要素, 章データ)
+   ============================================================ */
+const WIDGETS = {};
+(function(){
+"use strict";
+const h = (tag, attrs={}, ...kids)=>{ const el=document.createElement(tag); for(const k in attrs){ if(k==="class") el.className=attrs[k]; else if(k==="html") el.innerHTML=attrs[k]; else if(k.startsWith("on")) el.addEventListener(k.slice(2), attrs[k]); else el.setAttribute(k, attrs[k]); } kids.flat().forEach(c=>{ if(c!=null) el.append(c); }); return el; };
+const shuffle = a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const fmt = n=>n.toLocaleString("ja-JP");
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ---------- 汎用：マッチングゲーム ---------- */
+function matching(el, pairs, labels){
+  const left = shuffle(pairs.map((p,i)=>({t:p[0], i}))), right = shuffle(pairs.map((p,i)=>({t:p[1], i})));
+  let selL=null, selR=null, done=0;
+  const status = h("div",{class:"status"});
+  const mk = (list, side)=> h("div",{class:"col"}, ...list.map(o=>h("button",{class:"mbtn", "data-i":o.i, onclick:(e)=>pick(side, e.currentTarget)}, o.t)));
+  const L = mk(left,"L"), R = mk(right,"R");
+  function pick(side, btn){
+    if(btn.classList.contains("done")) return;
+    if(side==="L"){ L.querySelectorAll(".mbtn").forEach(b=>b.classList.remove("on")); btn.classList.add("on"); selL=btn; }
+    else { R.querySelectorAll(".mbtn").forEach(b=>b.classList.remove("on")); btn.classList.add("on"); selR=btn; }
+    if(selL && selR){
+      if(selL.dataset.i===selR.dataset.i){ selL.classList.add("done"); selR.classList.add("done"); selL.classList.remove("on"); selR.classList.remove("on"); done++; status.textContent = done===pairs.length ? "🎉 全部そろいました！" : `✓ 正解（${done}/${pairs.length}）`; status.className="status ok"; }
+      else { selL.classList.add("shake"); selR.classList.add("shake"); setTimeout(()=>{selL.classList.remove("shake","on"); selR.classList.remove("shake","on");},350); status.textContent="✗ ちがう組み合わせです"; status.className="status ng"; }
+      selL=selR=null;
+    }
+  }
+  el.append(h("p",{class:"small muted"}, labels||"左と右から1つずつ選んで、正しい組み合わせを作ろう。"), h("div",{class:"matchgrid"}, L, R), status);
+}
+
+WIDGETS._matching = matching;
+
+/* ============================================================ 1-1 五大装置 */
+WIDGETS.fiveUnits = function(el){
+  const svg = el.closest(".card").querySelector("#fig5"); if(!svg) return;
+  const dot = svg.querySelector("#dot");
+  const units = ["u-in","u-mem","u-ctrl","u-alu","u-out","u-aux"];
+  const P = { in:[90,205], inR:[160,205], memL:[218,205], memT1:[300,178], aluB1:[300,134], ctrl:[300,90], aluB2:[340,134], memT2:[340,178], memR:[422,205], out:[478,205], outC:[550,205] };
+  const steps = [
+    {t:"① キーボードから「3＋5」と入力する。入力装置は、これを主記憶装置に送る。", hl:["u-in","u-mem"], move:[P.in,P.memL], label:"3+5"},
+    {t:"② 制御装置が、主記憶からプログラムの命令「3 と 5 を足せ」を取り出して解読する（フェッチ・デコード）。", hl:["u-ctrl","u-mem"], move:[[262,178],[262,70]], label:"命令", lp:"left"},
+    {t:"③ 制御装置の指示で、演算装置が 3＋5 を計算する。", hl:["u-alu","u-ctrl"], move:[[262,96],[262,114]], label:"3+5=8", lp:"left"},
+    {t:"④ 計算結果 8 を主記憶装置に書き戻す。", hl:["u-alu","u-mem"], move:[P.aluB2,P.memT2], label:"8"},
+    {t:"⑤ 制御装置の指示で、主記憶の結果をディスプレイ（出力装置）に表示する。", hl:["u-out","u-mem","u-ctrl"], move:[P.memR,P.outC], label:"8"},
+  ];
+  let i=-1, playing=false;
+  const msg = h("div",{class:"point", html:"<b>▶ を押すと、「3＋5」の計算がどう流れるかを1ステップずつ見られます。</b>"});
+  const label = document.createElementNS("http://www.w3.org/2000/svg","text"); label.setAttribute("font-size","13"); label.setAttribute("fill","#1c2333"); label.setAttribute("text-anchor","middle"); label.setAttribute("font-weight","700"); svg.append(label);
+  function hl(ids){ units.forEach(u=>{ const r=svg.querySelector("#"+u+" rect"); r.style.strokeWidth = ids.includes(u)?"4":"2"; r.style.filter = ids.includes(u)?"drop-shadow(0 0 6px rgba(59,123,233,.6))":""; }); }
+  async function moveDot(a,b,text,lp){
+    dot.setAttribute("opacity","1"); label.textContent=text; label.setAttribute("text-anchor", lp==="left"?"end":"middle"); const t0=performance.now(), dur=900;
+    await new Promise(res=>{ (function f(now){ const k=Math.min(1,(now-t0)/dur), e=k<.5?2*k*k:-1+(4-2*k)*k; const x=a[0]+(b[0]-a[0])*e, y=a[1]+(b[1]-a[1])*e; dot.setAttribute("cx",x); dot.setAttribute("cy",y); label.setAttribute("x", lp==="left"?x-13:x); label.setAttribute("y", lp==="left"?y+5:y-14); if(k<1) requestAnimationFrame(f); else res(); })(t0); });
+  }
+  async function step(){
+    if(playing) return; playing=true;
+    i=(i+1)%steps.length; const s=steps[i];
+    hl(s.hl); msg.innerHTML=`<b>ステップ ${i+1} / ${steps.length}</b><span>${s.t}</span>`;
+    await moveDot(s.move[0], s.move[1], s.label, s.lp);
+    playing=false; if(i===steps.length-1){ msg.innerHTML+=`<span class="small muted">ここまでが「入力→記憶→演算→記憶→出力」の1サイクル。制御装置（赤い点線）が全体に指示を出していることに注目。</span>`; }
+  }
+  async function auto(){ if(playing) return; for(let k=0;k<steps.length;k++){ await step(); await sleep(700); } }
+  el.append(h("div",{class:"row"}, h("button",{class:"btn primary", onclick:step},"▶ 次のステップ"), h("button",{class:"btn", onclick:auto},"⏩ 自動で最後まで"), h("button",{class:"btn sm", onclick:()=>{i=-1; hl([]); dot.setAttribute("opacity","0"); label.textContent=""; msg.innerHTML="<b>▶ を押すと、「3＋5」の計算がどう流れるかを1ステップずつ見られます。</b>";}},"リセット")), msg);
+};
+
+/* ============================================================ 1-2 クロック */
+WIDGETS.clock = function(el){
+  const range = h("input",{type:"range", min:"1", max:"5", step:"0.5", value:"3"});
+  const led = h("span",{style:"display:inline-block;width:22px;height:22px;border-radius:50%;background:#dde3ef;transition:background .05s;vertical-align:middle;margin-right:8px"});
+  const info = h("div",{class:"readout"});
+  const bars = [ {name:"CPU A（2 GHz）", ghz:2}, {name:"CPU B", ghz:3} ];
+  const race = h("div",{class:"cmp"});
+  const raceBtn = h("button",{class:"btn primary", onclick:startRace},"🏁 100 個の命令を同時に処理させる");
+  const note = h("p",{class:"small muted"}, "※ 同じ設計の CPU で、1 クロックに 1 命令ずつ処理すると仮定した「イメージ」です。実際の CPU は設計によって 1 クロックあたりの仕事量が異なります。");
+  function upd(){ const g=+range.value; bars[1].ghz=g; info.innerHTML=`クロック周波数 <b>${g} GHz</b> ＝ 1 秒間に <b>${fmt(g*1e9)}</b> 回<br>1 クロックの長さ ＝ 1 ÷ (${g}×10<span class="hl">⁹</span>) 秒 ≒ <b>${(1000/g).toFixed(0)} ピコ秒</b>（${(1/g).toFixed(2)} ナノ秒）`; renderRace(0,0); }
+  function renderRace(pa,pb){ race.innerHTML=""; bars.forEach((b,k)=>{ const p=k===0?pa:pb; race.append(h("div",{class:"bar"}, h("span",{}, k===0?b.name:`CPU B（${b.ghz} GHz）`), h("span",{style:"background:var(--bg2);border-radius:6px;overflow:hidden"}, h("i",{style:`transform:scaleX(${p});background:${k===0?"#9fb0c8":"var(--accent)"}`})), h("span",{class:"num"}, `${Math.round(p*100)} 命令`))); }); }
+  let raf=null;
+  function startRace(){ if(raf) cancelAnimationFrame(raf); const t0=performance.now(); const base=3000; // 2GHz が 3 秒で完了
+    (function f(now){ const s=(now-t0)/base; const pa=Math.min(1,s*bars[0].ghz/2), pb=Math.min(1,s*bars[1].ghz/2); renderRace(pa,pb); if(pa<1||pb<1) raf=requestAnimationFrame(f); else raf=null; })(t0); }
+  // LED の点滅（見やすいよう周波数は 1/10億に落としてある）
+  let on=false; (function blink(){ if(!el.isConnected) return; on=!on; led.style.background = on ? "var(--accent)" : "#dde3ef"; setTimeout(blink, 500/(+range.value)); })();
+  range.addEventListener("input", upd); upd();
+  el.append(h("div",{class:"row"}, led, h("span",{class:"small muted"},"クロック信号のイメージ（実際の 10 億分の 1 の速さ）")), h("label",{}, "CPU B のクロック周波数：", range), info, raceBtn, race, note);
+};
+
+/* ============================================================ 1-3 記憶階層 */
+WIDGETS.memHier = function(el){
+  const items = [ {n:"レジスタ", t:0.3e-9, note:"CPU の中。ほぼ 1 クロック"}, {n:"キャッシュ（SRAM）", t:3e-9, note:"CPU のすぐそば"}, {n:"主記憶（DRAM）", t:80e-9, note:"メインメモリ"}, {n:"SSD", t:100e-6, note:"フラッシュメモリ"}, {n:"HDD", t:10e-3, note:"ヘッド移動＋回転待ち"} ];
+  const mode = h("div",{class:"seg"});
+  const box = h("div",{class:"cmp"});
+  const note = h("p",{class:"small muted"},"※ 値はおよその目安（機種によって大きく異なります）。桁のちがいを感じるための図です。");
+  function human(sec){ if(sec<60) return `${sec.toFixed(sec<10?1:0)} 秒`; if(sec<3600) return `${(sec/60).toFixed(0)} 分`; if(sec<86400) return `${(sec/3600).toFixed(0)} 時間`; if(sec<86400*365) return `${(sec/86400).toFixed(0)} 日`; return `${(sec/86400/365).toFixed(1)} 年`; }
+  function show(m){
+    box.innerHTML=""; const max=Math.log10(items[4].t/items[0].t);
+    items.forEach((it,k)=>{ const ratio=it.t/items[0].t; const w=Math.max(.02, Math.log10(ratio)/max); const label = m==="real" ? (it.t>=1e-3?`${(it.t*1e3).toFixed(0)} ms`: it.t>=1e-6?`${(it.t*1e6).toFixed(0)} μs`:`${(it.t*1e9).toFixed(1)} ns`) : human(ratio);
+      box.append(h("div",{class:"bar"}, h("span",{}, it.n), h("span",{style:"background:var(--bg2);border-radius:6px;overflow:hidden"}, h("i",{style:`transform:scaleX(0);background:hsl(${215-k*40} 70% 55%)`})), h("span",{class:"num"}, label))); });
+    requestAnimationFrame(()=>requestAnimationFrame(()=>box.querySelectorAll("i").forEach((i,k)=>{ const ratio=items[k].t/items[0].t; i.style.transform=`scaleX(${Math.max(.02, Math.log10(ratio)/max)})`; })));
+  }
+  const b1=h("button",{class:"on", onclick:()=>{sel(b1); show("real");}},"実際の時間"), b2=h("button",{onclick:()=>{sel(b2); show("human");}},"レジスタを「1秒」とすると");
+  function sel(b){ [b1,b2].forEach(x=>x.classList.toggle("on",x===b)); }
+  mode.append(b1,b2); show("real");
+  el.append(mode, box, h("p",{class:"small"},"棒の長さは対数目盛（1 目盛で 10 倍）。「レジスタを 1 秒とすると」に切りかえると、HDD から読むのが<b>約 1 年</b>に相当することが分かります。だからキャッシュや主記憶で「よく使うデータを近くに置く」工夫が必要なのです。"), note);
+};
+
+/* ============================================================ 1-5 仕分け */
+WIDGETS.sorter = function(el){
+  const bins = [["in","入力装置"],["out","出力装置"],["mem","記憶装置"],["cpu","演算・制御"]];
+  const items = shuffle([ ["キーボード","in"],["マウス","in"],["スキャナ","in"],["マイク","in"],["Web カメラ","in"],["タッチパネル","in","指の位置を読み取るセンサなので入力装置。表示部分（ディスプレイ）は出力装置"],["ディスプレイ","out"],["プリンタ","out"],["スピーカ","out"],["プロジェクタ","out"],["SSD","mem"],["HDD","mem"],["メインメモリ（DRAM）","mem","主記憶装置。記憶装置の仲間"],["USB メモリ","mem"],["CPU","cpu","演算装置と制御装置を合わせたもの"] ]);
+  let i=0, ok=0; const card=h("div",{class:"item"}), status=h("div",{class:"status"}), score=h("div",{class:"scoreline"});
+  const binBox=h("div",{class:"bins"}, ...bins.map(b=>h("button",{class:"btn", onclick:()=>answer(b[0])}, b[1])));
+  function show(){ if(i>=items.length){ card.textContent=`おわり！ ${ok} / ${items.length} 問正解`; binBox.style.display="none"; el.append(h("button",{class:"btn primary", onclick:()=>{ i=0; ok=0; binBox.style.display=""; el.lastChild.remove(); items.splice(0,items.length,...shuffle(items)); status.textContent=""; show(); }},"もう一度")); return; } card.textContent=items[i][0]; score.textContent=`${i+1} / ${items.length}　正解 ${ok}`; }
+  function answer(b){ if(i>=items.length) return; const it=items[i]; const right=it[1]===b; if(right) ok++; status.className="status "+(right?"ok":"ng"); status.textContent=(right?"⭕ 正解":"❌ 正解は「"+bins.find(x=>x[0]===it[1])[1]+"」")+(it[2]?"：" + it[2]:""); i++; show(); }
+  el.append(h("div",{class:"sorter"}, score, card, binBox, status)); show();
+};
+
+/* ============================================================ 2-1 ビットスイッチ */
+WIDGETS.bits = function(el){
+  let bits=[0,0,0,0,0,0,0,0], signed=false, target=null;
+  const sw=h("div",{class:"switches"}), vals=h("div",{class:"bigval"}), msg=h("div",{class:"status"});
+  const seg=h("div",{class:"seg"}); const bu=h("button",{class:"on", onclick:()=>{signed=false; sel(); render();}},"符号なし（0〜255）"), bs=h("button",{onclick:()=>{signed=true; sel(); render();}},"2の補数（−128〜127）"); seg.append(bu,bs);
+  function sel(){ bu.classList.toggle("on",!signed); bs.classList.toggle("on",signed); }
+  function value(){ let v=0; bits.forEach((b,k)=>v+=b*(1<<(7-k))); if(signed && bits[0]===1) v-=256; return v; }
+  function render(){
+    sw.innerHTML=""; bits.forEach((b,k)=>{ const w=1<<(7-k); sw.append(h("div",{class:"sw"}, h("span",{class:"w"}, signed&&k===0?"−128":String(w)), h("button",{class:b?"on":"", onclick:()=>{bits[k]=1-bits[k]; render();}}, String(b)))); });
+    const v=value(); const u=bits.reduce((a,b)=>a*2+b,0);
+    vals.innerHTML=`<div><div class="l">2進数</div><div class="v">${bits.join("")}</div></div><div><div class="l">10進数</div><div class="v">${v}</div></div><div><div class="l">16進数</div><div class="v">${u.toString(16).toUpperCase().padStart(2,"0")}</div></div>`;
+    const on=bits.map((b,k)=>b?(signed&&k===0?"(−128)":String(1<<(7-k))):null).filter(Boolean);
+    msg.className="status"; msg.innerHTML = `計算：${on.length? on.join(" + ") + " = " + v : "すべて 0 なので 0"}${target!=null ? (v===target?`　🎉 <span style="color:var(--ok)">目標 ${target} を作れました！</span>`:`　目標：<b>${target}</b>`):""}`;
+  }
+  function newTarget(){ target = signed ? Math.floor(Math.random()*256)-128 : Math.floor(Math.random()*256); render(); }
+  el.append(seg, sw, vals, msg, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:newTarget},"🎯 目標の数を出す"), h("button",{class:"btn sm", onclick:()=>{bits=[0,0,0,0,0,0,0,0]; target=null; render();}},"全部 0 にする")), h("p",{class:"small muted"},"スイッチを押して 0/1 を切りかえよう。8 個のスイッチで 2⁸＝256 通り。「2の補数」に切りかえると、いちばん左のスイッチの重みが −128 になり、同じビット列が負の数として読めます。"));
+  render();
+};
+
+/* ============================================================ 2-2 基数変換 */
+WIDGETS.radix = function(el){
+  const inp=h("input",{type:"number", min:"0", max:"4095", value:"45", style:"width:120px"});
+  const steps=h("div",{class:"steps"}), res=h("div",{class:"readout"});
+  async function go(){
+    let n=Math.max(0, Math.min(4095, Math.floor(+inp.value||0))); inp.value=n; steps.innerHTML=""; res.innerHTML="";
+    if(n===0){ res.innerHTML="0 は 2進数でも 0、16進数でも 0"; return; }
+    const rem=[]; let q=n, k=0;
+    while(q>0){ const r=q%2, nq=Math.floor(q/2); const d=h("div",{style:`animation-delay:${k*.25}s`, html:`${q} ÷ 2 ＝ ${nq} … 余り <b style="color:var(--accent)">${r}</b>`}); steps.append(d); rem.push(r); q=nq; k++; }
+    await sleep(k*250+200);
+    const bin=rem.slice().reverse().join(""); const pad=bin.padStart(Math.ceil(bin.length/4)*4,"0"); const groups=pad.match(/.{4}/g); const hex=groups.map(g=>parseInt(g,2).toString(16).toUpperCase());
+    res.innerHTML=`余りを<b>下から順に</b>読む → 2進数 <b>${bin}</b><br>検算：${rem.map((r,i)=>r?String(1<<i):null).filter(Boolean).reverse().join(" + ")} ＝ ${n} ✓<br>4 けたずつ区切る：${groups.map((g,i)=>`<span class="hl">${g}</span>`).join(" ")} → ${groups.map((g,i)=>`<span class="hl">${hex[i]}</span>`).join(" ")} → 16進数 <b>${hex.join("")}</b>`;
+  }
+  el.append(h("div",{class:"row"}, h("label",{},"10進数："), inp, h("button",{class:"btn primary", onclick:go},"変換する")), steps, res); go();
+};
+
+/* ============================================================ 2-3 単位 */
+WIDGETS.units = function(el){
+  const val=h("input",{type:"number", value:"32", min:"0", style:"width:120px"}); const unit=h("select",{}, ...["B","kB","MB","GB","TB"].map(u=>h("option",{value:u, ...(u==="GB"?{selected:""}:{})},u)));
+  const out=h("div",{class:"readout"});
+  const ex=h("div",{class:"row"});
+  function go(){ const m={B:1,kB:1e3,MB:1e6,GB:1e9,TB:1e12}; const bytes=(+val.value||0)*m[unit.value]; const si=["B","kB","MB","GB","TB"].map((u,i)=>`${u}: <b>${fmt(+(bytes/Math.pow(1000,i)).toPrecision(6))}</b>`).join("　"); const bi=["B","KiB","MiB","GiB","TiB"].map((u,i)=>`${u}: <b>${fmt(+(bytes/Math.pow(1024,i)).toPrecision(6))}</b>`).join("　");
+    out.innerHTML=`${fmt(bytes)} バイト<br><span class="hl">1000 倍ずつ（SI）</span>　${si}<br><span class="hl">1024 倍ずつ（2進接頭辞）</span>　${bi}<br>これは… 写真（3 MB）なら約 <b>${fmt(Math.floor(bytes/3e6))}</b> 枚、音楽（5 MB）なら約 <b>${fmt(Math.floor(bytes/5e6))}</b> 曲、映画（4 GB）なら約 <b>${fmt(Math.floor(bytes/4e9))}</b> 本、ビット数にすると <b>${fmt(bytes*8)}</b> ビット`; }
+  [["USB メモリ 32 GB",32,"GB"],["写真 1 枚 3 MB",3,"MB"],["CD 700 MB",700,"MB"],["HDD 2 TB",2,"TB"],["メモリ 16 GB",16,"GB"]].forEach(e=>ex.append(h("button",{class:"chip", onclick:()=>{val.value=e[1]; unit.value=e[2]; go();}}, e[0])));
+  val.addEventListener("input",go); unit.addEventListener("change",go); go();
+  el.append(h("div",{class:"row"}, val, unit, h("span",{class:"small muted"},"を換算する")), ex, out);
+};
+
+/* ============================================================ 2-5 文字コード */
+WIDGETS.charcode = function(el){
+  const inp=h("input",{type:"text", value:"A あ 😀", style:"width:min(100%,320px)"}); const out=h("div",{class:"stack"});
+  const enc=new TextEncoder();
+  function go(){ out.innerHTML=""; const s=[...inp.value].slice(0,12); let total=0;
+    s.forEach(ch=>{ const cp=ch.codePointAt(0); const bytes=[...enc.encode(ch)]; total+=bytes.length; const kind= cp<128?"ASCII（1 バイト）": cp<0x800?"2 バイト": cp<0x10000?"3 バイト（日本語はここ）":"4 バイト（絵文字など）";
+      out.append(h("div",{class:"tokenline"}, h("span",{style:"font-size:26px;width:44px;text-align:center"}, ch===" "?"␣":ch), h("span",{class:"byte"},`U+${cp.toString(16).toUpperCase().padStart(4,"0")}`), h("span",{class:"small muted"},`（10進 ${cp}）→ UTF-8：`), ...bytes.map(b=>h("span",{class:"byte u"}, b.toString(16).toUpperCase().padStart(2,"0"))), h("span",{class:"pill"}, kind))); });
+    out.append(h("div",{class:"readout"},`合計 ${total} バイト（${s.length} 文字）。同じ「1 文字」でも、英字は 1 バイト、日本語は 3 バイト（UTF-8 の場合）。`)); }
+  inp.addEventListener("input",go); go();
+  el.append(h("div",{class:"row"}, h("label",{},"文字を入力："), inp), h("div",{class:"row"}, ...["Hello","こんにちは","A","😀","漢字"].map(t=>h("button",{class:"chip", onclick:()=>{inp.value=t; go();}},t))), out, h("p",{class:"small muted"},"U+ の後ろの数が Unicode の番号（コードポイント）、紫のバイトがファイルに実際に保存される UTF-8 のバイト列（16進数）。ASCII の「A」は 65＝16進 41。"));
+};
+
+/* ============================================================ 2-6 画像 */
+WIDGETS.image = function(el){
+  const r=h("input",{type:"range",min:0,max:255,value:230}), g=h("input",{type:"range",min:0,max:255,value:120}), b=h("input",{type:"range",min:0,max:255,value:40});
+  const box=h("div",{class:"rgbbox"});
+  function col(){ const R=+r.value,G=+g.value,B=+b.value; box.style.background=`rgb(${R},${G},${B})`; box.innerHTML=`RGB(${R}, ${G}, ${B})<br>#${[R,G,B].map(x=>x.toString(16).toUpperCase().padStart(2,"0")).join("")}<br><span style="font-size:12px">2進：${[R,G,B].map(x=>x.toString(2).padStart(8,"0")).join(" ")}</span>`; }
+  [r,g,b].forEach(x=>x.addEventListener("input",col)); col();
+  // 解像度・色深度
+  const res=h("input",{type:"range",min:2,max:6,value:4}); const depth=h("select",{}, h("option",{value:"1"},"1 ビット（2 色）"), h("option",{value:"3"},"3 ビット（8 色）"), h("option",{value:"8"},"8 ビット（256 色・グレー）"), h("option",{value:"24",selected:""},"24 ビット（約 1677 万色）"));
+  const cv=h("canvas",{class:"pxcanvas"}); const info=h("div",{class:"readout"});
+  const src=document.createElement("canvas"); src.width=src.height=64; const sc=src.getContext("2d");
+  (function drawSrc(){ const grd=sc.createLinearGradient(0,0,64,64); grd.addColorStop(0,"#7ec8ff"); grd.addColorStop(1,"#f9d976"); sc.fillStyle=grd; sc.fillRect(0,0,64,64); sc.fillStyle="#ffd23f"; sc.beginPath(); sc.arc(32,32,22,0,Math.PI*2); sc.fill(); sc.fillStyle="#1c2333"; sc.beginPath(); sc.arc(24,26,3.5,0,Math.PI*2); sc.arc(40,26,3.5,0,Math.PI*2); sc.fill(); sc.strokeStyle="#c8102e"; sc.lineWidth=3; sc.beginPath(); sc.arc(32,34,11,Math.PI*.15,Math.PI*.85); sc.stroke(); sc.fillStyle="#e5567a"; sc.beginPath(); sc.arc(16,36,4,0,Math.PI*2); sc.arc(48,36,4,0,Math.PI*2); sc.fill(); })();
+  function draw(){ const n=1<<+res.value, d=+depth.value; cv.width=cv.height=n; const c=cv.getContext("2d"); const tmp=document.createElement("canvas"); tmp.width=tmp.height=n; const tc=tmp.getContext("2d"); tc.drawImage(src,0,0,n,n); const img=tc.getImageData(0,0,n,n), p=img.data;
+    for(let i=0;i<p.length;i+=4){ let R=p[i],G=p[i+1],B=p[i+2]; if(d===1){ const y=(R*.299+G*.587+B*.114)>140?255:0; R=G=B=y; } else if(d===3){ R=R>127?255:0; G=G>127?255:0; B=B>127?255:0; } else if(d===8){ const y=Math.round(R*.299+G*.587+B*.114); R=G=B=y; } p[i]=R;p[i+1]=G;p[i+2]=B; }
+    c.putImageData(img,0,0); const bits=n*n*d; info.innerHTML=`解像度 <b>${n}×${n}</b> ＝ ${fmt(n*n)} 画素 × 色深度 <b>${d} ビット</b> ＝ <b>${fmt(bits)} ビット</b> ＝ ${fmt(bits/8)} バイト<br><span class="hl">参考：</span>1920×1080 × 24 ビット ＝ 49,766,400 ビット ≒ 6.2 MB（無圧縮）`; }
+  res.addEventListener("input",draw); depth.addEventListener("change",draw); draw();
+  el.append(h("div",{class:"two"}, h("div",{class:"stack"}, h("b",{},"① 光の三原色を混ぜる（加法混色）"), h("label",{},"R 赤 ",r), h("label",{},"G 緑 ",g), h("label",{},"B 青 ",b), box, h("p",{class:"small muted"},"全部 255 で白、全部 0 で黒。各色 8 ビット × 3 ＝ 24 ビットで 1 画素の色を表す。")), h("div",{class:"stack"}, h("b",{},"② 解像度と色深度を変える"), h("label",{},"解像度（画素数）",res), h("label",{},"色深度 ",depth), cv, info)));
+};
+
+/* ============================================================ 2-7 音 */
+WIDGETS.sound = function(el){
+  const FS=[2000,4000,8000,11025,22050,44100], BITS=[1,2,3,4,8,16];
+  const fs=h("input",{type:"range",min:0,max:5,value:2}), bt=h("input",{type:"range",min:0,max:5,value:1});
+  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg"); svg.setAttribute("viewBox","0 0 640 220"); svg.setAttribute("class","wave");
+  const info=h("div",{class:"readout"}); const lab1=h("span",{class:"num"}), lab2=h("span",{class:"num"});
+  const f0=440; // 元の音（ラ）
+  function draw(){ const F=FS[+fs.value], B=BITS[+bt.value], L=1<<B; const W=640,H=220, per=2, ms=per/f0; // 2 周期分
+    let s=`<rect width="${W}" height="${H}" fill="#fff" rx="12"/>`;
+    for(let l=0;l<L && L<=16;l++){ const y=20+ (H-40)*(1-l/(L-1)); s+=`<line x1="0" x2="${W}" y1="${y}" y2="${y}" stroke="#eef1f8"/>`; }
+    let path=""; for(let x=0;x<=W;x+=2){ const t=x/W*ms; const y=H/2-(H/2-20)*Math.sin(2*Math.PI*f0*t); path+=(x?"L":"M")+x+" "+y.toFixed(1); }
+    s+=`<path d="${path}" stroke="#c4cde0" stroke-width="2" fill="none"/>`;
+    const N=Math.round(F*ms); let stair="", pts="", bitsStr=[]; let prevY=null;
+    for(let k=0;k<=N;k++){ const t=k/F; if(t>ms) break; const x=t/ms*W; const v=Math.sin(2*Math.PI*f0*t); const q=Math.round((v+1)/2*(L-1)); const y=20+(H-40)*(1-q/(L-1)); if(k<6) bitsStr.push(q.toString(2).padStart(B,"0"));
+      pts+=`<circle cx="${x.toFixed(1)}" cy="${(H/2-(H/2-20)*v).toFixed(1)}" r="3.5" fill="#8b5cf6"/>`; if(prevY!==null) stair+=`L${x.toFixed(1)} ${prevY} L${x.toFixed(1)} ${y}`; else stair+=`M${x.toFixed(1)} ${y}`; prevY=y; }
+    stair+=`L${W} ${prevY}`; s+=`<path d="${stair}" stroke="#3b7be9" stroke-width="2.5" fill="none"/>`+pts;
+    svg.innerHTML=s; lab1.textContent=`${fmt(F)} Hz（1 秒に ${fmt(F)} 回）`; lab2.textContent=`${B} ビット（${fmt(L)} 段階）`;
+    const bps=F*B; info.innerHTML=`灰色：元のアナログ波（440 Hz）　紫の点：<b>標本化</b>した点　青の階段：<b>量子化</b>した結果<br>符号化：最初の数点 → ${bitsStr.map(x=>`<span class="hl">${x}</span>`).join(" ")} …<br>データ量（モノラル 1 秒）＝ ${fmt(F)} × ${B} ＝ <b>${fmt(bps)} ビット</b> ＝ ${fmt(Math.round(bps/8))} バイト　${F===44100&&B===16?"← CD 音質（ステレオならこの 2 倍）":""}`; }
+  let ctx=null;
+  function play(){ try{ ctx=ctx||new (window.AudioContext||window.webkitAudioContext)(); const F=FS[+fs.value], B=BITS[+bt.value], L=1<<B; const sr=ctx.sampleRate, dur=1.2; const buf=ctx.createBuffer(1, sr*dur, sr); const d=buf.getChannelData(0); let hold=0;
+      for(let i=0;i<d.length;i++){ const t=i/sr; const k=Math.floor(t*F); const ts=k/F; if(i===0||Math.floor((i-1)/sr*F)!==k){ const v=Math.sin(2*Math.PI*f0*ts)*Math.exp(-ts*1.2); hold=(Math.round((v+1)/2*(L-1))/(L-1))*2-1; } d[i]=hold*.3; }
+      const srcN=ctx.createBufferSource(); srcN.buffer=buf; srcN.connect(ctx.destination); srcN.start(); }catch(e){} }
+  fs.addEventListener("input",draw); bt.addEventListener("input",draw); draw();
+  el.append(h("label",{},"サンプリング周波数：",lab1,fs), h("label",{},"量子化ビット数：",lab2,bt), svg, info, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:play},"🔊 この設定の音を聞く（440 Hz）"), h("span",{class:"small muted"},"粗い設定ほどザラザラした音になります")));
+};
+})();
+
+/* ============================================================ 3章・4章 */
+(function(){
+"use strict";
+const h = (tag, attrs={}, ...kids)=>{ const el=document.createElement(tag); for(const k in attrs){ if(k==="class") el.className=attrs[k]; else if(k==="html") el.innerHTML=attrs[k]; else if(k.startsWith("on")) el.addEventListener(k.slice(2), attrs[k]); else el.setAttribute(k, attrs[k]); } kids.flat().forEach(c=>{ if(c!=null) el.append(c); }); return el; };
+const shuffle = a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ---------- 3-2 パス ---------- */
+WIDGETS.path = function(el){
+  const TREE = {name:"/", kids:[
+    {name:"home", kids:[ {name:"taro", kids:[{name:"report.txt"},{name:"photo", kids:[{name:"cat.jpg"},{name:"dog.jpg"}]}]}, {name:"hanako", kids:[{name:"memo.txt"},{name:"music", kids:[{name:"song.mp3"}]}]} ]},
+    {name:"etc", kids:[{name:"hosts"}]},
+    {name:"usr", kids:[{name:"bin", kids:[{name:"python"}]},{name:"lib", kids:[]}]},
+  ]};
+  const dirs=[], files=[];
+  (function walk(n, path){ const p = path==="/" ? "/"+n.name : path+"/"+n.name; const full = n.name==="/" ? "/" : p; if(n.kids){ dirs.push(full); n.kids.forEach(k=>walk(k, full)); } else files.push(full); })(TREE,"");
+  let cur="/home/taro", target="/home/hanako/memo.txt", mode="rel";
+  const treeEl=h("div",{class:"tree"}), q=h("div",{class:"point"}), inp=h("input",{type:"text", placeholder:"パスを入力", style:"width:min(100%,320px);font-family:var(--mono)"}), status=h("div",{class:"status"});
+  function relPath(from, to){ const a=from.split("/").filter(Boolean), b=to.split("/").filter(Boolean); let i=0; while(i<a.length&&i<b.length&&a[i]===b[i]) i++; const up=a.length-i; const parts=[...Array(up).fill(".."), ...b.slice(i)]; return parts.length?parts.join("/"):"."; }
+  function norm(p){ p=p.trim().replace(/\\/g,"/").replace(/\/+/g,"/"); if(p.length>1) p=p.replace(/\/$/,""); return p; }
+  function resolve(base, p){ if(p.startsWith("/")) return norm(p); const parts=base.split("/").filter(Boolean); for(const s of p.split("/")){ if(s===""||s===".") continue; if(s==="..") parts.pop(); else parts.push(s); } return "/"+parts.join("/"); }
+  function render(){
+    treeEl.innerHTML="";
+    (function walk(n, path, depth){ const full = n.name==="/" ? "/" : (path==="/"?"":path)+"/"+n.name; const isDir=!!n.kids; const node=h("div",{class:"node"+(isDir&&full===cur?" cur":"")+(full===target?" target":""), style:`margin-left:${depth*22}px`, onclick:()=>{ if(isDir){ cur=full; render(); status.textContent=""; } }}, (isDir?"📁 ":"📄 ")+n.name+(isDir&&full===cur?"　← カレント":"")+(full===target?"　← このファイル":"")); treeEl.append(node); if(n.kids) n.kids.forEach(k=>walk(k, full, depth+1)); })(TREE,"",0);
+    q.innerHTML=`<b>問題</b><span>カレントディレクトリは <code>${cur}</code>。赤いファイル <code>${target.split("/").pop()}</code> を <b>${mode==="rel"?"相対パス":"絶対パス"}</b> で書くと？</span><span class="small muted">📁 をクリックするとカレントディレクトリを移動できます。</span>`;
+  }
+  function check(){ const v=norm(inp.value); if(!v){ return; } if(mode==="abs"){ const ok = v===target && v.startsWith("/"); status.className="status "+(ok?"ok":"ng"); status.innerHTML = ok?"⭕ 正解！ ルートから順にたどった絶対パスです。":(v.startsWith("/")?`❌ 指しているのは <code>${v}</code>。木をもう一度たどってみよう。`:"❌ 絶対パスは「/」から始めます。"); }
+    else { const ok = !v.startsWith("/") && resolve(cur, v)===target; const canon=relPath(cur,target); status.className="status "+(ok?"ok":"ng"); status.innerHTML = ok? (v.replace(/^\.\//,"")===canon?"⭕ 正解！":"⭕ 正解（同じ場所を指しています）。いちばん短い書き方は <code>"+canon+"</code>。") : (v.startsWith("/")?"❌ 相対パスは「/」で始めません（それは絶対パス）。":`❌ <code>${v}</code> は <code>${resolve(cur,v)}</code> を指します。「..」で親に上がれます。`); } }
+  function show(){ const ans = mode==="abs"?target:relPath(cur,target); status.className="status"; status.innerHTML=`答え：<code>${ans}</code>`; }
+  function next(){ target=files[Math.floor(Math.random()*files.length)]; do{ cur=dirs[Math.floor(Math.random()*dirs.length)]; }while(cur===target); mode=Math.random()<.6?"rel":"abs"; inp.value=""; status.textContent=""; render(); }
+  el.append(treeEl, q, h("div",{class:"row"}, inp, h("button",{class:"btn primary", onclick:check},"答え合わせ"), h("button",{class:"btn sm", onclick:show},"答えを見る"), h("button",{class:"btn sm", onclick:next},"次の問題")), status);
+  inp.addEventListener("keydown", e=>{ if(e.key==="Enter") check(); });
+  render();
+};
+
+/* ---------- 3-3 拡張子 ---------- */
+WIDGETS.ext = function(el){
+  WIDGETS._matching(el, shuffle([[".csv","カンマ区切りの表データ"],[".pdf","配布用の文書（レイアウトが崩れない）"],[".png","可逆圧縮の画像・透明あり"],[".jpg","写真向きの非可逆圧縮画像"],[".zip","複数ファイルをまとめて圧縮"],[".xlsx","表計算（Excel）"],[".mp4","動画"],[".html","Web ページ"]]).slice(0,6));
+};
+
+/* ---------- 4-1 層の積み木 ---------- */
+WIDGETS.layers = function(el){
+  const order=["ハードウェア","OS（基本ソフトウェア）","ミドルウェア","応用ソフトウェア（アプリ）","利用者（ユーザ）"];
+  const stack=h("div",{class:"layers"}), pool=h("div",{class:"row", style:"justify-content:center"}), status=h("div",{class:"status"});
+  let next=0;
+  function build(){ stack.innerHTML=""; for(let i=order.length-1;i>=0;i--){ stack.append(h("div",{class:"layer "+(i<next?"placed":"slot"), style:i<next?`background:hsl(${150-i*12} 55% ${92-i*8}%);color:#1c2333;border-color:var(--accent)`:""}, i<next?order[i]:`${i===0?"いちばん下":"その上"}に来るのは？`)); }
+    pool.innerHTML=""; shuffle(order.slice(next)).forEach(n=>pool.append(h("button",{class:"btn", onclick:(e)=>pick(n,e.currentTarget)}, n)));
+    if(next===order.length){ status.className="status ok"; status.textContent="🎉 完成！ ハードウェアの上に OS、その上にミドルウェア、アプリ、そして利用者。"; } }
+  function pick(n,btn){ if(n===order[next]){ next++; status.className="status ok"; status.textContent=next<order.length?"⭕ 正解。次は？":""; build(); } else { btn.classList.add("shake"); setTimeout(()=>btn.classList.remove("shake"),350); status.className="status ng"; status.textContent=`❌ 「${n}」はここではありません。${next===0?"土台になるのは物理的な機械です。":"下の層が上の層を支えます。"}`; } }
+  el.append(h("p",{class:"small muted"},"下から順に、正しい層を選んで積みましょう。"), stack, pool, status, h("button",{class:"btn sm", onclick:()=>{next=0; status.textContent=""; build();}},"やり直す")); build();
+};
+
+/* ---------- 4-2 マルチタスク ---------- */
+WIDGETS.multitask = function(el){
+  const tasks=[{n:"🌐 ブラウザ",c:"#3b7be9",need:12},{n:"🎵 音楽",c:"#8b5cf6",need:8},{n:"📝 文書",c:"#22a36b",need:10}];
+  let cores=1, slice=400, running=false, timer=null;
+  const tl=h("div",{class:"tl"}), status=h("div",{class:"status"}), seg=h("div",{class:"seg"});
+  const b1=h("button",{class:"on", onclick:()=>{cores=1; sel();}},"1 コア"), b2=h("button",{onclick:()=>{cores=2; sel();}},"2 コア"); seg.append(b1,b2);
+  function sel(){ b1.classList.toggle("on",cores===1); b2.classList.toggle("on",cores===2); }
+  const sp=h("input",{type:"range",min:100,max:800,step:100,value:400}); sp.addEventListener("input",()=>slice=+sp.value);
+  let state; function reset(){ clearInterval(timer); running=false; state=tasks.map(t=>({done:0, blocks:[]})); draw(); status.textContent=""; }
+  function draw(){ tl.innerHTML=""; const total=30; tasks.forEach((t,i)=>{ const track=h("div",{class:"track"}); state[i].blocks.forEach(b=>track.append(h("i",{style:`left:${b/total*100}%;width:${100/total}%;background:${t.c}`}))); tl.append(h("div",{class:"lane"}, h("span",{}, t.n), track), h("div",{class:"lane"}, h("span",{class:"small muted"},"進み"), h("span",{style:"height:6px;background:var(--bg2);border-radius:4px;overflow:hidden;display:block"}, h("i",{style:`display:block;height:100%;width:${Math.min(100,100*state[i].done/t.need)}%;background:${t.c}`})))); }); }
+  function start(){ if(running) return; reset(); running=true; let tick=0, rr=0;
+    timer=setInterval(()=>{ let assigned=0, tries=0; while(assigned<cores && tries<tasks.length){ const i=(rr+tries)%tasks.length; if(state[i].done<tasks[i].need){ state[i].done++; state[i].blocks.push(tick); assigned++; } tries++; }
+      rr=(rr+1)%tasks.length; tick++; draw();
+      const fin=state.every((s,i)=>s.done>=tasks[i].need);
+      status.className="status"; status.innerHTML=`時間 ${tick} スライス目　CPU は <b>${cores} コア</b>で、${cores===1?"1 つずつ順番に":"2 つ同時に"}実行中。${fin?"　✅ すべて終了":""}`;
+      if(fin||tick>=30){ clearInterval(timer); running=false; } }, slice); }
+  reset();
+  el.append(h("div",{class:"row"}, seg, h("label",{style:"flex:1;min-width:200px"},"タイムスライスの長さ（表示のゆっくりさ）",sp)), tl, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:start},"▶ 3 つのアプリを同時に動かす"), h("button",{class:"btn sm", onclick:reset},"リセット")), status, h("p",{class:"small muted"},"色のついたブロックが「その時間に CPU を使っていたアプリ」。1 コアではどの瞬間も 1 つのアプリしか動いていないのに、切りかえが速いので同時に動いているように見えます。実際のタイムスライスは数ミリ秒です。"));
+};
+
+/* ---------- 4-3 OS マッチング ---------- */
+WIDGETS.osmatch = function(el){
+  WIDGETS._matching(el, [["Windows","Microsoft 社のパソコン用 OS。最も普及"],["macOS","Apple 社の Mac 用 OS。UNIX 系"],["Linux","オープンソースの UNIX 系 OS。サーバに強い"],["iOS","Apple 社のスマートフォン用 OS"],["Android","Linux をもとにしたスマートフォン用 OSS"],["CUI","文字のコマンドで操作するインタフェース"]], "OS・用語（左）と説明（右）を結ぼう。");
+};
+})();
+
+/* ============================================================ 5章：ミニ表計算エンジン */
+(function(){
+"use strict";
+const h = (tag, attrs={}, ...kids)=>{ const el=document.createElement(tag); for(const k in attrs){ if(k==="class") el.className=attrs[k]; else if(k==="html") el.innerHTML=attrs[k]; else if(k.startsWith("on")) el.addEventListener(k.slice(2), attrs[k]); else el.setAttribute(k, attrs[k]); } kids.flat().forEach(c=>{ if(c!=null) el.append(c); }); return el; };
+const colName = i=>String.fromCharCode(65+i), colIdx = s=>s.charCodeAt(0)-65;
+const REF = /^(\$?)([A-Z])(\$?)(\d+)$/;
+
+/* 数式の字句解析・構文解析・評価 */
+function tokenize(src){
+  const t=[]; let i=0;
+  while(i<src.length){ const c=src[i];
+    if(/\s/.test(c)){ i++; continue; }
+    if(c==='"'){ let j=i+1, s=""; while(j<src.length && src[j]!=='"'){ s+=src[j]; j++; } t.push({k:"str", v:s}); i=j+1; continue; }
+    if(/[0-9.]/.test(c)){ let j=i; while(j<src.length && /[0-9.]/.test(src[j])) j++; t.push({k:"num", v:parseFloat(src.slice(i,j))}); i=j; continue; }
+    if(/[A-Za-z$]/.test(c)){ let j=i; while(j<src.length && /[A-Za-z0-9$_]/.test(src[j])) j++; const w=src.slice(i,j).toUpperCase(); if(src[j]==="(") t.push({k:"fn", v:w}); else t.push({k:"id", v:w}); i=j; continue; }
+    if(src.startsWith("<=",i)||src.startsWith(">=",i)||src.startsWith("<>",i)){ t.push({k:"op", v:src.substr(i,2)}); i+=2; continue; }
+    if("+-*/^(),:=<>&".includes(c)){ t.push({k:"op", v:c}); i++; continue; }
+    throw new Error("記号");
+  } return t;
+}
+function parse(tokens){
+  let p=0; const peek=()=>tokens[p], eat=(v)=>{ const t=tokens[p]; if(v!==undefined && (!t||t.v!==v)) throw new Error("構文"); p++; return t; };
+  function cmp(){ let l=cat(); while(peek()&&peek().k==="op"&&["=","<",">","<=",">=","<>"].includes(peek().v)){ const o=eat().v; l={t:"bin",o,l,r:cat()}; } return l; }
+  function cat(){ let l=add(); while(peek()&&peek().v==="&"){ eat(); l={t:"bin",o:"&",l,r:add()}; } return l; }
+  function add(){ let l=mul(); while(peek()&&peek().k==="op"&&(peek().v==="+"||peek().v==="-")){ const o=eat().v; l={t:"bin",o,l,r:mul()}; } return l; }
+  function mul(){ let l=pow(); while(peek()&&peek().k==="op"&&(peek().v==="*"||peek().v==="/")){ const o=eat().v; l={t:"bin",o,l,r:pow()}; } return l; }
+  function pow(){ let l=un(); while(peek()&&peek().v==="^"){ eat(); l={t:"bin",o:"^",l,r:un()}; } return l; }
+  function un(){ if(peek()&&peek().v==="-"){ eat(); return {t:"neg", v:un()}; } if(peek()&&peek().v==="+"){ eat(); return un(); } return prim(); }
+  function prim(){ const t=eat(); if(!t) throw new Error("構文");
+    if(t.k==="num") return {t:"num", v:t.v}; if(t.k==="str") return {t:"str", v:t.v};
+    if(t.k==="fn"){ eat("("); const args=[]; if(peek()&&peek().v!==")"){ args.push(cmp()); while(peek()&&peek().v===","){ eat(); args.push(cmp()); } } eat(")"); return {t:"fn", n:t.v, args}; }
+    if(t.k==="id"){ if(!REF.test(t.v)) throw new Error("名前"); if(peek()&&peek().v===":"){ eat(); const r=eat(); if(!r||!REF.test(r.v)) throw new Error("範囲"); return {t:"range", a:t.v, b:r.v}; } return {t:"ref", a:t.v}; }
+    if(t.v==="("){ const e=cmp(); eat(")"); return e; }
+    throw new Error("構文"); }
+  const e=cmp(); if(p<tokens.length) throw new Error("構文"); return e;
+}
+function refsOf(node, out=[]){ if(!node) return out; if(node.t==="ref") out.push(node.a.replace(/\$/g,"")); else if(node.t==="range"){ const [c1,r1]=addr(node.a),[c2,r2]=addr(node.b); for(let c=Math.min(c1,c2);c<=Math.max(c1,c2);c++) for(let r=Math.min(r1,r2);r<=Math.max(r1,r2);r++) out.push(colName(c)+r); } else if(node.t==="bin"){ refsOf(node.l,out); refsOf(node.r,out); } else if(node.t==="neg") refsOf(node.v,out); else if(node.t==="fn") node.args.forEach(a=>refsOf(a,out)); return out; }
+function addr(a){ const m=REF.exec(a); return [colIdx(m[2]), +m[4]]; }
+function shiftFormula(f, dc, dr){ // 相対参照だけをずらす
+  return f.replace(/"[^"]*"|(\$?)([A-Z])(\$?)(\d+)/g, (m, dc$, col, dr$, row)=>{ if(m.startsWith('"')) return m; const c = dc$ ? col : colName(colIdx(col)+dc); const r = dr$ ? row : String(+row+dr); if(colIdx(c)<0||colIdx(c)>25||+r<1) return "#REF!"; return dc$+c+dr$+r; });
+}
+
+function makeSheet(root, opts){
+  const cols=opts.cols||5, rows=opts.rows||7; const cells={}; Object.assign(cells, opts.data||{});
+  let sel="A1", showF=false; const cache={};
+  const fbar=h("div",{class:"fbar"}), addrEl=h("span",{class:"addr"},"A1"), finp=h("input",{type:"text", placeholder:"= で始めると数式", spellcheck:"false"});
+  fbar.append(addrEl, finp);
+  const tbl=h("table"), wrap=h("div",{class:"sheet"}, tbl), status=h("div",{class:"status"});
+  const api={ get:a=>value(a), formula:a=>cells[a]||"", set:(a,v)=>{ cells[a]=v; recalc(); }, copy:(from,to)=>{ const f=cells[from]||""; const [c1,r1]=addr(from),[c2,r2]=addr(to); cells[to]= f.startsWith("=") ? shiftFormula(f, c2-c1, r2-r1) : f; recalc(); }, showFormulas:(b)=>{ showF=b; render(); }, cells, select:(a)=>{ sel=a; render(); }, status };
+  function value(a, stack=new Set()){ if(a in cache) return cache[a]; const raw=cells[a]; let v;
+    if(raw==null||raw==="") v=""; else if(typeof raw==="string" && raw.startsWith("=")){ if(stack.has(a)) return {err:"循環"}; stack.add(a); try{ v=evalNode(parse(tokenize(raw.slice(1))), stack); }catch(e){ v={err:e.message==="名前"?"名前":"式"}; } stack.delete(a); }
+    else if(typeof raw==="string" && raw.trim()!=="" && !isNaN(+raw)) v=+raw; else v=raw;
+    cache[a]=v; return v; }
+  function evalNode(n, stack){
+    switch(n.t){
+      case "num": return n.v; case "str": return n.v;
+      case "ref": return value(n.a.replace(/\$/g,""), stack);
+      case "range": return refsOf(n).map(a=>value(a, stack));
+      case "neg": { const v=num(evalNode(n.v,stack)); return isErr(v)?v:-v; }
+      case "bin": { const l=evalNode(n.l,stack), r=evalNode(n.r,stack); if(isErr(l)) return l; if(isErr(r)) return r;
+        if(n.o==="&") return String(disp(l))+String(disp(r));
+        if(["=","<",">","<=",">=","<>"].includes(n.o)){ const a=l===""?0:l, b=r===""?0:r; switch(n.o){ case "=": return a==b; case "<>": return a!=b; case "<": return a<b; case ">": return a>b; case "<=": return a<=b; case ">=": return a>=b; } }
+        const a=num(l), b=num(r); if(isErr(a)) return a; if(isErr(b)) return b;
+        switch(n.o){ case "+": return a+b; case "-": return a-b; case "*": return a*b; case "/": return b===0?{err:"DIV/0"}:a/b; case "^": return Math.pow(a,b); } }
+      case "fn": { const args=n.args.map(a=>evalNode(a,stack)); const flat=args.flat(); const nums=flat.filter(x=>typeof x==="number"); const bad=flat.find(isErr); if(bad && n.n!=="IF") return bad;
+        switch(n.n){
+          case "SUM": return nums.reduce((s,x)=>s+x,0);
+          case "AVERAGE": return nums.length?nums.reduce((s,x)=>s+x,0)/nums.length:{err:"DIV/0"};
+          case "MAX": return nums.length?Math.max(...nums):0; case "MIN": return nums.length?Math.min(...nums):0;
+          case "COUNT": return nums.length;
+          case "IF": { const c=args[0]; if(isErr(c)) return c; return (c===true||(typeof c==="number"&&c!==0)) ? (args.length>1?args[1]:true) : (args.length>2?args[2]:false); }
+          case "ROUND": { const v=num(args[0]), d=args.length>1?num(args[1]):0; if(isErr(v)) return v; const m=Math.pow(10,d); return Math.round(v*m+1e-9)/m; }
+          case "INT": { const v=num(args[0]); return isErr(v)?v:Math.floor(v); }
+          case "MOD": { const a=num(args[0]), b=num(args[1]); if(isErr(a)) return a; if(isErr(b)) return b; return b===0?{err:"DIV/0"}:a-b*Math.floor(a/b); }
+          case "ABS": { const v=num(args[0]); return isErr(v)?v:Math.abs(v); }
+          case "AND": return flat.every(x=>x===true||(typeof x==="number"&&x!==0)); case "OR": return flat.some(x=>x===true||(typeof x==="number"&&x!==0));
+          default: return {err:"関数名"};
+        } }
+    } }
+  const isErr=v=>v&&typeof v==="object"&&"err" in v;
+  const num=v=>{ if(isErr(v)) return v; if(v===""||v==null) return 0; if(typeof v==="boolean") return v?1:0; if(typeof v==="number") return v; if(!isNaN(+v)) return +v; return {err:"値"}; };
+  const disp=v=>{ if(isErr(v)) return "#"+v.err; if(typeof v==="number") return Number.isInteger(v)?String(v):String(+v.toFixed(4)); if(typeof v==="boolean") return v?"TRUE":"FALSE"; return v==null?"":String(v); };
+  function recalc(){ for(const k in cache) delete cache[k]; render(); if(opts.onChange) opts.onChange(api); }
+  function render(){
+    let refs=[]; const f=cells[sel]||""; if(f.startsWith("=")){ try{ refs=refsOf(parse(tokenize(f.slice(1)))); }catch(e){} }
+    tbl.innerHTML=""; const head=h("tr",{}, h("th",{},"")); for(let c=0;c<cols;c++) head.append(h("th",{}, colName(c))); tbl.append(head);
+    for(let r=1;r<=rows;r++){ const tr=h("tr",{}, h("th",{}, String(r))); for(let c=0;c<cols;c++){ const a=colName(c)+r; const v=value(a); const raw=cells[a]||""; const td=h("td",{class:(a===sel?"sel ":"")+(refs.includes(a)?"ref ":"")+(isErr(v)?"err ":"")+(typeof v==="number"?"num":"")});
+        const inp=h("input",{type:"text", value: showF ? raw : disp(v), spellcheck:"false", "data-a":a}); inp.addEventListener("focus",()=>{ if(sel!==a){ sel=a; render(); const el2=tbl.querySelector(`input[data-a="${a}"]`); if(el2) el2.focus(); } inp.value=raw; });
+        inp.addEventListener("blur",()=>{ if(inp.value!==raw){ cells[a]=inp.value; recalc(); } else inp.value= showF?raw:disp(value(a)); });
+        inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); inp.blur(); const nx=tbl.querySelector(`input[data-a="${colName(c)+(r+1)}"]`); if(nx) nx.focus(); } });
+        td.append(inp); tr.append(td); } tbl.append(tr); }
+    addrEl.textContent=sel; finp.value=cells[sel]||"";
+  }
+  finp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ cells[sel]=finp.value; recalc(); } });
+  finp.addEventListener("blur",()=>{ if((cells[sel]||"")!==finp.value){ cells[sel]=finp.value; recalc(); } });
+  root.append(fbar, wrap, status); recalc(); return api;
+}
+WIDGETS._makeSheet = makeSheet;
+
+/* ---------- 5-2 関数 ---------- */
+WIDGETS.sheet = function(el){
+  const data={A1:"商品",B1:"単価",C1:"数量",D1:"金額", A2:"りんご",B2:"120",C2:"3", A3:"みかん",B3:"80",C3:"10", A4:"ぶどう",B4:"450",C4:"2", A5:"もも",B5:"300",C5:"4", A6:"合計",A7:"平均"};
+  const tasks=[
+    {d:"D2 に「単価×数量」の数式を入れる（=B2*C2）", ok:s=>{ const f=(s.formula("D2")||"").toUpperCase().replace(/\s/g,""); return f.startsWith("=") && /B2/.test(f) && /C2/.test(f) && s.get("D2")===360; }},
+    {d:"D3〜D5 にも同じ考え方で金額を入れる（下の「D2 を下にコピー」でも OK）", ok:s=>s.get("D3")===800&&s.get("D4")===900&&s.get("D5")===1200},
+    {d:"D6 に SUM で合計を出す（=SUM(D2:D5)）", ok:s=>{ const f=(s.formula("D6")||"").toUpperCase(); return /SUM/.test(f) && s.get("D6")===3260; }},
+    {d:"D7 に AVERAGE で平均を出す", ok:s=>{ const f=(s.formula("D7")||"").toUpperCase(); return /AVERAGE/.test(f) && s.get("D7")===815; }},
+    {d:"E1 に「判定」、E2 に =IF(D2>=800,\"多い\",\"少ない\") を入れる", ok:s=>{ const f=(s.formula("E2")||"").toUpperCase(); return /IF/.test(f) && s.get("E2")==="少ない"; }},
+  ];
+  const list=h("div",{class:"stack"});
+  function check(s){ list.innerHTML=""; let n=0; tasks.forEach((t,i)=>{ const ok=t.ok(s); if(ok) n++; list.append(h("div",{class:"pill "+(ok?"ok":""), style:"display:block;white-space:normal"}, `${ok?"✅":"⬜"} 課題 ${i+1}：${t.d}`)); }); if(n===tasks.length) list.append(h("div",{class:"status ok"},"🎉 全課題クリア！")); }
+  const s=makeSheet(el, {cols:5, rows:7, data, onChange:check});
+  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}), "数式を表示")), h("p",{class:"small muted"},"セルをクリックして入力し、Enter で確定。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。選んだセルが参照しているセルは黄色で表示されます。"), h("b",{},"課題"), list); check(s);
+};
+
+/* ---------- 5-3 相対参照と絶対参照 ---------- */
+WIDGETS.refcopy = function(el){
+  const data={A1:"税率",B1:"0.1", A3:"商品",B3:"税抜価格",C3:"税込価格", A4:"ノート",B4:"200", A5:"ペン",B5:"150", A6:"消しゴム",B6:"100", A7:"定規",B7:"300"};
+  const msg=h("div",{class:"point", html:"<b>やってみよう</b><span>① C4 に <code>=B4*(1+B1)</code> と入れて Enter。② 「C4 を下にコピー」を押す。C5〜C7 はどうなる？　③ 次に C4 を <code>=B4*(1+$B$1)</code> に直して、もう一度コピー。</span>"});
+  const log=h("div",{class:"readout"});
+  const s=makeSheet(el, {cols:4, rows:7, data, onChange:report});
+  function report(s){ const rows=["C4","C5","C6","C7"].map(a=>{ const f=s.formula(a); const v=s.get(a); const d = typeof v==="object"&&v ? "#"+v.err : (v===""?"" : typeof v==="number" ? String(+v.toFixed(4)) : v); return `${a}: <b>${f||"（空）"}</b> → ${d}`; }).join("<br>");
+    const f4=(s.formula("C4")||"").toUpperCase().replace(/\s/g,""); let verdict="";
+    if(f4 && /B1/.test(f4) && !/\$B\$1|B\$1/.test(f4)) verdict=`<span class="hl">B1 が相対参照なので、下にコピーすると B2、B3… とずれてしまいます（税率の入っていないセルを参照 → 結果が税抜のまま）。</span>`;
+    else if(/\$B\$1|B\$1/.test(f4)) verdict=`<span style="color:#7fe3bb">$ で行を固定したので、コピーしても税率 B1 を参照し続けます。これが絶対参照。</span>`;
+    log.innerHTML=rows+"<br>"+verdict; }
+  el.append(msg, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:()=>{ ["C5","C6","C7"].forEach(a=>s.copy("C4",a)); }},"C4 を C5〜C7 に下にコピー"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+B1)"); }},"C4 に相対参照の式を入れる"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+$B$1)"); }},"C4 に絶対参照の式を入れる"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}),"数式を表示")), log); report(s);
+};
+
+/* ---------- 5-4 グラフ ---------- */
+WIDGETS.charts = function(el){
+  const SC=[ {q:"商品ごとの売上を比べたい", best:"bar", labels:["りんご","みかん","ぶどう","もも"], v:[120,80,150,60]},
+    {q:"1 年間の月ごとの平均気温の変化を見たい", best:"line", labels:["1","2","3","4","5","6","7","8","9","10","11","12"], v:[5,6,9,14,19,22,26,28,24,18,12,7]},
+    {q:"クラスの通学手段の割合を見たい", best:"pie", labels:["徒歩","自転車","バス","電車"], v:[40,30,20,10]},
+    {q:"勉強時間と点数に関係があるか知りたい", best:"scatter", xy:[[1,45],[2,50],[2.5,62],[3,58],[4,72],[4.5,70],[5,85],[6,88],[7,92]]} ];
+  const TYPES=[["bar","棒グラフ"],["line","折れ線グラフ"],["pie","円グラフ"],["scatter","散布図"]];
+  let si=0; const q=h("div",{class:"point"}), area=h("div"), status=h("div",{class:"status"}), sel=h("div",{class:"chart-sel"});
+  const colors=["#3b7be9","#8b5cf6","#f0a020","#22a36b","#0e9fb0","#e5567a","#5a93ee","#a78bfa","#ffd166","#7fe3bb","#9fe0ff","#ff8fa3"];
+  function draw(type){ const s=SC[si]; const W=520,H=240, L=40,B=30; let g=`<svg viewBox="0 0 ${W} ${H}" class="fig" style="max-width:520px;background:#fff;border:1px solid var(--line);border-radius:12px">`;
+    const vals = s.v || s.xy.map(p=>p[1]); const labels = s.labels || s.xy.map(p=>String(p[0])); const max=Math.max(...vals)*1.15;
+    const px=(i,n)=>L+(W-L-10)*(i+.5)/n, py=v=>H-B-(H-B-15)*v/max;
+    if(type==="bar"){ const n=vals.length, bw=(W-L-10)/n*.6; vals.forEach((v,i)=>{ g+=`<rect x="${px(i,n)-bw/2}" y="${py(v)}" width="${bw}" height="${H-B-py(v)}" fill="${colors[i%colors.length]}" rx="4"><animate attributeName="height" from="0" to="${H-B-py(v)}" dur=".5s"/><animate attributeName="y" from="${H-B}" to="${py(v)}" dur=".5s"/></rect><text x="${px(i,n)}" y="${H-10}" text-anchor="middle" font-size="11">${labels[i]}</text>`; }); }
+    else if(type==="line"){ const n=vals.length; const pts=vals.map((v,i)=>`${px(i,n)},${py(v)}`).join(" "); g+=`<polyline points="${pts}" fill="none" stroke="#3b7be9" stroke-width="3" stroke-linejoin="round"/>`; vals.forEach((v,i)=>{ g+=`<circle cx="${px(i,n)}" cy="${py(v)}" r="4" fill="#3b7be9"/><text x="${px(i,n)}" y="${H-10}" text-anchor="middle" font-size="11">${labels[i]}</text>`; }); }
+    else if(type==="pie"){ const tot=vals.reduce((a,b)=>a+b,0); let a0=-Math.PI/2; const cx=W/2-60, cy=H/2, r=95; vals.forEach((v,i)=>{ const a1=a0+2*Math.PI*v/tot; const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1); g+=`<path d="M${cx} ${cy} L${x0} ${y0} A${r} ${r} 0 ${a1-a0>Math.PI?1:0} 1 ${x1} ${y1}Z" fill="${colors[i%colors.length]}" stroke="#fff" stroke-width="2"/>`; g+=`<rect x="${W-150}" y="${30+i*18}" width="12" height="12" fill="${colors[i%colors.length]}"/><text x="${W-132}" y="${41+i*18}" font-size="12">${labels[i]} ${Math.round(100*v/tot)}%</text>`; a0=a1; }); }
+    else { const xs=s.xy?s.xy.map(p=>p[0]):vals.map((v,i)=>i+1); const ys=vals; const mx=Math.max(...xs)*1.1, my=Math.max(...ys)*1.15; xs.forEach((x,i)=>{ g+=`<circle cx="${L+(W-L-10)*x/mx}" cy="${H-B-(H-B-15)*ys[i]/my}" r="5" fill="#e5567a" opacity=".8"/>`; }); g+=`<text x="${W/2}" y="${H-8}" text-anchor="middle" font-size="11">${s.xy?"勉強時間（時間）":"項目の番号"}</text>`; }
+    g+=`<line x1="${L}" y1="10" x2="${L}" y2="${H-B}" stroke="#c4cde0"/><line x1="${L}" y1="${H-B}" x2="${W-5}" y2="${H-B}" stroke="#c4cde0"/></svg>`; area.innerHTML=g; }
+  function show(){ const s=SC[si]; q.innerHTML=`<b>目的 ${si+1}/${SC.length}</b><span>${s.q}。どのグラフにする？</span>`; area.innerHTML=""; status.textContent=""; sel.querySelectorAll(".chip").forEach(c=>c.classList.remove("ok","ng","on")); }
+  TYPES.forEach(([t,n])=>sel.append(h("button",{class:"chip", onclick:(e)=>{ draw(t); const s=SC[si]; sel.querySelectorAll(".chip").forEach(c=>c.classList.remove("ok","ng","on")); const ok=t===s.best; e.currentTarget.classList.add(ok?"ok":"ng"); status.className="status "+(ok?"ok":"ng"); const why={bar:"棒グラフは項目どうしの量を比べるのに向いています。",line:"折れ線グラフは時間による変化（推移）を見るのに向いています。",pie:"円グラフは全体に対する割合（構成比）を見るのに向いています。",scatter:"散布図は 2 つの量の関係（相関）を見るのに向いています。"}; status.innerHTML=(ok?"⭕ 適切！ ":"❌ この目的には「"+TYPES.find(x=>x[0]===s.best)[1]+"」が向いています。 ")+why[s.best]; }}, n)));
+  el.append(q, sel, area, status, h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ si=(si+1)%SC.length; show(); }},"次の目的 →"))); show();
+};
+})();
+
+/* ============================================================ 6章：データベース */
+(function(){
+"use strict";
+const h = (tag, attrs={}, ...kids)=>{ const el=document.createElement(tag); for(const k in attrs){ if(k==="class") el.className=attrs[k]; else if(k==="html") el.innerHTML=attrs[k]; else if(k.startsWith("on")) el.addEventListener(k.slice(2), attrs[k]); else el.setAttribute(k, attrs[k]); } kids.flat().forEach(c=>{ if(c!=null) el.append(c); }); return el; };
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+function table(caption, cols, rows, opt={}){ const t=h("table"); if(caption) t.append(h("caption",{},caption)); t.append(h("tr",{}, ...cols.map(c=>h("th",{class:(opt.pk&&opt.pk.includes(c)?"pk ":"")+(opt.fk&&opt.fk.includes(c)?"fk ":"")+(opt.dimCols&&opt.dimCols.includes(c)?"dim":""), onclick:opt.onHead?()=>opt.onHead(c):null, style:opt.onHead?"cursor:pointer":""}, c)))); rows.forEach((r,i)=>t.append(h("tr",{class:opt.hit&&opt.hit(r,i)?"hit":""}, ...cols.map(c=>h("td",{class:(opt.dimCols&&opt.dimCols.includes(c)?"dim":"")+(opt.mark&&opt.mark(r,c)?" ":"") , style:opt.mark&&opt.mark(r,c)?"background:#fdecec;color:#9b2c31;font-weight:700":""}, r[c]==null||r[c]===""?"（空）":String(r[c])))))); return h("div",{class:"dbtbl"}, t); }
+
+/* ---------- 6-2 主キー ---------- */
+WIDGETS.keys = function(el){
+  const cols=["学生番号","氏名","学科","生年月日","メールアドレス"];
+  const rows=[ {学生番号:"S001",氏名:"佐藤 太郎",学科:"情報",生年月日:"2006-04-12",メールアドレス:"s001@example.ac.jp"}, {学生番号:"S002",氏名:"鈴木 花子",学科:"経営",生年月日:"2006-11-03",メールアドレス:"s002@example.ac.jp"}, {学生番号:"S003",氏名:"佐藤 太郎",学科:"情報",生年月日:"2005-08-21",メールアドレス:""}, {学生番号:"S004",氏名:"高橋 健",学科:"経営",生年月日:"2006-11-03",メールアドレス:"s004@example.ac.jp"} ];
+  const status=h("div",{class:"status"}); let box;
+  const verdict={ 学生番号:["ok","⭕ 主キーにできます。すべて異なり、空もありません。"], 氏名:["ng","❌ 「佐藤 太郎」が 2 人います（重複）。1 行に特定できません。"], 学科:["ng","❌ 同じ学科の学生が何人もいるので、重複します。"], 生年月日:["ng","❌ 同じ誕生日の学生（S002 と S004）がいて重複します。"], メールアドレス:["ng","❌ 値は重複していませんが、S003 が空（NULL）です。主キーは NULL を許しません。"] };
+  function render(c){ if(box) box.remove(); box=table("学生表（列名をクリック）", cols, rows, {onHead:pick, dimCols:c?cols.filter(x=>x!==c):[], mark:(r,col)=>c===col && ((c==="氏名"&&r.氏名==="佐藤 太郎")||(c==="生年月日"&&r.生年月日==="2006-11-03")||(c==="メールアドレス"&&!r.メールアドレス))}); el.prepend(box); }
+  function pick(c){ render(c); const v=verdict[c]; status.className="status "+v[0]; status.textContent=v[1]; }
+  el.append(status, h("p",{class:"small muted"},"どの列なら「1 行をただ 1 つに特定」できるかを考えて、列名をクリックしてください。赤くなるのは、その列が主キーになれない理由の行です。")); render(null);
+};
+
+/* ---------- 6-3 正規化 ---------- */
+WIDGETS.normalize = function(el){
+  const base=[ {学生番号:"S001",氏名:"佐藤 太郎",科目コード:"C01",科目名:"情報リテラシー",担当:"田中"}, {学生番号:"S001",氏名:"佐藤 太郎",科目コード:"C02",科目名:"統計入門",担当:"山本"}, {学生番号:"S002",氏名:"鈴木 花子",科目コード:"C01",科目名:"情報リテラシー",担当:"田中"}, {学生番号:"S002",氏名:"鈴木 花子",科目コード:"C03",科目名:"英語Ⅰ",担当:"Smith"}, {学生番号:"S003",氏名:"高橋 健",科目コード:"C02",科目名:"統計入門",担当:"山本"} ];
+  let flat=JSON.parse(JSON.stringify(base)); let students=[{学生番号:"S001",氏名:"佐藤 太郎"},{学生番号:"S002",氏名:"鈴木 花子"},{学生番号:"S003",氏名:"高橋 健"}]; const subjects=[{科目コード:"C01",科目名:"情報リテラシー",担当:"田中"},{科目コード:"C02",科目名:"統計入門",担当:"山本"},{科目コード:"C03",科目名:"英語Ⅰ",担当:"Smith"}]; const enroll=base.map(r=>({学生番号:r.学生番号,科目コード:r.科目コード}));
+  const left=h("div",{class:"stack"}), right=h("div",{class:"stack"}), status=h("div",{class:"status"});
+  function render(){ left.innerHTML=""; right.innerHTML="";
+    const incons = flat.some(r=>flat.some(s=>s.学生番号===r.学生番号 && s.氏名!==r.氏名));
+    left.append(h("b",{},"❌ 正規化していない 1 つの表（氏名が何度も出てくる）"), table("履修表（1 つの表）", ["学生番号","氏名","科目コード","科目名","担当"], flat, {mark:(r,c)=>c==="氏名"&&flat.some(s=>s.学生番号===r.学生番号&&s.氏名!==r.氏名)}));
+    right.append(h("b",{},"⭕ 正規化した 3 つの表（氏名は学生表に 1 か所だけ）"), table("学生表",["学生番号","氏名"],students,{pk:["学生番号"]}), table("科目表",["科目コード","科目名","担当"],subjects,{pk:["科目コード"]}), table("履修表（学生番号＋科目コードが主キー）",["学生番号","科目コード"],enroll,{pk:["学生番号","科目コード"],fk:["学生番号","科目コード"]}));
+    const joined=enroll.map(e=>({学生番号:e.学生番号, 氏名:students.find(s=>s.学生番号===e.学生番号).氏名, 科目名:subjects.find(s=>s.科目コード===e.科目コード).科目名}));
+    right.append(table("結合して見たとき（矛盾なし）",["学生番号","氏名","科目名"],joined));
+    status.className="status "+(incons?"ng":""); status.innerHTML = incons ? "⚠ 左の表では S001 の氏名が行によって食いちがっています（更新異常）。どちらが正しいか、表からは分かりません。" : ""; }
+  const name=h("input",{type:"text", value:"佐藤 一郎", style:"width:160px"});
+  el.append(h("p",{class:"small muted"},"S001 の学生が改名したとします。新しい氏名を入れて、それぞれの表で「直して」みましょう。"), h("div",{class:"row"}, h("label",{},"S001 の新しい氏名：",name), h("button",{class:"btn", onclick:()=>{ flat[0].氏名=name.value; render(); }},"左の表：1 行目だけ直す（直し忘れ）"), h("button",{class:"btn", onclick:()=>{ flat.forEach(r=>{ if(r.学生番号==="S001") r.氏名=name.value; }); render(); }},"左の表：全部の行を直す"), h("button",{class:"btn primary", onclick:()=>{ students[0].氏名=name.value; render(); }},"右の表：学生表の 1 か所を直す"), h("button",{class:"btn sm", onclick:()=>{ flat=JSON.parse(JSON.stringify(base)); students[0].氏名="佐藤 太郎"; render(); }},"リセット")), h("div",{class:"two"}, left, right), status); render();
+};
+
+/* ---------- 6-4 SQL ---------- */
+WIDGETS.sql = function(el){
+  const 学生=[ {学生番号:"S001",氏名:"佐藤 太郎",学年:1,学科コード:"D1",点数:82}, {学生番号:"S002",氏名:"鈴木 花子",学年:2,学科コード:"D2",点数:91}, {学生番号:"S003",氏名:"高橋 健",学年:2,学科コード:"D1",点数:58}, {学生番号:"S004",氏名:"田中 美咲",学年:1,学科コード:"D3",点数:74}, {学生番号:"S005",氏名:"伊藤 翔",学年:3,学科コード:"D2",点数:66}, {学生番号:"S006",氏名:"渡辺 結衣",学年:2,学科コード:"D3",点数:95} ];
+  const 学科=[ {学科コード:"D1",学科名:"情報",校舎:"A棟"}, {学科コード:"D2",学科名:"経営",校舎:"B棟"}, {学科コード:"D3",学科名:"デザイン",校舎:"C棟"} ];
+  const TABLES={学生,学科};
+  const ta=h("textarea",{rows:"3", style:"width:100%", spellcheck:"false"}); ta.value="SELECT 氏名, 点数 FROM 学生 WHERE 学年 = 2";
+  const out=h("div"), status=h("div",{class:"status"}), ops=h("div",{class:"row"});
+  function run(){
+    try{ const r=exec(ta.value); out.innerHTML=""; out.append(table(`結果：${r.rows.length} 行`, r.cols, r.rows)); status.className="status ok"; status.textContent=`✓ ${r.rows.length} 行が取り出されました`;
+      ops.innerHTML=""; [["選択（行をしぼる）",r.where],["射影（列をしぼる）",r.proj],["結合（表をつなぐ）",r.join],["並べ替え",r.order]].forEach(([n,on])=>ops.append(h("span",{class:"pill "+(on?"ok":"")}, (on?"● ":"○ ")+n))); }
+    catch(e){ status.className="status ng"; status.textContent="エラー："+e.message; out.innerHTML=""; ops.innerHTML=""; }
+  }
+  function exec(sql){
+    sql=sql.trim().replace(/;$/,"").replace(/\s+/g," ");
+    const m=/^SELECT\s+(.+?)\s+FROM\s+(\S+)(?:\s+JOIN\s+(\S+)\s+ON\s+(\S+)\s*=\s*(\S+))?(?:\s+WHERE\s+(.+?))?(?:\s+ORDER\s+BY\s+(\S+)(?:\s+(ASC|DESC))?)?$/i.exec(sql);
+    if(!m) throw new Error("SELECT 列 FROM 表 [JOIN 表 ON 列=列] [WHERE 条件] [ORDER BY 列 [DESC]] の形で書いてください");
+    const [,colsS,t1,t2,j1,j2,whereS,ordCol,ordDir]=m;
+    if(!TABLES[t1]) throw new Error(`表「${t1}」はありません（学生・学科）`);
+    let rows=TABLES[t1].map(r=>{ const o={}; for(const k in r){ o[k]=r[k]; o[t1+"."+k]=r[k]; } return o; });
+    if(t2){ if(!TABLES[t2]) throw new Error(`表「${t2}」はありません`); const res=[]; rows.forEach(a=>TABLES[t2].forEach(b=>{ const o=Object.assign({},a); for(const k in b){ if(!(k in o)) o[k]=b[k]; o[t2+"."+k]=b[k]; } if(get(o,j1)==get(o,j2)) res.push(o); })); rows=res; }
+    function get(o,name){ if(name in o) return o[name]; throw new Error(`列「${name}」はありません`); }
+    function cond(o, s){ // AND / OR（左から順に、AND 優先）
+      const ors=s.split(/\s+OR\s+/i); return ors.some(part=>part.split(/\s+AND\s+/i).every(c=>{ const cm=/^(\S+)\s*(<>|!=|>=|<=|=|<|>)\s*(.+)$/.exec(c.trim()); if(!cm) throw new Error(`条件「${c}」が読めません`); let [,col,op,val]=cm; val=val.trim().replace(/^['"](.*)['"]$/,"$1"); const a=get(o,col); const b=isNaN(+val)||val===""?val:+val; switch(op){ case "=":return a==b; case "<>": case "!=":return a!=b; case ">":return a>b; case "<":return a<b; case ">=":return a>=b; case "<=":return a<=b; } })); }
+    if(whereS) rows=rows.filter(o=>cond(o,whereS));
+    if(ordCol){ rows=rows.slice().sort((x,y)=>{ const a=get(x,ordCol), b=get(y,ordCol); return (a>b?1:a<b?-1:0)*(/DESC/i.test(ordDir||"")?-1:1); }); }
+    let cols; const base1=Object.keys(TABLES[t1][0]), base2=t2?Object.keys(TABLES[t2][0]).filter(k=>!base1.includes(k)):[];
+    if(colsS.trim()==="*") cols=base1.concat(base2); else { cols=colsS.split(",").map(s=>s.trim()); cols.forEach(c=>{ if(rows.length && !(c in rows[0])) { if(!(c in (TABLES[t1][0]))&&!(t2&&c in TABLES[t2][0])) throw new Error(`列「${c}」はありません`); } }); }
+    return {cols, rows:rows.map(o=>{ const r={}; cols.forEach(c=>r[c]=o[c]); return r; }), where:!!whereS, proj:colsS.trim()!=="*", join:!!t2, order:!!ordCol};
+  }
+  const ex=[["全部","SELECT * FROM 学生"],["2年生の氏名（選択＋射影）","SELECT 氏名, 点数 FROM 学生 WHERE 学年 = 2"],["80点以上を高い順","SELECT 氏名, 点数 FROM 学生 WHERE 点数 >= 80 ORDER BY 点数 DESC"],["AND","SELECT 氏名 FROM 学生 WHERE 学年 = 2 AND 点数 >= 60"],["結合","SELECT 氏名, 学科名, 校舎 FROM 学生 JOIN 学科 ON 学生.学科コード = 学科.学科コード"]];
+  el.append(h("div",{class:"two"}, table("学生表",["学生番号","氏名","学年","学科コード","点数"],学生,{pk:["学生番号"],fk:["学科コード"]}), table("学科表",["学科コード","学科名","校舎"],学科,{pk:["学科コード"]})), h("div",{class:"row"}, ...ex.map(e=>h("button",{class:"chip", onclick:()=>{ta.value=e[1]; run();}}, e[0]))), ta, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:run},"▶ 実行"), ops), status, out, h("p",{class:"small muted"},"この教材の SQL は SELECT・FROM・JOIN ON・WHERE（AND / OR）・ORDER BY に対応した簡易版です。文字は '情報' のように引用符で囲みます。")); run();
+};
+
+/* ---------- 6-5 排他制御 ---------- */
+WIDGETS.lock = function(el){
+  let lock=true, running=false; const seg=h("div",{class:"seg"}); const b1=h("button",{class:"on", onclick:()=>{lock=true; sel();}},"ロックあり"), b2=h("button",{onclick:()=>{lock=false; sel();}},"ロックなし"); seg.append(b1,b2);
+  function sel(){ b1.classList.toggle("on",lock); b2.classList.toggle("on",!lock); }
+  const seat=h("div",{class:"bigval"}), logA=h("div",{class:"steps"}), logB=h("div",{class:"steps"}), status=h("div",{class:"status"});
+  let seats=1, resv=0;
+  function show(){ seat.innerHTML=`<div><div class="l">残席</div><div class="v">${seats}</div></div><div><div class="l">予約件数</div><div class="v">${resv}</div></div><div><div class="l">ロック</div><div class="v" style="font-size:18px">${lockedBy||"なし"}</div></div>`; }
+  let lockedBy="";
+  function add(log, t, cls){ log.append(h("div",{class:cls||"", html:t})); }
+  async function run(){ if(running) return; running=true; seats=1; resv=0; lockedBy=""; logA.innerHTML=""; logB.innerHTML=""; status.textContent=""; show();
+    if(!lock){
+      add(logA,"👩 A：残席を読む → <b>1</b>（空いている！）"); await sleep(700); add(logB,"👨 B：残席を読む → <b>1</b>（空いている！）"); await sleep(700);
+      add(logA,"👩 A：残席を 0 に更新して予約確定"); seats=0; resv++; show(); await sleep(700);
+      add(logB,"👨 B：残席を 0 に更新して予約確定"); seats=0; resv++; show(); await sleep(500);
+      status.className="status ng"; status.innerHTML="❌ 残席 1 なのに予約が 2 件 ── <b>ダブルブッキング</b>。B が読んだ「1」は、A の更新前の古い値でした。";
+    } else {
+      add(logA,"👩 A：残席データに<b>ロック</b>をかける 🔒"); lockedBy="A"; show(); await sleep(600); add(logA,"👩 A：残席を読む → <b>1</b>"); await sleep(600);
+      add(logB,"👨 B：ロックをかけようとする → <span style='color:var(--warn)'>A が使用中。待つ… ⏳</span>"); await sleep(900);
+      add(logA,"👩 A：残席を 0 に更新 → コミット → ロック解除 🔓"); seats=0; resv++; lockedBy=""; show(); await sleep(700);
+      add(logB,"👨 B：ロックをかける 🔒 → 残席を読む → <b>0</b>"); lockedBy="B"; show(); await sleep(700);
+      add(logB,"👨 B：満席なので予約できない → ロールバック → ロック解除 🔓"); lockedBy=""; show(); await sleep(400);
+      status.className="status ok"; status.innerHTML="⭕ 予約は 1 件だけ。B は A の処理が終わるまで<b>待たされ</b>、最新の値（0）を読めたので矛盾が起きません。";
+    } running=false; }
+  show();
+  el.append(h("div",{class:"row"}, seg, h("button",{class:"btn primary", onclick:run},"▶ A と B が同時に「最後の 1 席」を予約する")), seat, h("div",{class:"two"}, h("div",{}, h("b",{},"👩 A さんの処理"), logA), h("div",{}, h("b",{},"👨 B さんの処理"), logB)), status);
+};
+})();
+
+/* ============================================================
+   app.js  ── 画面の切り替え・進捗の保存・クイズエンジン
+   ============================================================ */
+(function(){
+"use strict";
+const $ = (s, el=document) => el.querySelector(s);
+const app = $("#app");
+const KEY = "gairon1review.v1";
+
+/* ---------- 進捗（localStorage） ---------- */
+const P = load();
+function load(){
+  try{ const j = JSON.parse(localStorage.getItem(KEY)||"{}"); return Object.assign({visited:{}, best:{}, finalBest:null, finals:0}, j); }
+  catch(e){ return {visited:{}, best:{}, finalBest:null, finals:0}; }
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(P)); }catch(e){} updateTopProgress(); }
+function visitedSet(ch){ return new Set(P.visited[ch]||[]); }
+function markVisited(ch, i){ const s = visitedSet(ch); s.add(i); P.visited[ch]=[...s]; save(); }
+function unmarkVisited(ch, i){ const s = visitedSet(ch); s.delete(i); P.visited[ch]=[...s]; save(); }
+function chapterProgress(ch){
+  const c = CHAPTERS.find(x=>x.id===ch); const n = c.sections.length;
+  const v = visitedSet(ch).size; const quizDone = P.best[ch]!=null;
+  return {pct: Math.round(100*(v + (quizDone?1:0))/(n+1)), read:v, total:n, quizDone, best:P.best[ch]};
+}
+function totalProgress(){
+  let sum=0; CHAPTERS.forEach(c=>sum+=chapterProgress(c.id).pct);
+  return Math.round(sum/CHAPTERS.length);
+}
+function updateTopProgress(){
+  const t = totalProgress();
+  $("#pprog").style.width = t+"%"; $("#pprog-label").textContent = t+"%";
+}
+
+/* ---------- バッジ ---------- */
+const BADGES = [
+  {id:"first", e:"🔰", name:"はじめの一歩", desc:"どれか1つのセクションを読んだ", test:()=>CHAPTERS.some(c=>visitedSet(c.id).size>0)},
+  {id:"quiz1", e:"✅", name:"確認クイズ合格", desc:"章の確認クイズで80%以上", test:()=>CHAPTERS.some(c=>P.best[c.id]!=null && P.best[c.id].pct>=80)},
+  {id:"perfect", e:"💯", name:"パーフェクト", desc:"章の確認クイズで全問正解", test:()=>CHAPTERS.some(c=>P.best[c.id]!=null && P.best[c.id].pct===100)},
+  {id:"half", e:"🏃", name:"折り返し", desc:"全体の進みぐあい50%", test:()=>totalProgress()>=50},
+  {id:"allread", e:"📚", name:"全章読破", desc:"6章すべてのセクションを読んだ", test:()=>CHAPTERS.every(c=>visitedSet(c.id).size>=c.sections.length)},
+  {id:"final", e:"🎓", name:"総合テスト合格", desc:"総合テストで80%以上", test:()=>P.finalBest!=null && P.finalBest.pct>=80},
+  {id:"master", e:"👑", name:"概論Ⅰマスター", desc:"進みぐあい100%かつ総合テスト90%以上", test:()=>totalProgress()===100 && P.finalBest!=null && P.finalBest.pct>=90},
+];
+
+/* ---------- ルーティング ---------- */
+function setAccent(c){
+  document.documentElement.style.setProperty("--accent", c ? `var(--c${c.no})` : "var(--c1)");
+  document.documentElement.style.setProperty("--accent-soft", c ? `var(--c${c.no}s)` : "var(--c1s)");
+}
+function route(){
+  const h = (location.hash||"#home").slice(1);
+  const [name, arg] = h.split("-");
+  window.scrollTo({top:0, behavior:"instant"});
+  if(name==="ch"){ const c = CHAPTERS.find(x=>x.id===arg); if(c) return renderChapter(c); }
+  if(name==="quiz"){ const c = CHAPTERS.find(x=>x.id===arg); if(c) return renderQuiz(c); }
+  if(name==="final") return renderFinal();
+  renderHome();
+}
+window.addEventListener("hashchange", route);
+
+/* ---------- ホーム ---------- */
+function renderHome(){
+  setAccent(null);
+  document.title = "コンピュータ概論Ⅰ ふりかえりラボ";
+  const cards = CHAPTERS.map(c=>{
+    const pr = chapterProgress(c.id);
+    const badge = pr.quizDone && pr.best.pct===100 ? "💯" : pr.quizDone && pr.best.pct>=80 ? "✅" : "";
+    return `<button class="chcard" style="--accent:var(--c${c.no});--accent-soft:var(--c${c.no}s)" data-go="#ch-${c.id}">
+      <span class="badge">${badge}</span>
+      <span class="icon">${ICONS[c.icon]}</span>
+      <span class="no">CHAPTER ${c.no}</span>
+      <h3>${c.title}</h3>
+      <span class="muted small">${c.lead}</span>
+      <span class="pbar"><i style="width:${pr.pct}%"></i></span>
+      <span class="meta"><span>読んだ ${pr.read}/${pr.total}</span><span>${pr.quizDone ? "クイズ最高 "+pr.best.pct+"%" : "クイズ 未挑戦"}</span></span>
+    </button>`;
+  }).join("");
+  const badges = BADGES.map(b=>`<div class="bdg ${b.test()?"":"locked"}" title="${b.desc}"><span class="e">${b.e}</span><span>${b.name}<br><span class="small muted" style="font-weight:400">${b.desc}</span></span></div>`).join("");
+  const fb = P.finalBest;
+  app.innerHTML = `<div class="view">
+    <section class="hero">
+      <div class="stack">
+        <span class="eyebrow">コンピュータ概論Ⅱ 第1回</span>
+        <h1>前期のまとめ<br>コンピュータ概論Ⅰ ふりかえりラボ</h1>
+        <p class="lead">前期に学んだ6つの分野を、<b>アニメーションと体験コーナー</b>で思い出し、<b>クイズ</b>で自分の理解を確かめましょう。順番は自由です。気になる章から始めてください。</p>
+        <div class="row">
+          <a class="btn primary lg" href="#ch-hw">CHAPTER 1 から始める</a>
+          <a class="btn lg" href="#final">いきなり総合テスト</a>
+        </div>
+        <p class="small muted">進みぐあいと最高得点は、このブラウザに自動保存されます。<button class="reset" id="resetAll">記録をすべて消す</button><span id="resetBox" hidden> 読んだ印・最高得点・実績をすべて消します。<button class="btn sm" id="resetYes">消す</button> <button class="btn sm" id="resetNo">やめる</button></span></p>
+      </div>
+      <div class="art">${ICONS.hero}</div>
+    </section>
+    <h2 style="margin-bottom:14px">6つの分野</h2>
+    <div class="chapters">${cards}</div>
+    <section class="final-cta">
+      <div class="stack">
+        <h2>🎓 総合テスト</h2>
+        <p>6分野からランダムに ${FINAL_N} 問。前期のまとめとして、自分の弱いところを見つけましょう。${fb ? `<br>これまでの最高：<b style="color:#fff">${fb.pct}%</b>（${fb.score}/${fb.n} 問）・挑戦 ${P.finals} 回` : ""}</p>
+      </div>
+      <a class="btn lg" href="#final" style="background:#fff;color:#1d2b64;border-color:transparent">テストを始める</a>
+    </section>
+    <h2 style="margin-top:30px">実績</h2>
+    <div class="badges">${badges}</div>
+  </div>`;
+  app.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click", ()=>location.hash=b.dataset.go));
+  $("#resetAll").addEventListener("click", ()=>{
+    const box = $("#resetBox"); box.hidden = false; $("#resetAll").hidden = true;
+  });
+  $("#resetYes").addEventListener("click", ()=>{ P.visited={}; P.best={}; P.finalBest=null; P.finals=0; save(); renderHome(); });
+  $("#resetNo").addEventListener("click", ()=>{ $("#resetBox").hidden = true; $("#resetAll").hidden = false; });
+  updateTopProgress();
+}
+
+/* ---------- 章 ---------- */
+function renderChapter(c){
+  setAccent(c);
+  document.title = `${c.no}. ${c.title} ── 概論Ⅰ ふりかえりラボ`;
+  const v = visitedSet(c.id);
+  const nav = c.sections.map((s,i)=>`<a href="#s${i+1}" data-i="${i}" class="${v.has(i)?"done":""}">${c.no}-${i+1} ${s.short||s.title}</a>`).join("");
+  const secs = c.sections.map((s,i)=>`<section class="sec" id="s${i+1}">
+    <div class="card">
+      <h2><span class="n">${c.no}-${i+1}</span>${s.title}</h2>
+      ${s.html}
+      ${s.widget ? `<div class="lab" data-widget="${s.widget}"><div class="lab-title">${s.labTitle||"体験してみよう"}</div><div class="lab-body"></div></div>` : ""}
+      <div class="secfoot"><label class="check"><input type="checkbox" data-sec="${i}" ${v.has(i)?"checked":""}> 読んだ・理解した</label></div>
+    </div>
+  </section>`).join("");
+  const pr = chapterProgress(c.id);
+  const prev = CHAPTERS[c.no-2], next = CHAPTERS[c.no];
+  app.innerHTML = `<div class="view">
+    <a class="btn ghost sm" href="#home">← ホームへ</a>
+    <div class="chhead" style="margin-top:10px">
+      <span class="icon">${ICONS[c.icon]}</span>
+      <div><span class="eyebrow">CHAPTER ${c.no}</span><h1>${c.title}</h1></div>
+    </div>
+    <p class="muted" style="max-width:46em">${c.intro}</p>
+    <nav class="chnav" aria-label="この章の目次">${nav}</nav>
+    ${secs}
+    <div class="chend card">
+      <span class="eyebrow">CHECK</span>
+      <h2>確認クイズ（${c.quiz.length}問）</h2>
+      <p class="muted">この章の内容から出題します。${pr.quizDone ? `これまでの最高：<b>${pr.best.pct}%</b>` : "まだ挑戦していません。"}</p>
+      <a class="btn primary lg" href="#quiz-${c.id}">クイズに挑戦する</a>
+      <div class="row" style="margin-top:8px">
+        ${prev ? `<a class="btn sm" href="#ch-${prev.id}">← ${prev.no}. ${prev.title}</a>` : ""}
+        ${next ? `<a class="btn sm" href="#ch-${next.id}">${next.no}. ${next.title} →</a>` : `<a class="btn sm" href="#final">総合テストへ →</a>`}
+      </div>
+    </div>
+  </div>`;
+  // 目次リンク：ハッシュを変えずにスクロール
+  app.querySelectorAll(".chnav a").forEach(a=>a.addEventListener("click", e=>{
+    e.preventDefault(); const t = $(a.getAttribute("href")); if(t) t.scrollIntoView({behavior:"smooth", block:"start"});
+  }));
+  // 読んだチェック
+  app.querySelectorAll("input[data-sec]").forEach(cb=>cb.addEventListener("change", ()=>{
+    const i = +cb.dataset.sec; if(cb.checked) markVisited(c.id,i); else unmarkVisited(c.id,i);
+    const a = app.querySelector(`.chnav a[data-i="${i}"]`); a.classList.toggle("done", cb.checked);
+  }));
+  // 体験コーナーを初期化
+  app.querySelectorAll("[data-widget]").forEach(el=>{
+    const fn = WIDGETS[el.dataset.widget];
+    if(fn){ try{ fn(el.querySelector(".lab-body"), c); }catch(err){ console.error(err); el.querySelector(".lab-body").innerHTML = `<p class="small muted">この体験コーナーを表示できませんでした。</p>`; } }
+  });
+  updateTopProgress();
+}
+
+/* ---------- クイズ ---------- */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function renderQuiz(c){ setAccent(c); document.title = `確認クイズ：${c.title}`; runQuiz({title:`${c.no}. ${c.title} 確認クイズ`, qs: shuffle(c.quiz), back:`#ch-${c.id}`, backLabel:"章にもどる", onDone:(score,n)=>{
+  const pct = Math.round(100*score/n); const b = P.best[c.id];
+  if(!b || pct>b.pct) P.best[c.id] = {pct, score, n}; save();
+}}); }
+function renderFinal(){
+  setAccent(null); document.title = "総合テスト ── 概論Ⅰ ふりかえりラボ";
+  // 各章から均等に出題
+  const per = Math.floor(FINAL_N/CHAPTERS.length); let qs=[];
+  CHAPTERS.forEach(c=>{ qs = qs.concat(shuffle(c.quiz).slice(0,per).map(q=>Object.assign({ch:c}, q))); });
+  const rest = FINAL_N - qs.length;
+  if(rest>0){ const pool = shuffle(CHAPTERS.flatMap(c=>c.quiz.map(q=>Object.assign({ch:c},q)))).filter(q=>!qs.includes(q)); qs = qs.concat(pool.slice(0,rest)); }
+  runQuiz({title:"総合テスト", qs: shuffle(qs), back:"#home", backLabel:"ホームへ", showChapter:true, onDone:(score,n)=>{
+    const pct = Math.round(100*score/n); P.finals++;
+    if(!P.finalBest || pct>P.finalBest.pct) P.finalBest = {pct, score, n}; save();
+  }});
+}
+function runQuiz(o){
+  const qs = o.qs; let i=0, score=0; const log=[];
+  const shell = document.createElement("div"); shell.className="view quiz"; app.innerHTML=""; app.appendChild(shell);
+  function showQ(){
+    const q = qs[i];
+    const opts = shuffle(q.a.map((t,k)=>({t, ok:k===0})));
+    const chAccent = o.showChapter && q.ch ? `style="--accent:var(--c${q.ch.no});--accent-soft:var(--c${q.ch.no}s)"` : "";
+    shell.innerHTML = `<div class="qhead"><a class="btn ghost sm" href="${o.back}">✕ やめる</a><span class="bar"><i style="width:${100*i/qs.length}%"></i></span><span class="num">${i+1} / ${qs.length}</span></div>
+      <div class="card qcard" ${chAccent}>
+        <div class="row"><span class="tag">${o.showChapter && q.ch ? "CH."+q.ch.no+" "+q.ch.title : o.title}</span>${q.tag?`<span class="pill">${q.tag}</span>`:""}</div>
+        <p class="qtext">${q.q}</p>
+        <div class="opts">${opts.map((op,k)=>`<button class="opt" data-ok="${op.ok?1:0}"><span class="k">${"ABCD"[k]}</span><span>${op.t}</span></button>`).join("")}</div>
+        <div id="expl"></div>
+        <p class="small muted">キーボード：<kbd>A</kbd>〜<kbd>D</kbd> または <kbd>1</kbd>〜<kbd>4</kbd> で回答、<kbd>Enter</kbd> で次へ</p>
+      </div>`;
+    const btns = [...shell.querySelectorAll(".opt")];
+    btns.forEach(b=>b.addEventListener("click", ()=>answer(b)));
+    function answer(b){
+      if(btns[0].disabled) return;
+      const ok = b.dataset.ok==="1"; if(ok) score++;
+      btns.forEach(x=>{ x.disabled=true; if(x.dataset.ok==="1") x.classList.add("correct"); });
+      if(!ok) b.classList.add("wrong");
+      log.push({q, ok, chosen:b.querySelector("span:last-child").textContent});
+      $("#expl", shell).innerHTML = `<div class="expl ${ok?"ok":"ng"}"><div class="verdict">${ok?"⭕ 正解！":"❌ ざんねん"}</div><div>${!ok?`<b>正解：</b>${q.a[0]}<br>`:""}${q.e}</div>
+        <div class="row"><button class="btn primary" id="next">${i+1<qs.length?"次の問題 →":"結果を見る"}</button></div></div>`;
+      $("#next", shell).addEventListener("click", next); $("#next", shell).focus();
+    }
+    shell._key = (e)=>{
+      if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
+      const k = e.key.toUpperCase();
+      if(!btns[0].disabled){ const idx = "ABCD".indexOf(k)>=0 ? "ABCD".indexOf(k) : "1234".indexOf(k); if(idx>=0 && btns[idx]) answer(btns[idx]); }
+      else if(e.key==="Enter"){ e.preventDefault(); next(); }
+    };
+  }
+  function next(){ i++; if(i<qs.length) showQ(); else finish(); }
+  function finish(){
+    const n = qs.length, pct = Math.round(100*score/n);
+    o.onDone(score,n);
+    const msg = pct===100 ? "完璧です！前期の内容をしっかり覚えていますね。" : pct>=80 ? "よくできました。まちがえた問題の解説をもう一度読んでおきましょう。" : pct>=60 ? "あと少し。まちがえた分野の章を読み直してから、もう一度挑戦しましょう。" : "まずは各章の体験コーナーで、しくみを動かして理解するところから始めましょう。";
+    const r = 62, circ = 2*Math.PI*r;
+    shell.innerHTML = `<div class="card result">
+      <span class="eyebrow">RESULT</span>
+      <svg class="ring" viewBox="0 0 150 150"><circle cx="75" cy="75" r="${r}" fill="none" stroke="var(--bg2)" stroke-width="14"/><circle cx="75" cy="75" r="${r}" fill="none" stroke="var(--accent)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ}" transform="rotate(-90 75 75)" style="transition:stroke-dashoffset 1s ease .2s" id="ring"/><text x="75" y="84" text-anchor="middle" font-family="var(--display)" font-weight="900" font-size="30" fill="var(--accent)">${pct}%</text></svg>
+      <div class="score">${score}<small> / ${n} 問</small></div>
+      <p>${msg}</p>
+      <div class="row"><button class="btn primary" id="again">もう一度</button><a class="btn" href="${o.back}">${o.backLabel}</a></div>
+      <h3 style="margin-top:10px">ふりかえり</h3>
+      <div class="review">${log.map((l,k)=>`<div class="item ${l.ok?"ok":"ng"}"><div><b>${l.ok?"⭕":"❌"} Q${k+1}.</b> ${l.q.q}</div><div class="small"><b>正解：</b>${l.q.a[0]}${!l.ok?` ／ <span class="muted">あなたの答え：${l.chosen}</span>`:""}</div><div class="small muted">${l.q.e}</div>${o.showChapter&&l.q.ch?`<div><a class="small" href="#ch-${l.q.ch.id}">→ CH.${l.q.ch.no} ${l.q.ch.title} を読み直す</a></div>`:""}</div>`).join("")}</div>
+    </div>`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ $("#ring",shell).style.strokeDashoffset = circ*(1-pct/100); }));
+    $("#again", shell).addEventListener("click", ()=>route());
+    shell._key = null;
+    if(pct>=80) confetti();
+    updateTopProgress();
+  }
+  document.onkeydown = (e)=>{ if(shell.isConnected && shell._key) shell._key(e); };
+  showQ();
+}
+function confetti(){
+  const box = document.createElement("div"); box.className="confetti";
+  const cols = ["#3b7be9","#8b5cf6","#f0a020","#22a36b","#0e9fb0","#e5567a"];
+  for(let k=0;k<90;k++){ const i=document.createElement("i"); i.style.left=Math.random()*100+"vw"; i.style.background=cols[k%cols.length]; i.style.animationDelay=(Math.random()*.8)+"s"; i.style.transform=`rotate(${Math.random()*360}deg)`; box.appendChild(i); }
+  document.body.appendChild(box); setTimeout(()=>box.remove(), 3600);
+}
+
+route();
+})();
+
+</script>
+</body>
+</html>
