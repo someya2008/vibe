@@ -7,6 +7,7 @@
 | `foodloss/` | 品切れか廃棄か（食品ロス教材） | HTML をブラウザで開くだけ |
 | `foodloss_q/` | もったいないクイズ（フードロス50問クイズ） | HTML をブラウザで開くだけ |
 | `todo/` | MyTodo（個人用 Todo 管理） | `cd todo && npm install && npm run dev` |
+| `refrigerator/` | 冷蔵庫エージェント・シミュレーション（食品ロス教材） | HTML をブラウザで開くだけ |
 
 ---
 
@@ -84,3 +85,12 @@ cd todo
 npm install
 npm run dev
 ```
+
+---
+
+# 冷蔵庫エージェント・シミュレーション
+
+家庭の食品ロス（食べ残し・直接廃棄・過剰除去）が、買い物の間隔・まとめ買い・冷蔵庫の奥の見えにくさ・
+家族人数という行動だけからどう生まれるかを体験する、エージェントベースモデルの教材アプリ（`refrigerator/`）。
+中学生から大学生・一般向け。`refrigerator/index.html` をブラウザで開くだけで動きます。
+くわしくは `refrigerator/README.md` を参照。
