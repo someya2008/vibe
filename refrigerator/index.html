@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>冷蔵庫エージェント・シミュレーション</title>
+<meta name="description" content="買い物の回数・まとめ買い・冷蔵庫の見えやすさ・家族人数を動かして、家庭の食品ロス（食べ残し・直接廃棄・過剰除去）がどう生まれるかを体験するエージェントベースモデル教材。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#070b14; --bg2:#0c1424; --bg3:#111c30;
+  --glass:rgba(255,255,255,.045); --glass2:rgba(255,255,255,.075); --line:rgba(255,255,255,.10); --line2:rgba(255,255,255,.18);
+  --text:#e9eef8; --muted:#9fb0c8; --faint:#6d7c95;
+  --ice:#9fe0ff; --ice2:#4fb3f2; --ice3:#1f6fb8;
+  --amber:#f6b544; --coral:#ff6f7d; --mint:#7fe3bb; --violet:#a78bfa;
+  --display:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;
+  --body:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  --r:18px;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.85;-webkit-text-size-adjust:100%;overflow-x:hidden}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.page{position:relative;z-index:1;padding-inline:clamp(16px,4vw,48px)}
+.wrap{max-width:1180px;margin-inline:auto}
+h1,h2,h3,h4{font-family:var(--display);font-weight:900;margin:0;line-height:1.25;letter-spacing:.01em;text-wrap:balance}
+h2{font-size:clamp(24px,3vw,34px)}
+h3{font-size:clamp(18px,2.2vw,22px);font-weight:700}
+p{margin:0}
+a{color:var(--ice)}
+:focus-visible{outline:2px solid var(--ice);outline-offset:3px}
+button{font-family:inherit}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13.5px;line-height:1.7}
+.prose{max-width:42em;display:grid;gap:.9em}
+.prose li{margin-block:.2em}
+.eyebrow{font-family:var(--display);font-weight:700;font-size:13px;letter-spacing:.14em;color:var(--ice)}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid var(--line2);color:var(--muted);letter-spacing:.06em}
+.card{background:linear-gradient(180deg,var(--glass2),var(--glass));border:1px solid var(--line);border-radius:var(--r);padding:clamp(16px,2.4vw,26px);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+hr.sep{border:0;border-top:1px solid var(--line);margin:0}
+
+/* buttons */
+.btn{font:inherit;font-size:15px;font-weight:700;background:var(--glass2);color:var(--text);border:1px solid var(--line2);border-radius:12px;padding:10px 16px;cursor:pointer;line-height:1.3;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .08s,background .15s,border-color .15s,box-shadow .2s;backdrop-filter:blur(8px)}
+.btn:hover{border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.11)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.primary{background:linear-gradient(135deg,#6fd0ff,#2f8fe0);color:#04101f;border-color:transparent;box-shadow:0 8px 30px rgba(79,179,242,.35)}
+.btn.primary:hover{box-shadow:0 10px 36px rgba(79,179,242,.5);background:linear-gradient(135deg,#86dbff,#3f9de8)}
+.btn.warm{background:linear-gradient(135deg,#ffd07a,#f0953a);color:#2a1300;border-color:transparent}
+.btn.sm{font-size:13.5px;padding:7px 12px;border-radius:10px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:inherit;font-size:14px;font-weight:600;background:var(--glass);color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:7px 13px;cursor:pointer;min-width:52px;transition:.15s}
+.seg button[aria-pressed="true"]{background:var(--ice);color:#04101f;border-color:var(--ice)}
+.seg button:hover{border-color:var(--line2);color:var(--text)}
+.seg button[aria-pressed="true"]:hover{color:#04101f}
+
+/* range */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:34px;background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--ice2) var(--pct,50%),rgba(255,255,255,.14) var(--pct,50%))}
+input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:rgba(255,255,255,.14)}
+input[type=range]::-moz-range-progress{height:6px;border-radius:999px;background:var(--ice2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;margin-top:-9px;box-shadow:0 2px 10px rgba(0,0,0,.5),0 0 0 4px rgba(159,224,255,.25);border:2px solid var(--ice2)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.5);border:2px solid var(--ice2)}
+.ctl{display:grid;gap:2px}
+.ctl .lbl{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-weight:700}
+.ctl output{font-family:var(--display);font-size:24px;font-weight:900;color:var(--text);white-space:nowrap}
+.ctl output small{font-family:var(--body);font-size:12.5px;font-weight:500;color:var(--muted);margin-left:3px}
+.ctl .hint{font-size:13px;color:var(--muted);line-height:1.6;margin-top:-4px}
+
+/* hero */
+.hero{padding-block:clamp(48px,8vw,96px) clamp(28px,4vw,48px);display:grid;gap:26px}
+.hero h1{font-size:clamp(34px,5.6vw,66px);line-height:1.12;background:linear-gradient(180deg,#fff 20%,#bfe7ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 30px rgba(79,179,242,.25))}
+.hero .lead{font-size:clamp(16px,1.6vw,19px);max-width:44em;color:var(--muted)}
+.hero .lead b{color:var(--text)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.stat{padding:18px 20px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--line);display:grid;gap:2px}
+.stat .v{font-family:var(--display);font-size:clamp(28px,3.4vw,40px);font-weight:900;line-height:1.1}
+.stat .v small{font-size:.5em;color:var(--muted);font-weight:700;margin-left:2px}
+.stat .k{font-size:13px;color:var(--muted)}
+.stat.ice .v{color:var(--ice)} .stat.amber .v{color:var(--amber)} .stat.coral .v{color:var(--coral)} .stat.mint .v{color:var(--mint)}
+.cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+
+/* tabs */
+.tabs{position:sticky;top:0;z-index:5;display:flex;gap:4px;overflow-x:auto;padding:10px 0;margin-bottom:22px;background:linear-gradient(180deg,rgba(7,11,20,.95),rgba(7,11,20,.8));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{font:inherit;font-family:var(--display);font-weight:700;font-size:15px;background:transparent;color:var(--muted);border:1px solid transparent;border-radius:12px;padding:9px 16px;cursor:pointer;white-space:nowrap;transition:.15s}
+.tabs button[aria-selected="true"]{background:var(--glass2);color:var(--text);border-color:var(--line2)}
+.tabs button:hover{color:var(--text)}
+.tabs button span{font-family:var(--body);font-weight:500;font-size:12px;color:var(--faint);margin-left:6px}
+section.panel{display:none;padding-bottom:64px}
+section.panel.active{display:block}
+.sec-head{display:grid;gap:8px;margin-bottom:22px}
+
+/* sim layout */
+.sim{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.85fr);gap:18px;align-items:start}
+@media (max-width:900px){.sim{grid-template-columns:1fr}}
+.scene{position:relative;border-radius:var(--r);overflow:hidden;background:#0a1220;border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.scene canvas{display:block;width:100%;height:auto}
+.scene .hud{position:absolute;left:14px;top:12px;display:flex;gap:8px;align-items:center;pointer-events:none}
+.scene .day{font-family:var(--display);font-weight:900;font-size:30px;line-height:1;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.scene .day small{font-size:13px;font-weight:700;color:var(--muted);margin-left:4px}
+.scene .badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid var(--line2);color:var(--ice);backdrop-filter:blur(6px)}
+.scene .legend{position:absolute;right:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;pointer-events:none}
+.scene .legend span{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid var(--line);color:var(--muted)}
+.scene .legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.toolbar .spacer{flex:1}
+.log{margin-top:12px;display:grid;gap:5px;font-size:13.5px;max-height:172px;overflow:auto;padding-right:4px}
+.log div{display:flex;gap:10px;align-items:flex-start;padding:7px 12px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);animation:fadein .3s}
+.log .ic{font-size:15px;line-height:1.5;flex:none}
+.log .d{color:var(--faint);flex:none;font-variant-numeric:tabular-nums}
+.log .eat{border-color:rgba(246,181,68,.35)} .log .dump{border-color:rgba(255,111,125,.4)} .log .trim{border-color:rgba(127,227,187,.35)}
+@keyframes fadein{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.controls{display:grid;gap:18px}
+.controls h3{display:flex;align-items:center;gap:10px}
+details.adv{border-top:1px solid var(--line);padding-top:12px}
+details.adv summary{cursor:pointer;font-weight:700;color:var(--muted);list-style:none;display:flex;justify-content:space-between}
+details.adv summary::-webkit-details-marker{display:none}
+details.adv summary::after{content:"＋";color:var(--faint)}
+details.adv[open] summary::after{content:"－"}
+details.adv .ctl{margin-top:14px}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.presets button{font:inherit;font-size:13.5px;font-weight:700;text-align:left;background:var(--glass);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:10px 12px;cursor:pointer;line-height:1.35;transition:.15s}
+.presets button small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.presets button:hover{border-color:var(--ice2);background:rgba(79,179,242,.12)}
+
+/* dashboard */
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-top:18px}
+.kpi{display:grid;gap:12px}
+.kpi .big{font-family:var(--display);font-size:clamp(40px,5vw,56px);font-weight:900;line-height:1;letter-spacing:-.01em}
+.kpi .big small{font-size:16px;color:var(--muted);font-weight:700;margin-left:4px}
+.gauge{position:relative;height:16px;border-radius:999px;background:rgba(255,255,255,.08);overflow:visible;margin-top:26px;margin-bottom:8px}
+.gauge .fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,var(--mint),var(--amber),var(--coral));transition:width .5s cubic-bezier(.2,.8,.2,1);max-width:100%}
+.gauge .mark{position:absolute;top:-8px;bottom:-8px;width:2px;background:#fff;opacity:.85}
+.gauge .mark::after{content:attr(data-l);position:absolute;top:-22px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11.5px;font-weight:700;color:var(--text)}
+.gauge .mark.t{background:var(--mint)} .gauge .mark.t::after{color:var(--mint);top:auto;bottom:-24px}
+.onigiri{font-size:22px;letter-spacing:2px;line-height:1.2;min-height:1.2em}
+.bars{display:grid;gap:6px}
+.bar{display:grid;grid-template-columns:86px 1fr 62px;gap:10px;align-items:center;font-size:13.5px}
+.bar .tr{height:12px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar .tr i{display:block;height:100%;border-radius:999px;transition:width .4s}
+.bar .v{text-align:right;font-weight:700}
+canvas.chart{width:100%;height:auto;display:block}
+.donuts{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;text-align:center}
+.donuts .t{font-size:12.5px;color:var(--muted);font-weight:700;margin-top:4px}
+.compare{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6}
+.compare b{color:var(--text)}
+
+/* lab */
+.lab{display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.4fr);gap:18px;align-items:start}
+@media (max-width:900px){.lab{grid-template-columns:1fr}}
+.radio{display:grid;gap:8px}
+.radio label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--glass);cursor:pointer;font-size:14px;line-height:1.5}
+.radio label:has(input:checked){border-color:var(--ice2);background:rgba(79,179,242,.12)}
+.radio input{margin-top:5px;accent-color:var(--ice2)}
+.radio b{display:block}
+.radio small{color:var(--muted)}
+table.res{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:12px}
+table.res th,table.res td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+table.res th:first-child,table.res td:first-child{text-align:left}
+table.res th{color:var(--muted);font-weight:700;font-size:12.5px}
+.finding{margin-top:14px;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,rgba(159,224,255,.12),rgba(167,139,250,.08));border:1px solid rgba(159,224,255,.3);font-size:14.5px}
+.finding b{color:var(--ice)}
+
+/* model flow */
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;counter-reset:st}
+.flow .st{position:relative;padding:16px 14px 14px;border-radius:14px;background:var(--glass);border:1px solid var(--line);display:grid;gap:6px;font-size:14px;line-height:1.6}
+.flow .st::before{counter-increment:st;content:counter(st);position:absolute;top:-10px;left:12px;font-family:var(--display);font-weight:900;font-size:12px;color:#04101f;background:var(--ice);border-radius:999px;padding:1px 9px}
+.flow .st b{font-family:var(--display);font-size:16px;display:flex;gap:6px;align-items:center}
+.flow .st .em{font-size:26px;line-height:1}
+.formula{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:12px;padding:12px 14px;line-height:1.7;overflow-x:auto;color:#dfe9ff}
+.formula .c{color:var(--mint)}
+.term{border-bottom:1px dashed var(--ice2);cursor:help}
+.ptable{width:100%;border-collapse:collapse;font-size:14px}
+.ptable th,.ptable td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;line-height:1.6}
+.ptable th{color:var(--muted);font-size:12.5px;font-weight:700}
+.ptable td:first-child{font-weight:700;white-space:nowrap}
+.note{font-size:13.5px;color:var(--muted);line-height:1.7;padding:12px 14px;border-left:3px solid var(--ice3);background:rgba(79,179,242,.06);border-radius:0 12px 12px 0}
+.note b{color:var(--text)}
+
+/* data */
+.src{font-size:12.5px;color:var(--faint);line-height:1.6;margin-top:8px}
+.src a{color:var(--muted)}
+.big-num{font-family:var(--display);font-weight:900;font-size:clamp(34px,4vw,48px);line-height:1.05}
+.big-num small{font-size:.45em;color:var(--muted);margin-left:3px}
+.hbar{display:grid;gap:8px;margin-top:10px}
+.hbar .row{display:grid;grid-template-columns:96px 1fr 70px;gap:10px;align-items:center;font-size:14px}
+.hbar .tr{height:22px;border-radius:8px;background:rgba(255,255,255,.07);overflow:hidden}
+.hbar .tr i{display:block;height:100%;border-radius:8px}
+.hbar .v{text-align:right;font-weight:700}
+ol.refs{padding-left:1.3em;font-size:14px;display:grid;gap:8px;line-height:1.65}
+ol.refs li::marker{color:var(--ice)}
+.q{display:grid;gap:10px}
+.q div{padding:14px 16px;border-radius:14px;background:var(--glass);border:1px solid var(--line);font-size:15px;line-height:1.7}
+.q div b{color:var(--ice);font-family:var(--display);margin-right:8px}
+footer{padding:40px 0 60px;color:var(--faint);font-size:13px;border-top:1px solid var(--line);margin-top:20px;line-height:1.7}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:640px){.presets{grid-template-columns:1fr}.donuts{grid-template-columns:1fr 1fr}.bar{grid-template-columns:72px 1fr 56px}}
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div class="page"><div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">AGENT-BASED MODEL · SDG 12.3</div>
+  <h1>冷蔵庫エージェント・<br class="sp">シミュレーション</h1>
+  <p class="lead">日本の家庭から出る食品ロスは、1人1日 <b>約 50 g</b>。捨てるつもりで買う人はいないのに、なぜ減らないのか。
+  買い物の回数・まとめ買い・冷蔵庫の奥の見えにくさ・家族人数という<b>ふだんの行動</b>だけで、
+  「食べ残し」「直接廃棄」「過剰除去」がどう生まれるかを、1つの家庭をエージェントとして動かして確かめます。</p>
+  <div class="stats">
+    <div class="stat ice"><div class="v num">461<small>万トン</small></div><div class="k">日本の食品ロス（2024年度推計）</div></div>
+    <div class="stat amber"><div class="v num">224<small>万トン</small></div><div class="k">うち家庭から（約半分）</div></div>
+    <div class="stat coral"><div class="v num">約102<small>g／人・日</small></div><div class="k">おにぎり1個分（家庭分は約 50 g）</div></div>
+    <div class="stat mint"><div class="v num">2030<small>年</small></div><div class="k">SDG 12.3：1人あたりの食品廃棄を半減</div></div>
+  </div>
+  <div class="cta">
+    <button class="btn primary" onclick="showTab('sim');document.getElementById('sim').scrollIntoView({behavior:'smooth'})">▶ シミュレーションを始める</button>
+    <button class="btn" onclick="showTab('model')">しくみを読む</button>
+    <button class="btn" onclick="showTab('data')">データと出典</button>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="ページ内の切り替え">
+  <button role="tab" data-tab="sim" aria-selected="true">シミュレーション<span>1つの家庭を動かす</span></button>
+  <button role="tab" data-tab="lab" aria-selected="false">実験<span>150家庭×60日で比べる</span></button>
+  <button role="tab" data-tab="model" aria-selected="false">しくみ<span>エージェントの規則</span></button>
+  <button role="tab" data-tab="data" aria-selected="false">データ<span>調査・統計・出典</span></button>
+  <button role="tab" data-tab="think" aria-selected="false">考える<span>問いと限界</span></button>
+</nav>
+
+<!-- ================= SIM ================= -->
+<section class="panel active" id="sim" role="tabpanel">
+  <div class="sec-head">
+    <h2>ある家庭の冷蔵庫、60日間</h2>
+    <p class="muted">右のつまみを動かしてから ▶ を押すと、家庭（エージェント）が毎日「買う → しまう → 作る → 食べる → 残す・捨てる」を繰り返します。奥にしまわれて<b>見えなくなった食材</b>は、暗く表示されます。</p>
+  </div>
+  <div class="sim">
+    <div>
+      <div class="scene">
+        <canvas id="scene" width="640" height="700" aria-label="冷蔵庫の中身のアニメーション"></canvas>
+        <div class="hud"><div class="day"><span id="dayN">0</span><small>日目</small></div><div class="badge" id="phase">準備</div></div>
+        <div class="legend"><span><i style="background:var(--amber)"></i>食べ残し</span><span><i style="background:var(--coral)"></i>直接廃棄</span><span><i style="background:var(--mint)"></i>過剰除去</span></div>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" id="play">▶ 再生</button>
+        <button class="btn" id="stepBtn">1日進める</button>
+        <button class="btn" id="resetBtn">↺ リセット</button>
+        <div class="spacer"></div>
+        <div class="seg" id="speed" aria-label="速さ"><button data-v="1" aria-pressed="true">1×</button><button data-v="2" aria-pressed="false">2×</button><button data-v="4" aria-pressed="false">4×</button><button data-v="0" aria-pressed="false">一気に60日</button></div>
+      </div>
+      <div class="log" id="log" aria-live="polite"></div>
+    </div>
+
+    <div class="card controls">
+      <h3>この家庭の行動</h3>
+      <div class="ctl"><div class="lbl"><span>買い物の間隔</span><output id="oS">3<small>日に1回</small></output></div><input type="range" id="S" min="1" max="7" step="1" value="3"><div class="hint">毎日行くか、週末にまとめて行くか。</div></div>
+      <div class="ctl"><div class="lbl"><span>まとめ買い率</span><output id="oB">20<small>%</small></output></div><input type="range" id="B" min="0" max="100" step="5" value="20"><div class="hint">必要な量より多めに買う割合（安売り・「念のため」）。</div></div>
+      <div class="ctl"><div class="lbl"><span>冷蔵庫の可視性</span><output id="oV">60<small>%</small></output></div><input type="range" id="V" min="0" max="100" step="5" value="60"><div class="hint">奥にしまった食材のうち、ふだん目に入る割合。整理された冷蔵庫ほど高い。</div></div>
+      <div class="ctl"><div class="lbl"><span>家族人数</span><output id="oN">3<small>人</small></output></div><input type="range" id="N" min="1" max="6" step="1" value="3"><div class="hint">人数が多いほど「今日は何人食べるか」がずれやすい。</div></div>
+      <details class="adv"><summary>くわしい設定</summary>
+        <div class="ctl"><div class="lbl"><span>献立計画をする日の割合</span><output id="oP">30<small>%</small></output></div><input type="range" id="P" min="0" max="100" step="5" value="30"><div class="hint">計画した日は「何人食べるか」「期限が近い物」を確かめてから作る。</div></div>
+        <div class="ctl"><div class="lbl"><span>皮や芯を捨てる割合（過剰除去率）</span><output id="oT">5<small>%</small></output></div><input type="range" id="T" min="0" max="15" step="1" value="5"><div class="hint">野菜の食べられる部分を、皮むきなどで捨ててしまう割合。</div></div>
+        <div class="ctl"><div class="lbl"><span>乱数のたね</span><output id="oSeed">1</output></div><input type="range" id="seed" min="1" max="50" step="1" value="1"><div class="hint">同じ設定でも運で結果は変わります。たねを変えると別の 60 日になります。</div></div>
+      </details>
+      <div>
+        <div class="small muted" style="font-weight:700;margin-bottom:8px">よくある家庭を試す</div>
+        <div class="presets">
+          <button data-p='{"S":1,"B":0,"V":80,"N":2,"P":40}'>毎日少しずつ<small>2人・ほぼ毎日買う</small></button>
+          <button data-p='{"S":7,"B":40,"V":40,"N":4,"P":20}'>週末まとめ買い<small>4人・週1回・安売り好き</small></button>
+          <button data-p='{"S":3,"B":20,"V":10,"N":3,"P":20}'>奥が見えない冷蔵庫<small>3人・詰め込みすぎ</small></button>
+          <button data-p='{"S":3,"B":10,"V":90,"N":3,"P":80}'>献立をしっかり計画<small>3人・買う前に中を確認</small></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash">
+    <div class="card kpi">
+      <div class="eyebrow">1人1日あたりの食品ロス</div>
+      <div class="big"><span id="kpiPer" class="num">0</span><small>g</small></div>
+      <div class="gauge"><div class="fill" id="gFill" style="width:0%"></div><div class="mark" style="left:33.3%" data-l="日本の家庭の平均 約50 g"></div><div class="mark t" style="left:16.7%" data-l="半減なら 25 g"></div></div>
+      <div class="onigiri" id="onigiri" aria-label="おにぎり換算"></div>
+      <div class="small muted">60日続けると 1人 <b id="kpiYear" class="num">0</b> kg／年のペース。<span id="kpiWord"></span></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">内訳（累計）</div>
+      <div class="bars" style="margin-top:10px">
+        <div class="bar"><span>食べ残し</span><div class="tr"><i id="bEat" style="background:var(--amber);width:0"></i></div><span class="v num" id="vEat">0 g</span></div>
+        <div class="bar"><span>直接廃棄</span><div class="tr"><i id="bDump" style="background:var(--coral);width:0"></i></div><span class="v num" id="vDump">0 g</span></div>
+        <div class="bar"><span>過剰除去</span><div class="tr"><i id="bTrim" style="background:var(--mint);width:0"></i></div><span class="v num" id="vTrim">0 g</span></div>
+      </div>
+      <div class="donuts" style="margin-top:14px">
+        <div><canvas class="chart" id="donutMe" width="220" height="220"></canvas><div class="t">この家庭</div></div>
+        <div><canvas class="chart" id="donutJP" width="220" height="220"></canvas><div class="t">日本の家庭（2024年度）</div></div>
+      </div>
+      <div class="compare" id="compareTxt"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">毎日のロス（g／日・家庭全体）</div>
+      <canvas class="chart" id="daily" width="520" height="260"></canvas>
+      <div class="small muted" style="margin-top:6px">買い物 <span id="mBought" class="num">0</span> kg のうち、捨てたのは <b id="mRate" class="num">0</b>%。食材が足りなかった日の不足分 <span id="mShort" class="num">0</span> g。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LAB ================= -->
+<section class="panel" id="lab" role="tabpanel">
+  <div class="sec-head">
+    <h2>実験：1つのつまみだけ動かすと？</h2>
+    <p class="muted">1つの家庭だと運で結果がぶれます。そこで同じ設定の家庭を <b>150 軒 × 60 日</b> 動かし、平均を取ります（科学の実験と同じで、<span class="term" title="調べたい条件以外を同じにして比べること">条件を1つだけ変える</span>のがコツです）。他のつまみは、シミュレーションの画面で設定した値を使います。</p>
+  </div>
+  <div class="lab">
+    <div class="card">
+      <h3>動かすつまみ</h3>
+      <div class="radio" style="margin-top:12px">
+        <label><input type="radio" name="sw" value="S" checked><span><b>買い物の間隔</b><small>1・2・3・5・7日に1回</small></span></label>
+        <label><input type="radio" name="sw" value="B"><span><b>まとめ買い率</b><small>0・20・40・60・80%</small></span></label>
+        <label><input type="radio" name="sw" value="V"><span><b>冷蔵庫の可視性</b><small>0・25・50・75・100%</small></span></label>
+        <label><input type="radio" name="sw" value="N"><span><b>家族人数</b><small>1・2・3・4・6人</small></span></label>
+        <label><input type="radio" name="sw" value="P"><span><b>献立計画をする日の割合</b><small>0・25・50・75・100%</small></span></label>
+      </div>
+      <button class="btn primary" id="runLab" style="margin-top:14px;width:100%">実験を実行（約1秒）</button>
+      <p class="small muted" style="margin-top:10px">縦軸は 1人1日あたりの食品ロス（g）。色は内訳です。</p>
+    </div>
+    <div class="card">
+      <canvas class="chart" id="labChart" width="720" height="380"></canvas>
+      <table class="res" id="labTable"></table>
+      <div class="finding" id="labFinding" hidden></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODEL ================= -->
+<section class="panel" id="model" role="tabpanel">
+  <div class="sec-head">
+    <h2>しくみ：家庭を「エージェント」として動かす</h2>
+    <p class="muted"><b>エージェントベースモデル（ABM）</b>とは、一人ひとり（ここでは1つの家庭）に簡単な行動の規則を与え、それを繰り返させて、全体で何が起きるかを見る方法です。
+    「食品ロスを減らそう」という気持ちをモデルに入れなくても、<b>行動の規則だけ</b>からロスが生まれることを確かめられます。</p>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <h3>1日のくり返し（毎日この順に実行）</h3>
+    <div class="flow" style="margin-top:18px">
+      <div class="st"><span class="em">🛒</span><b>買う</b>買い物の日なら、次の買い物までに必要な量から「把握している在庫」を引き、まとめ買い率のぶん多めに買う。</div>
+      <div class="st"><span class="em">🧊</span><b>しまう</b>新しい物は手前へ。手前がいっぱいなら古い物が奥へ押しやられ、可視性の確率でしか目に入らなくなる。</div>
+      <div class="st"><span class="em">🍳</span><b>作る</b>家族全員分を想定して作る。目に入る食材から、ふだんは手前の新しい物、計画した日は期限が近い物から使う。野菜は過剰除去率のぶん皮や芯を捨てる。</div>
+      <div class="st"><span class="em">🍽️</span><b>食べる</b>1人あたり 500 g 食べる。急に外食する人がいると（1人 8%／日）、その分が余る。</div>
+      <div class="st"><span class="em">🥡</span><b>残す・捨てる</b>余った分は、保存して翌日以降に食べるか、捨てる（食べ残し）。保存しても 2 日で食べ切れなければ食べ残しになる。</div>
+      <div class="st"><span class="em">🌙</span><b>1日たつ</b>すべての食材の残り日数が 1 減る。0 になった食材は直接廃棄。奥で見えない物は気づかれないまま期限切れになる。</div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:18px">
+    <div class="card">
+      <h3>式で書くと</h3>
+      <div class="formula" style="margin-top:12px">
+<span class="c">// 買う量（買い物の日）</span>
+必要量 = 家族人数 × 500 g × 買い物の間隔（日）
+把握在庫 = 手前の食材 + 奥の食材のうち見えている分
+買う量 = max(0, 必要量 − 把握在庫) × (1 + まとめ買い率)
+
+<span class="c">// 奥の食材が見えるか（食材ごとに決まる）</span>
+見える ⇔ その食材の「奥行き」(0〜1の乱数) &lt; 可視性
+
+<span class="c">// 作る量（毎日）</span>
+作る量 = 想定人数 × 500 g × (1 + ε)
+ε ～ 正規分布(0, σ)　σ = 12%（計画した日は 6%）
+
+<span class="c">// 3つのロス</span>
+食べ残し = 作った量 − 食べた量 のうち捨てた分（保存後の期限切れも含む）
+直接廃棄 = 残り日数が 0 になった食材の量
+過剰除去 = 使った野菜の量 × 過剰除去率
+      </div>
+      <p class="small muted" style="margin-top:10px">ε（イプシロン）は「作る量の見積もりのブレ」です。正規分布は、平均のまわりに小さなブレが多く、大きなブレはまれ、という自然なばらつきの形です。</p>
+    </div>
+    <div class="card">
+      <h3>4つのパラメータが何を変えるか</h3>
+      <table class="ptable" style="margin-top:12px">
+        <tr><th>つまみ</th><th>モデルの中で変わること</th></tr>
+        <tr><td>買い物の間隔</td><td>一度に買う日数分が増える。日持ちしない食材ほど、期限までに使い切れない。</td></tr>
+        <tr><td>まとめ買い率</td><td>必要量より多く買う。さらに、その確率で「ついで買い」が 1 品増える。</td></tr>
+        <tr><td>冷蔵庫の可視性</td><td>奥の食材が目に入る確率。低いと使われずに期限切れになり、在庫を知らずに<b>同じ物を買い足す</b>。</td></tr>
+        <tr><td>家族人数</td><td>食べる量が増えるだけでなく、「今日は何人食べるか」のずれが大きくなる。</td></tr>
+        <tr><td>献立計画</td><td>計画した日は、不在を 70% の確率で把握し、期限の近い物から使い、買い物前に中を全部確認し、残り物を保存しやすくなる。</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>モデルの中の食材（15種類）</h3>
+      <p class="small muted" style="margin:8px 0 10px">1パックの量と、買ってから食べられる日数の目安（実際の表示より短めに設定）。</p>
+      <table class="ptable" id="foodTable"></table>
+    </div>
+    <div class="card prose">
+      <h3>おもな仮定（ここが単純化されている）</h3>
+      <ul style="margin:0;padding-left:1.2em">
+        <li>1人が冷蔵庫の食材から食べる量を 1日 500 g に固定（米・パン・乾物などは含まない）。</li>
+        <li>冷凍庫はない。値段や好みも考えない。食材は「量」だけで区別する。</li>
+        <li>食材は買った時点の量が同じで、日数が 0 になった瞬間に食べられなくなる。</li>
+        <li>家庭の中の「人」は区別せず、家庭全体を 1 つのエージェントとして扱う。</li>
+        <li>数値（500 g、不在 8%、ブレ 12%、保存確率など）は、結果が日本の家庭の平均（1人1日 約 50 g、内訳 42：43：16）に近づくよう調整した<b>仮定値</b>であり、実測値ではない。</li>
+      </ul>
+      <div class="note"><b>研究として読むなら。</b>この作りは、米国の家庭を対象に食品ロスを重さと組成で推定した ABM「IFWASTE」（Sustainability, 2026）や、買い物頻度と不確実性の関係を数理モデルで調べた van Rooijen ら（2025）と同じ発想です。違いは、本教材が日本の 3 分類（食べ残し・直接廃棄・過剰除去）に合わせ、可視性という「冷蔵庫の中の見えなさ」を明示的なパラメータにした点です。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DATA ================= -->
+<section class="panel" id="data" role="tabpanel">
+  <div class="sec-head">
+    <h2>データ：日本と世界の家庭の食品ロス</h2>
+    <p class="muted">教材の数字は、国の推計と公的な調査、査読つき論文から集めました。数値は 2026 年 9 月時点。各カードの下に出典を示します。</p>
+  </div>
+  <div class="grid g3" style="margin-bottom:18px">
+    <div class="card">
+      <div class="eyebrow">日本の食品ロス量</div>
+      <div class="big-num num" style="margin-top:8px">461<small>万トン</small></div>
+      <p class="small muted">2024（令和6）年度推計。事業系 237 万トン、家庭系 224 万トン。前年度（464 万トン：事業系 231、家庭系 233）から 3 万トン減。</p>
+      <div class="src">出典：農林水産省・環境省「我が国の食品ロスの発生量の推計値（令和6年度）」（2026年6月30日公表）／消費者庁 お知らせ（2024年度推計値の公表について）</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">1人あたりに直すと</div>
+      <div class="big-num num" style="margin-top:8px">約102<small>g／日</small></div>
+      <p class="small muted">年間 約 37 kg。「毎日おにぎり 1 個を捨てている」計算。家庭系だけなら約 50 g／日（224 万トン ÷ 人口 ÷ 365 日）。</p>
+      <div class="src">出典：同上（1 人あたりは総量を人口で割った値）</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">2030 年度の目標</div>
+      <div class="big-num num" style="margin-top:8px">216<small>万トン（家庭系）</small></div>
+      <p class="small muted">2000 年度（433 万トン）の半分。事業系は 2025 年 3 月の第 2 次基本方針で「60% 減（219 万トン）」に引き上げ。家庭系はあと約 8 万トン。</p>
+      <div class="src">出典：消費者庁「第2次 食品ロスの削減の推進に関する基本的な方針」（2025年3月閣議決定）</div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:18px">
+    <div class="card">
+      <h3>家庭系 224 万トンの内訳（2024 年度）</h3>
+      <div class="hbar">
+        <div class="row"><span>直接廃棄</span><div class="tr"><i style="width:100%;background:var(--coral)"></i></div><span class="v num">96 万t</span></div>
+        <div class="row"><span>食べ残し</span><div class="tr"><i style="width:97%;background:var(--amber)"></i></div><span class="v num">93 万t</span></div>
+        <div class="row"><span>過剰除去</span><div class="tr"><i style="width:36%;background:var(--mint)"></i></div><span class="v num">35 万t</span></div>
+      </div>
+      <p class="small muted" style="margin-top:12px">割合にすると 43％：42％：16％。2022 年度（236 万トン）は 直接廃棄 102・食べ残し 100・過剰除去 33 万トンで、比率はほぼ同じです。<br>
+      <b>直接廃棄</b>＝期限切れなどで手つかずのまま捨てた物。<b>食べ残し</b>＝食卓に出したが食べ切れなかった物。<b>過剰除去</b>＝厚くむいた皮など、食べられる部分を捨てた物。</p>
+      <div class="src">出典：環境省 報道発表（令和6年度・令和4年度 推計値）</div>
+    </div>
+    <div class="card">
+      <h3>なぜ捨てたのか（消費者への調査）</h3>
+      <div class="hbar">
+        <div class="row"><span>消費期限切れ</span><div class="tr"><i style="width:100%;background:var(--coral)"></i></div><span class="v num">30.7%</span></div>
+        <div class="row"><span>保存を忘れ傷んだ</span><div class="tr"><i style="width:94%;background:var(--violet)"></i></div><span class="v num">28.8%</span></div>
+      </div>
+      <p class="small muted" style="margin-top:12px">未開封・未使用の食品を捨てた理由の上位 2 つ。「捨てた経験はない」は 28.9％。つまり約 7 割の人に、手つかずのまま捨てた経験があります。「忘れていた」は、このモデルの<b>可視性</b>そのものです。</p>
+      <p class="small muted" style="margin-top:8px">別の調査（消費者庁・徳島県の実証事業、2017 年）で「まだ食べられるのに捨てた理由」は、食べ残し 57％、傷んでいた 23％、期限切れ 11％でした。</p>
+      <div class="src">出典：消費者庁「消費生活意識調査」（2025 年、食品ロスがテーマの回）／消費者庁「食品ロス削減の取組（徳島県実証事業）」</div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-bottom:18px">
+    <div class="card">
+      <div class="eyebrow">世界では</div>
+      <div class="big-num num" style="margin-top:8px">10.5<small>億トン／年</small></div>
+      <p class="small muted">2022 年の世界の食品廃棄（小売・外食・家庭）。1 人あたり 132 kg、うち家庭が 79 kg で全体の約 60%。毎日 10 億食以上が捨てられている計算。</p>
+      <div class="src">出典：UNEP「Food Waste Index Report 2024」</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">台所で量った調査</div>
+      <div class="big-num num" style="margin-top:8px">3.7<small>%</small></div>
+      <p class="small muted">世帯が使った食品のうちロスになった割合（食品ロス率）。内訳は過剰除去 2.0％、食べ残し 1.0％、直接廃棄 0.7％。台所で重さを量ると、皮むきのロスが目立ちます。</p>
+      <div class="src">出典：農林水産省「食品ロス統計調査（世帯調査）」平成 26 年度（最後の実施年）</div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">ごみ袋を開けた調査</div>
+      <div class="big-num num" style="margin-top:8px">5〜6<small>%</small></div>
+      <p class="small muted">京都市の家庭ごみ細組成調査で、家庭ごみに占める「手つかず食品」の重さの割合（2017 年度は 7.8％）。京都大学と共同で 40 年以上続く調査です。</p>
+      <div class="src">出典：浅利・矢野ほか「京都市ごみ細組成調査における食品ロス等の発生実態把握」廃棄物資源循環学会誌 31(4), 2020</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>参考文献・出典（リンク）</h3>
+    <ol class="refs" style="margin-top:12px">
+      <li>環境省 報道発表「我が国の食品ロスの発生量の推計値（令和6年度）の公表について」 <a href="https://www.env.go.jp/press/press_05155.html" target="_blank" rel="noopener">env.go.jp/press/press_05155.html</a>（2026年6月30日）</li>
+      <li>環境省 報道発表「同（令和5年度）」 <a href="https://www.env.go.jp/press/press_00002.html" target="_blank" rel="noopener">env.go.jp/press/press_00002.html</a>／「同（令和4年度）」 <a href="https://www.env.go.jp/press/press_03332.html" target="_blank" rel="noopener">env.go.jp/press/press_03332.html</a></li>
+      <li>消費者庁「2024（令和6）年度食品ロス量推計値の公表について」 <a href="https://www.caa.go.jp/notice/entry/046549/" target="_blank" rel="noopener">caa.go.jp/notice/entry/046549/</a></li>
+      <li>消費者庁「第2次 食品ロスの削減の推進に関する基本的な方針（概要）」 <a href="https://www.caa.go.jp/policies/policy/consumer_policy/information/food_loss/promote/assets/consumer_education_cms201_250409_02.pdf" target="_blank" rel="noopener">PDF</a>（2025年3月）</li>
+      <li>消費者庁「食品ロス削減関係参考資料」（令和8年1月14日版） <a href="https://www.caa.go.jp/policies/policy/consumer_policy/information/food_loss/efforts/assets/consumer_education_cms201_260114_01.pdf" target="_blank" rel="noopener">PDF</a></li>
+      <li>消費者庁「令和7年度第1回 消費生活意識調査（食品ロス）」 <a href="https://www.caa.go.jp/policies/policy/consumer_research/research_report/survey_003/assets/consumer_research_cms201_251009_03.pdf" target="_blank" rel="noopener">PDF</a></li>
+      <li>消費者庁「食品ロス削減に向けた取組（徳島県実証事業のパンフレット）」 <a href="https://www.caa.go.jp/policies/policy/consumer_policy/information/food_loss/pamphlet/pdf/pamphlet_181029_0004.pdf" target="_blank" rel="noopener">PDF</a></li>
+      <li>農林水産省「食品ロス統計調査（世帯調査・外食産業調査）の概要」 <a href="https://www.maff.go.jp/j/tokei/kouhyou/syokuhin_loss/gaiyou/index.html" target="_blank" rel="noopener">maff.go.jp</a></li>
+      <li>浅利美鈴・矢野順也ほか「京都市ごみ細組成調査における食品ロス等の発生実態把握 ―40年間の変化および最新動向―」廃棄物資源循環学会誌 31(4): 273–, 2020 <a href="https://www.jstage.jst.go.jp/article/mcwmr/31/4/31_273/_article/-char/ja/" target="_blank" rel="noopener">J-STAGE</a></li>
+      <li>UNEP, <i>Food Waste Index Report 2024</i> <a href="https://www.unep.org/resources/publication/food-waste-index-report-2024" target="_blank" rel="noopener">unep.org</a></li>
+      <li>United Nations, SDG target 12.3 “By 2030, halve per capita global food waste at the retail and consumer levels and reduce food losses along production and supply chains, including post-harvest losses.”</li>
+      <li>van Rooijen, M. et al. (2025) “Meal planning under uncertainty: How shopping frequency affects food waste.” <i>Sustainable Production and Consumption</i> 57: 403–412 <a href="https://www.sciencedirect.com/science/article/pii/S2352550925001137" target="_blank" rel="noopener">ScienceDirect</a></li>
+      <li>“IFWASTE: An Agent-Based Model for the Estimation of Household Food Waste.” <i>Sustainability</i> 18, 6091 (2026) <a href="https://doi.org/10.3390/su18126091" target="_blank" rel="noopener">doi:10.3390/su18126091</a></li>
+    </ol>
+    <p class="note" style="margin-top:14px"><b>授業で使うときの注意。</b>推計値は毎年 6 月ごろに前々年度分が更新されます。割合（％）は万トン単位の四捨五入から計算しているため、合計が 100 にならないことがあります。授業前に出典ページで最新値を確かめてください。</p>
+  </div>
+</section>
+
+<!-- ================= THINK ================= -->
+<section class="panel" id="think" role="tabpanel">
+  <div class="sec-head">
+    <h2>考える</h2>
+    <p class="muted">シミュレーションと実験の結果をもとに、話し合ってみましょう。</p>
+  </div>
+  <div class="grid g2" style="margin-bottom:18px">
+    <div class="card">
+      <h3>まず（中学生から）</h3>
+      <div class="q" style="margin-top:12px">
+        <div><b>Q1</b>「奥が見えない冷蔵庫」の家庭では、3 つのロスのうちどれが増えましたか。捨てられた食材は、何日目に、どこにありましたか。</div>
+        <div><b>Q2</b>買い物を毎日にすると直接廃棄は減りますが、食べ残しはあまり減りません。どうしてでしょう。</div>
+        <div><b>Q3</b>「まとめ買い率」を 0 にしても、ロスは 0 になりません。残るロスはどこから来ていますか。</div>
+        <div><b>Q4</b>家の冷蔵庫で、奥にある物を 3 つ思い出せますか。実際に開けて確かめてみましょう（可視性を測る実験になります）。</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>さらに（高校生・大学生）</h3>
+      <div class="q" style="margin-top:12px">
+        <div><b>Q5</b>このモデルでは「食べ残し」の主な原因は不在（外食）と作る量のブレです。現実の調査（食べ残し 57％）と照らして、モデルに足りない原因は何でしょう。</div>
+        <div><b>Q6</b>van Rooijen ら（2025）は「不確実性が高い家庭ほど、こまめな買い物が有利」と示しました。実験タブで家族人数と買い物間隔を組み合わせ、同じ傾向が出るか確かめてください。</div>
+        <div><b>Q7</b>モデルでは献立計画が最も強い効果を持ちます。それは「本当に効く」からか、「そう作ったから」か。どんなデータがあれば区別できますか。</div>
+        <div><b>Q8</b>SDG 12.3 は「1 人あたり半減」です。日本の家庭系は 2000 年度比でどこまで来ましたか。残りを減らすには、どの行動に働きかけるのが効率的でしょう。</div>
+      </div>
+    </div>
+  </div>
+  <div class="grid g2">
+    <div class="card prose">
+      <h3>SDG 12.3 と日本</h3>
+      <p>持続可能な開発目標（SDGs）の目標 12「つくる責任 つかう責任」のターゲット 12.3 は、<b>2030 年までに小売・消費段階の 1 人あたり食品廃棄を半減</b>し、生産・供給段階の食料損失も減らすことを掲げています。</p>
+      <p>日本は 2019 年の食品ロス削減推進法にもとづき、家庭系を 2000 年度比で半減（433 → 216 万トン）する目標を立てました。2024 年度は 224 万トンで、目標まであと約 8 万トン。事業系は 2022 年度に目標を前倒しで達成し、2025 年に目標を 60% 減へ引き上げました。</p>
+      <p>このモデルが示すのは、家庭のロスは「悪い人」がいるから出るのではなく、<b>ふつうの行動の組み合わせ</b>から自然に出る、ということです。だからこそ、行動の設計（買い物の前に冷蔵庫を見る、手前に古い物を置く、作る量を決めてから作る）で減らせます。</p>
+    </div>
+    <div class="card prose">
+      <h3>このモデルの限界</h3>
+      <ul style="margin:0;padding-left:1.2em">
+        <li><b>冷凍がない。</b>実際は肉や魚を冷凍して日持ちさせる家庭が多く、週 1 回の買い物のロスは、モデルより小さくなるはずです。</li>
+        <li><b>値段・好みがない。</b>「安いから買う」「子どもが嫌いで残す」といった動機は入っていません。</li>
+        <li><b>人が区別されない。</b>誰が買い、誰が作り、誰が残すかは扱いません。IFWASTE のように家庭の中の個人を分けると、より細かく調べられます。</li>
+        <li><b>数値は調整値。</b>500 g／日や 12% のブレは、日本の平均に合わせて決めた仮定です。結果の「大きさ」より「どのつまみが、どのロスを、どの向きに動かすか」を読んでください。</li>
+      </ul>
+      <div class="note"><b>発展課題。</b>「冷凍庫」「値引きシール」「作り置き」のどれか 1 つを規則として追加するなら、どの式をどう変えますか。しくみタブの式を使って設計してみましょう。</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  冷蔵庫エージェント・シミュレーション — 授業・展示用の教材。外部ライブラリなし、ブラウザで開くだけで動きます。<br>
+  データは各公表資料にもとづく 2026 年 9 月時点の値です。図とアニメーションはすべてプログラムで描画しています（写真・素材は使用していません）。
+</footer>
+</div></div>
+
+<script>
+/* =====================================================================
+   1. モデル（エージェントの規則）
+   ===================================================================== */
+const FOODS = [
+  {k:'milk',    name:'牛乳',       pkg:1000, life:7,  veg:0, w:1.0},
+  {k:'egg',     name:'卵',         pkg:600,  life:14, veg:0, w:0.7},
+  {k:'tofu',    name:'豆腐',       pkg:350,  life:4,  veg:0, w:0.8},
+  {k:'natto',   name:'納豆',       pkg:135,  life:8,  veg:0, w:0.5},
+  {k:'chicken', name:'鶏肉',       pkg:300,  life:2,  veg:0, w:0.9},
+  {k:'pork',    name:'豚肉',       pkg:250,  life:3,  veg:0, w:0.9},
+  {k:'fish',    name:'魚',         pkg:200,  life:2,  veg:0, w:0.6},
+  {k:'cabbage', name:'キャベツ',   pkg:1000, life:10, veg:1, w:0.5},
+  {k:'carrot',  name:'にんじん',   pkg:450,  life:14, veg:1, w:0.6},
+  {k:'spinach', name:'ほうれん草', pkg:200,  life:3,  veg:1, w:0.7},
+  {k:'tomato',  name:'トマト',     pkg:450,  life:6,  veg:1, w:0.7},
+  {k:'cucumber',name:'きゅうり',   pkg:300,  life:5,  veg:1, w:0.6},
+  {k:'sprout',  name:'もやし',     pkg:200,  life:2,  veg:1, w:0.6},
+  {k:'yogurt',  name:'ヨーグルト', pkg:400,  life:10, veg:0, w:0.5},
+  {k:'ham',     name:'ハム',       pkg:100,  life:7,  veg:0, w:0.4},
+];
+const FOOD_BY = Object.fromEntries(FOODS.map(f=>[f.k,f]));
+const LEFTOVER = {k:'leftover', name:'残りもの', pkg:0, life:2, veg:0, w:0};
+const CONST = { D:500, FRONT:8, absent:0.08, sigma0:0.12, storeBase:0.45 };
+const JP = {dump:96, eat:93, trim:35}; // 2024年度 家庭系内訳（万トン）
+const JP_PER = 50; // 家庭系 1人1日 g（224万t ÷ 約1.24億人 ÷ 365）
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(rnd){let u=0,v=0;while(u===0)u=rnd();while(v===0)v=rnd();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+
+class Household{
+  constructor(p, seed){
+    this.p = Object.assign({S:3,B:0.2,V:0.6,N:3,P:0.3,T:0.05}, p);
+    this.rnd = mulberry32(seed>>>0);
+    this.items = []; this.day = 0; this.nextId = 1;
+    this.tot = {eat:0,dump:0,trim:0,eaten:0,bought:0,short:0,trips:0};
+    this.hist = []; this.events = [];
+  }
+  seenBack(it){ return it.depth < this.p.V; }
+  addItem(k, amt, life){
+    const front = this.items.filter(i=>i.pos==='front');
+    if(front.length >= CONST.FRONT){
+      front.sort((a,b)=>b.age-a.age);
+      const old = front[0]; old.pos='back'; old.depth=this.rnd();
+      this.events.push({t:'push', id:old.id});
+    }
+    const it = {id:this.nextId++, k, amt, life, maxLife:life, pos:'front', depth:0, age:0};
+    this.items.push(it); return it;
+  }
+  shop(days){
+    const p=this.p, need = p.N*CONST.D*days;
+    const check = this.rnd() < 0.25 + 0.75*p.P;      // 買い物前に中を全部確認する日
+    let known = 0;
+    for(const it of this.items){ if(it.pos==='front'||check||this.seenBack(it)) known += it.amt; }
+    const base = Math.max(0, need - known);
+    const target = base * (1 + p.B);
+    const bought=[]; let sum=0;
+    const wEff = FOODS.map(f => f.w * (f.life >= days+1 ? 1 : 0.35)); // 何日分も買うときは日持ちする物を選びがち
+    const totalW = wEff.reduce((s,w)=>s+w,0);
+    let guard=0;
+    while(sum < target && guard++ < 60){
+      let r=this.rnd()*totalW, f=FOODS[0];
+      for(let i=0;i<FOODS.length;i++){ r-=wEff[i]; if(r<=0){f=FOODS[i];break;} }
+      const life = Math.max(1, f.life + Math.round((this.rnd()-0.5)*2));
+      const it=this.addItem(f.k, f.pkg, life); bought.push(it); sum+=f.pkg;
+    }
+    if(this.rnd() < p.B){ // ついで買い
+      const f = FOODS[Math.floor(this.rnd()*FOODS.length)];
+      const it=this.addItem(f.k, f.pkg, f.life); bought.push(it); sum+=f.pkg;
+    }
+    this.tot.bought += sum; this.tot.trips++;
+    this.events.push({t:'shop', ids:bought.map(b=>b.id), g:sum, n:bought.length, checked:check});
+    return sum;
+  }
+  cook(){
+    const p=this.p;
+    const plan = this.rnd() < p.P;
+    const sigma = CONST.sigma0 * (plan ? 0.5 : 1);
+    let present=0; for(let i=0;i<p.N;i++) if(this.rnd()>=CONST.absent) present++;
+    const expect = (plan && this.rnd()<0.7) ? present : p.N;
+    const want = Math.max(0, expect*CONST.D*(1 + sigma*gauss(this.rnd)));
+    const visible = this.items.filter(it => it.pos==='front' || plan || this.seenBack(it));
+    if(plan) visible.sort((a,b)=>a.life-b.life);
+    else visible.sort((a,b)=>(a.pos==='front'?0:1)-(b.pos==='front'?0:1) || a.age-b.age);
+    let got=0, trim=0; const used=[];
+    for(const it of visible){
+      if(got>=want) break;
+      const take = Math.min(it.amt, want-got);
+      it.amt -= take; got += take; used.push({id:it.id,k:it.k,g:take,gone:it.amt<=0.5});
+      if(FOOD_BY[it.k] && FOOD_BY[it.k].veg) trim += take*p.T;
+    }
+    const cooked = got - trim;
+    const eaten = Math.min(cooked, present*CONST.D);
+    const left = cooked - eaten;
+    const short = Math.max(0, present*CONST.D - cooked);
+    let stored=0, dumpedLeft=0, storeId=null;
+    if(left>1){
+      const pStore = CONST.storeBase + 0.45*p.P;
+      if(this.rnd() < pStore){ const it=this.addItem('leftover', left, LEFTOVER.life); stored=left; storeId=it.id; }
+      else dumpedLeft = left;
+    }
+    this.tot.eaten += eaten; this.tot.short += short;
+    this.items = this.items.filter(it=>it.amt>0.5);
+    this.events.push({t:'cook', used, want, cooked, eaten, present, left, stored, storeId, dumpedLeft, trim, plan, short});
+    return {eat:dumpedLeft, trim};
+  }
+  age(){
+    let dump=0, eatOld=0; const gone=[];
+    for(const it of this.items){ it.life -= 1; it.age += 1; }
+    for(const it of this.items){
+      if(it.life<=0){
+        if(it.k==='leftover') eatOld += it.amt; else dump += it.amt;
+        gone.push({id:it.id,k:it.k,g:it.amt,hidden: it.pos==='back' && !this.seenBack(it)});
+      }
+    }
+    this.items = this.items.filter(it=>it.life>0);
+    if(gone.length) this.events.push({t:'spoil', gone, g:dump+eatOld});
+    return {dump, eat:eatOld};
+  }
+  step(){
+    this.events = [];
+    if(this.day % this.p.S === 0) this.shop(this.p.S);
+    const c = this.cook(); const a = this.age();
+    const rec = {day:this.day, eat:c.eat+a.eat, dump:a.dump, trim:c.trim};
+    this.tot.eat += rec.eat; this.tot.dump += rec.dump; this.tot.trim += rec.trim;
+    this.hist.push(rec); this.day++;
+    return rec;
+  }
+  perCap(){ const d=Math.max(1,this.day), n=this.p.N;
+    return {eat:this.tot.eat/d/n, dump:this.tot.dump/d/n, trim:this.tot.trim/d/n, total:(this.tot.eat+this.tot.dump+this.tot.trim)/d/n}; }
+}
+function runMany(p, H=150, days=60, seed=1){
+  const acc={eat:0,dump:0,trim:0,total:0};
+  for(let h=0;h<H;h++){ const hh=new Household(p, seed*7919+h*104729); for(let d=0;d<days;d++) hh.step();
+    const r=hh.perCap(); acc.eat+=r.eat; acc.dump+=r.dump; acc.trim+=r.trim; acc.total+=r.total; }
+  for(const k in acc) acc[k]/=H; return acc;
+}
+
+/* =====================================================================
+   2. 描画ユーティリティ
+   ===================================================================== */
+const $ = s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const easeOut=t=>1-Math.pow(1-t,3);
+const easeInOut=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+const fmt=(g,d=0)=>Number(g).toLocaleString('ja-JP',{maximumFractionDigits:d,minimumFractionDigits:d});
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function setupCanvas(c, w, h){const dpr=Math.min(2,window.devicePixelRatio||1);c.width=w*dpr;c.height=h*dpr;const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);return ctx;}
+const COL={eat:'#f6b544',dump:'#ff6f7d',trim:'#7fe3bb',ice:'#9fe0ff'};
+
+/* --- 食材のスプライト（すべてプログラム描画） --- */
+function drawFood(ctx, kind, x, y, s, spoiled){
+  ctx.save(); ctx.translate(x,y);
+  const u=s/64; ctx.scale(u,u);
+  // 影
+  ctx.save(); ctx.globalAlpha=.35; ctx.fillStyle='#000'; ctx.beginPath(); ctx.ellipse(0,30,26,6,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+  const G=(x0,y0,x1,y1,stops)=>{const g=ctx.createLinearGradient(x0,y0,x1,y1);stops.forEach(([o,c])=>g.addColorStop(o,c));return g;};
+  const R=(x0,y0,r0,x1,y1,r1,stops)=>{const g=ctx.createRadialGradient(x0,y0,r0,x1,y1,r1);stops.forEach(([o,c])=>g.addColorStop(o,c));return g;};
+  const tray=(w,h,col='#f4f6f8')=>{rr(ctx,-w/2,8,w,h,4);ctx.fillStyle=G(0,8,0,8+h,[[0,col],[1,'#c9d0d8']]);ctx.fill();ctx.strokeStyle='rgba(0,0,0,.18)';ctx.lineWidth=1;ctx.stroke();};
+  const film=(w,h,yy=-18)=>{rr(ctx,-w/2,yy,w,h,6);ctx.fillStyle=G(-w/2,yy,w/2,yy+h,[[0,'rgba(255,255,255,.55)'],[.35,'rgba(255,255,255,.08)'],[.6,'rgba(255,255,255,.02)'],[1,'rgba(255,255,255,.35)']]);ctx.fill();};
+  const label=(t,yy,col='#1f3b73',bg='#fff')=>{ctx.font='bold 9px "BIZ UDPGothic","Noto Sans JP",sans-serif';const w=ctx.measureText(t).width+8;rr(ctx,-w/2,yy-7,w,14,3);ctx.fillStyle=bg;ctx.fill();ctx.fillStyle=col;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(t,0,yy);};
+  switch(kind){
+    case 'milk':{ rr(ctx,-16,-22,32,52,3); ctx.fillStyle=G(-16,0,16,0,[[0,'#f7fafc'],[.5,'#ffffff'],[1,'#d5dce6']]); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-16,-22); ctx.lineTo(0,-34); ctx.lineTo(16,-22); ctx.closePath(); ctx.fillStyle='#e6ebf2'; ctx.fill();
+      ctx.fillStyle='#2f6fd6'; ctx.fillRect(-16,-4,32,14); label('牛乳',3,'#fff','#2f6fd6'); break; }
+    case 'egg':{ rr(ctx,-28,-10,56,34,5); ctx.fillStyle=G(0,-10,0,24,[[0,'#e9eef3'],[1,'#b9c3cf']]); ctx.fill();
+      for(let i=0;i<3;i++){ for(let j=0;j<2;j++){ ctx.beginPath(); ctx.ellipse(-17+i*17,-2+j*14,7,9,0,0,Math.PI*2); ctx.fillStyle=R(-19+i*17,-6+j*14,1,-17+i*17,-2+j*14,10,[[0,'#fff6e6'],[1,'#e2c9a4']]); ctx.fill(); } }
+      film(58,38,-14); break; }
+    case 'tofu':{ tray(44,20,'#dbe9f5'); rr(ctx,-19,-8,38,22,3); ctx.fillStyle=G(-19,-8,19,14,[[0,'#ffffff'],[1,'#e4e8ec']]); ctx.fill(); film(46,34,-14); label('豆腐',-20,'#2b5fa8'); break; }
+    case 'natto':{ rr(ctx,-20,-12,40,36,4); ctx.fillStyle=G(-20,-12,20,24,[[0,'#fbfbf7'],[1,'#d8d6c9']]); ctx.fill(); rr(ctx,-20,-12,40,12,4); ctx.fillStyle='#3d8f4a'; ctx.fill(); label('納豆',-6,'#fff','#3d8f4a'); ctx.strokeStyle='rgba(0,0,0,.15)'; ctx.strokeRect(-20,-12,40,36); break; }
+    case 'chicken':{ tray(52,26); ctx.beginPath(); ctx.ellipse(0,4,22,13,0,0,Math.PI*2); ctx.fillStyle=R(-6,-2,2,0,4,24,[[0,'#ffe3d8'],[.7,'#f7c2b3'],[1,'#e9a18f']]); ctx.fill(); film(54,44,-16); label('鶏肉',-20,'#8a3b2a'); break; }
+    case 'pork':{ tray(52,26); ctx.beginPath(); ctx.ellipse(0,4,22,13,0,0,Math.PI*2); ctx.fillStyle=R(-6,-2,2,0,4,24,[[0,'#ffb6c1'],[.7,'#f08a9e'],[1,'#d8687f']]); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.lineWidth=2; for(let i=-14;i<=14;i+=7){ctx.beginPath();ctx.moveTo(i,-6);ctx.quadraticCurveTo(i+4,4,i,14);ctx.stroke();} film(54,44,-16); label('豚肉',-20,'#8a3b2a'); break; }
+    case 'fish':{ tray(56,24); ctx.beginPath(); ctx.moveTo(-24,4); ctx.quadraticCurveTo(-6,-14,14,4); ctx.quadraticCurveTo(-6,22,-24,4); ctx.fillStyle=G(-24,-10,14,18,[[0,'#dfe7ee'],[.5,'#a9b8c8'],[1,'#6f8296']]); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(14,4); ctx.lineTo(26,-6); ctx.lineTo(26,14); ctx.closePath(); ctx.fillStyle='#8ea1b4'; ctx.fill(); ctx.beginPath(); ctx.arc(-16,2,2,0,7); ctx.fillStyle='#223'; ctx.fill(); film(58,42,-16); label('魚',-20,'#1f3b73'); break; }
+    case 'cabbage':{ ctx.beginPath(); ctx.arc(0,2,24,0,Math.PI*2); ctx.fillStyle=R(-8,-8,3,0,2,26,[[0,'#d9f2b6'],[.6,'#8cc963'],[1,'#4f8f3a']]); ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,.45)'; ctx.lineWidth=2.5; for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(-4+i*3,2,20-i*5,Math.PI*1.1,Math.PI*1.8);ctx.stroke();} break; }
+    case 'carrot':{ for(let i=-1;i<=1;i++){ ctx.save(); ctx.translate(i*13,0); ctx.rotate(i*.12); ctx.beginPath(); ctx.moveTo(-6,-12); ctx.lineTo(6,-12); ctx.lineTo(1,26); ctx.lineTo(-1,26); ctx.closePath(); ctx.fillStyle=G(-6,0,6,0,[[0,'#ffb04a'],[.5,'#f2801e'],[1,'#c95f10']]); ctx.fill();
+      ctx.strokeStyle='#5fa54a'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(0,-12); ctx.lineTo(-4,-24); ctx.moveTo(0,-12); ctx.lineTo(3,-25); ctx.stroke(); ctx.restore(); } break; }
+    case 'spinach':{ for(let i=0;i<6;i++){ const a=-1.3+i*.52; ctx.save(); ctx.translate(0,20); ctx.rotate(a); ctx.beginPath(); ctx.ellipse(0,-22,8,20,0,0,Math.PI*2); ctx.fillStyle=G(0,-40,0,0,[[0,'#3f9a3f'],[1,'#1e5f2b']]); ctx.fill(); ctx.restore(); }
+      rr(ctx,-10,10,20,8,3); ctx.fillStyle='#ef6aa0'; ctx.fill(); break; }
+    case 'tomato':{ [[-15,6],[15,6],[0,-6]].forEach(([tx,ty])=>{ ctx.beginPath(); ctx.arc(tx,ty,14,0,Math.PI*2); ctx.fillStyle=R(tx-5,ty-6,2,tx,ty,15,[[0,'#ff9a8a'],[.5,'#ef3d3a'],[1,'#a91f22']]); ctx.fill(); ctx.fillStyle='#3d8a3a'; ctx.beginPath(); ctx.moveTo(tx,ty-13); ctx.lineTo(tx-5,ty-17); ctx.lineTo(tx-1,ty-12); ctx.lineTo(tx+3,ty-18); ctx.lineTo(tx+2,ty-12); ctx.closePath(); ctx.fill(); }); break; }
+    case 'cucumber':{ for(let i=0;i<2;i++){ ctx.save(); ctx.translate(0,-4+i*12); ctx.rotate(-.18); rr(ctx,-28,-6,56,12,6); ctx.fillStyle=G(0,-6,0,6,[[0,'#8fd66a'],[.5,'#3f9a3a'],[1,'#22662a']]); ctx.fill(); ctx.restore(); } break; }
+    case 'sprout':{ rr(ctx,-22,-16,44,42,6); ctx.fillStyle='rgba(235,245,255,.5)'; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,.7)'; ctx.stroke();
+      ctx.strokeStyle='#f3edc8'; ctx.lineWidth=2; for(let i=0;i<9;i++){ ctx.beginPath(); ctx.moveTo(-16+i*4,20); ctx.quadraticCurveTo(-16+i*4+(i%2?6:-6),2,-14+i*4,-10); ctx.stroke(); ctx.fillStyle='#e6d98a'; ctx.beginPath(); ctx.arc(-14+i*4,-10,2.2,0,7); ctx.fill(); } film(44,40,-16); break; }
+    case 'yogurt':{ ctx.beginPath(); ctx.moveTo(-18,-16); ctx.lineTo(18,-16); ctx.lineTo(14,26); ctx.lineTo(-14,26); ctx.closePath(); ctx.fillStyle=G(-18,0,18,0,[[0,'#f5f8fb'],[.5,'#ffffff'],[1,'#ccd5e0']]); ctx.fill(); rr(ctx,-20,-22,40,8,3); ctx.fillStyle='#3b7dd8'; ctx.fill(); label('ヨーグルト',4,'#3b7dd8'); break; }
+    case 'ham':{ rr(ctx,-24,-10,48,34,5); ctx.fillStyle='rgba(255,255,255,.35)'; ctx.fill(); for(let i=0;i<4;i++){ ctx.beginPath(); ctx.arc(-9+i*6,6,13,0,Math.PI*2); ctx.fillStyle=R(-12+i*6,2,1,-9+i*6,6,14,[[0,'#ffd0d8'],[1,'#f08aa0']]); ctx.fill(); } film(50,38,-14); label('ハム',-14,'#a3364f'); break; }
+    case 'leftover':{ rr(ctx,-24,-8,48,30,6); ctx.fillStyle='rgba(200,230,255,.5)'; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,.6)'; ctx.stroke(); rr(ctx,-20,-2,40,18,4); ctx.fillStyle=G(0,-2,0,16,[[0,'#d9a066'],[1,'#a56a3c']]); ctx.fill(); rr(ctx,-26,-14,52,9,4); ctx.fillStyle='#7fb8ea'; ctx.fill(); break; }
+  }
+  ctx.restore();
+}
+/* 傷んだ・見えない表現は、いったん別キャンバスに描いてから色をかぶせる（背景を汚さない） */
+const OFF=document.createElement('canvas'); const OFF_S=180; let offCtx=null, offDpr=0;
+function drawFoodFx(ctx, kind, x, y, s, fx){ // fx: {spoiled, hidden}
+  if(!fx || (!fx.spoiled && !fx.hidden)){ drawFood(ctx,kind,x,y,s,false); return; }
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  if(!offCtx||offDpr!==dpr){ OFF.width=OFF_S*dpr; OFF.height=OFF_S*dpr; offCtx=OFF.getContext('2d'); offDpr=dpr; }
+  const o=offCtx; o.setTransform(dpr,0,0,dpr,0,0); o.clearRect(0,0,OFF_S,OFF_S);
+  const c=OFF_S/2; drawFood(o,kind,c,c,Math.min(s,80),false);
+  o.globalCompositeOperation='source-atop';
+  if(fx.spoiled){ o.fillStyle='rgba(60,80,60,.6)'; o.fillRect(0,0,OFF_S,OFF_S); o.fillStyle='rgba(30,50,30,.85)'; const u=Math.min(s,80)/64; [[-8,-4],[6,2],[-2,12],[10,-10]].forEach(([px,py])=>{o.beginPath();o.arc(c+px*u,c+py*u,3*u,0,7);o.fill();}); }
+  if(fx.hidden){ o.fillStyle='rgba(16,28,46,.82)'; o.fillRect(0,0,OFF_S,OFF_S); }
+  o.globalCompositeOperation='source-over';
+  ctx.drawImage(OFF,x-c,y-c,OFF_S,OFF_S);
+}
+
+/* =====================================================================
+   3. シーン（冷蔵庫・台所・アニメーション）
+   ===================================================================== */
+const W=640, H=700;
+const FR={x:44,y:40,w:330,h:588};
+const INT={x:62,y:60,w:294,h:548};
+const SHELF_Y=[186,300,414,528];         // 各段の床
+const FRONT_X=[INT.x+88, INT.x+206];      // 手前 2 列
+const BACK_X=[INT.x+52, INT.x+147, INT.x+242]; // 奥 3 列
+const POT={x:520,y:452}, BIN={x:468,y:600,w:78,h:78}, BAG={x:596,y:596};
+
+class Scene{
+  constructor(canvas){
+    this.c=canvas; this.ctx=setupCanvas(canvas,W,H);
+    this.sprites=new Map();   // id -> {kind,x,y,s,a,tx,ty,ts,ta,spoiled,hidden}
+    this.flyers=[]; this.parts=[]; this.timers=[]; this.steam=0; this.t=0; this.binLevel=0; this.bag=0; this.bagT=0; this.lastTs=performance.now();
+    this.dayTint=0; this.fridgeItems=[];
+    requestAnimationFrame(ts=>this.frame(ts));
+  }
+  slotPos(item, idx){ // idx: order among same pos
+    if(item.pos==='front'){ const sh=Math.floor(idx/2)%4, col=idx%2; return {x:FRONT_X[col], y:SHELF_Y[sh]-34, s:64}; }
+    const sh=Math.floor(idx/3)%4, col=idx%3, layer=Math.floor(idx/12); return {x:BACK_X[col]+layer*6, y:SHELF_Y[sh]-58-layer*4, s:46-layer*4};
+  }
+  sync(items, V, animate=true){ // モデルの状態にスプライトを合わせる
+    const fi=items.filter(i=>i.pos==='front'), bi=items.filter(i=>i.pos==='back');
+    fi.sort((a,b)=>a.id-b.id); bi.sort((a,b)=>a.id-b.id);
+    const seen=new Set();
+    const place=(it,idx)=>{ const p=this.slotPos(it,idx); let sp=this.sprites.get(it.id);
+      if(!sp){ sp={kind:it.k,x:p.x,y:p.y,s:p.s,a:1,tx:p.x,ty:p.y,ts:p.s,ta:1,spoiled:false}; this.sprites.set(it.id,sp); }
+      sp.tx=p.x; sp.ty=p.y; sp.ts=p.s; sp.ta=1; sp.hidden = it.pos==='back' && it.depth>=V; sp.back = it.pos==='back'; sp.lifeFrac=it.life/Math.max(1,it.maxLife);
+      if(!animate){sp.x=p.x;sp.y=p.y;sp.s=p.s;sp.a=1;} seen.add(it.id); };
+    fi.forEach(place); bi.forEach((it,i)=>place(it,i));
+    for(const [id,sp] of this.sprites){ if(!seen.has(id) && !sp.leaving) this.sprites.delete(id); }
+  }
+  after(ms, fn){ this.timers.push({at:this.t+ms, fn}); }
+  fly(kind, from, to, dur, opts={}){ this.flyers.push(Object.assign({kind,from,to,t0:this.t,dur,s:opts.s||56,arc:opts.arc??-90,onDone:opts.onDone,spoiled:opts.spoiled,shrink:opts.shrink},{})); }
+  puff(x,y,color,n=10,spread=2.2){ for(let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, v=Math.random()*spread; this.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-1.5,life:1,decay:.02+Math.random()*.02,r:2+Math.random()*3,color}); } }
+  // --- 1日のイベントをアニメーションに変換 ---
+  playDay(h, events, dayMs, V){
+    const prevSprites=this.sprites;
+    const T=dayMs; const stagger=Math.min(90, T*0.05);
+    let t=0;
+    for(const ev of events){
+      if(ev.t==='shop'){
+        this.after(t, ()=>{ this.bag=1; this.bagT=this.t; });
+        ev.ids.forEach((id,i)=>{ this.after(t+120+i*stagger, ()=>{ const it=h.items.find(x=>x.id===id); if(!it) return; const sp=this.sprites.get(id); if(sp){ sp.a=0; }
+          this.fly(it.k,{x:BAG.x,y:BAG.y-30},{x:sp?sp.tx:300,y:sp?sp.ty:300},Math.max(260,T*.18),{s:60,arc:-120,onDone:()=>{ if(sp){sp.a=1;} }}); }); });
+        t += 120 + ev.ids.length*stagger + T*.12;
+        this.after(t, ()=>{ this.bag=0; });
+      }
+      else if(ev.t==='cook'){
+        const t0=t;
+        ev.used.forEach((u,i)=>{ this.after(t0+i*stagger, ()=>{ const sp=this.sprites.get(u.id); const from=sp?{x:sp.x,y:sp.y}:{x:200,y:300};
+          this.fly(u.k,from,{x:POT.x,y:POT.y-30},Math.max(280,T*.2),{s:sp?sp.s:50,arc:-70,shrink:true,onDone:()=>{ this.steam=1.2; if(FOOD_BY[u.k]&&FOOD_BY[u.k].veg&&h.p.T>0){ this.puff(POT.x+40,POT.y+10,'#7fe3bb',4,1.4); } }});
+          if(u.gone && sp){ sp.leaving=true; this.after(Math.max(280,T*.2), ()=>{ this.sprites.delete(u.id); }); } }); });
+        t += ev.used.length*stagger + T*.28;
+        if(ev.trim>0) this.after(t-T*.1, ()=>{ this.fly('trim',{x:POT.x+30,y:POT.y+20},{x:BIN.x+BIN.w/2,y:BIN.y},Math.max(240,T*.15),{s:20,arc:20,onDone:()=>{this.puff(BIN.x+BIN.w/2,BIN.y+6,COL.trim,8);}}); });
+        if(ev.dumpedLeft>0) this.after(t, ()=>{ this.fly('plate',{x:POT.x,y:POT.y-10},{x:BIN.x+BIN.w/2,y:BIN.y},Math.max(300,T*.18),{s:40,arc:-40,onDone:()=>{this.puff(BIN.x+BIN.w/2,BIN.y+6,COL.eat,12);}}); });
+        if(ev.stored>0 && ev.storeId!=null) this.after(t, ()=>{ const sp=this.sprites.get(ev.storeId); if(sp) sp.a=0; this.fly('leftover',{x:POT.x,y:POT.y-10},{x:sp?sp.tx:200,y:sp?sp.ty:300},Math.max(300,T*.18),{s:56,arc:-90,onDone:()=>{ if(sp) sp.a=1; }}); });
+        t += T*.12;
+      }
+      else if(ev.t==='spoil'){
+        ev.gone.forEach((g,i)=>{ this.after(t+i*stagger, ()=>{ const sp=this.sprites.get(g.id); const from=sp?{x:sp.x,y:sp.y}:{x:200,y:300}; if(sp){ sp.spoiled=true; sp.leaving=true; }
+          this.after(160, ()=>{ if(sp) sp.a=0; this.fly(g.k,from,{x:BIN.x+BIN.w/2,y:BIN.y},Math.max(320,T*.2),{s:sp?sp.s:50,arc:-60,spoiled:true,shrink:true,onDone:()=>{ this.puff(BIN.x+BIN.w/2,BIN.y+6,g.k==='leftover'?COL.eat:COL.dump,14); this.sprites.delete(g.id); }}); }); }); });
+        t += ev.gone.length*stagger + T*.25;
+      }
+    }
+    return t;
+  }
+  frame(ts){
+    const dt=Math.min(50, ts-this.lastTs); this.lastTs=ts; this.t+=dt;
+    // timers
+    this.timers=this.timers.filter(tm=>{ if(this.t>=tm.at){ tm.fn(); return false; } return true; });
+    // tween sprites
+    const k=1-Math.pow(0.001, dt/600);
+    for(const sp of this.sprites.values()){ sp.x=lerp(sp.x,sp.tx,k); sp.y=lerp(sp.y,sp.ty,k); sp.s=lerp(sp.s,sp.ts,k); sp.a=lerp(sp.a,sp.ta,k*1.5); }
+    this.draw();
+    requestAnimationFrame(t=>this.frame(t));
+  }
+  draw(){
+    const ctx=this.ctx, V=this.V??.6;
+    ctx.clearRect(0,0,W,H);
+    // --- 台所の背景 ---
+    let g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#101a2e'); g.addColorStop(.7,'#0b1322'); g.addColorStop(1,'#070b14'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    // 壁のタイル
+    ctx.save(); ctx.globalAlpha=.08; ctx.strokeStyle='#9fe0ff'; ctx.lineWidth=1; for(let y=40;y<560;y+=40){ ctx.beginPath(); ctx.moveTo(380,y); ctx.lineTo(W,y); ctx.stroke(); } for(let x=380;x<W;x+=40){ ctx.beginPath(); ctx.moveTo(x,40); ctx.lineTo(x,560); ctx.stroke(); } ctx.restore();
+    // 床・カウンター
+    g=ctx.createLinearGradient(0,560,0,H); g.addColorStop(0,'#1a2438'); g.addColorStop(1,'#0d1322'); ctx.fillStyle=g; ctx.fillRect(0,560,W,H-560);
+    rr(ctx,384,500,W-384-8,20,6); ctx.fillStyle='#26314a'; ctx.fill(); rr(ctx,384,520,W-384-8,40,0); ctx.fillStyle='#1b2438'; ctx.fill();
+    // コンロと鍋
+    ctx.beginPath(); ctx.ellipse(POT.x,POT.y+38,60,14,0,0,Math.PI*2); ctx.fillStyle='#161d2c'; ctx.fill();
+    g=ctx.createLinearGradient(POT.x-46,0,POT.x+46,0); g.addColorStop(0,'#5a6577'); g.addColorStop(.5,'#c9d2df'); g.addColorStop(1,'#4f596a'); rr(ctx,POT.x-46,POT.y-14,92,52,8); ctx.fillStyle=g; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(POT.x,POT.y-14,46,10,0,0,Math.PI*2); ctx.fillStyle='#8f9bb0'; ctx.fill(); ctx.beginPath(); ctx.ellipse(POT.x,POT.y-14,38,7,0,0,Math.PI*2); ctx.fillStyle='#2b1d12'; ctx.fill();
+    rr(ctx,POT.x-62,POT.y,12,8,3); rr(ctx,POT.x+50,POT.y,12,8,3); ctx.fillStyle='#3b4456'; ctx.fill();
+    if(this.steam>0){ this.steam-=.012; for(let i=0;i<3;i++){ const ph=(this.t/900+i*.33)%1; ctx.save(); ctx.globalAlpha=.35*this.steam*(1-ph); ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(POT.x-14+i*14+Math.sin(ph*6+i)*6,POT.y-24-ph*50,8+ph*10,0,7); ctx.fill(); ctx.restore(); } }
+    // ゴミ箱
+    g=ctx.createLinearGradient(BIN.x,0,BIN.x+BIN.w,0); g.addColorStop(0,'#3a4457'); g.addColorStop(.5,'#6a768c'); g.addColorStop(1,'#333c4d'); rr(ctx,BIN.x,BIN.y,BIN.w,BIN.h,8); ctx.fillStyle=g; ctx.fill();
+    const lvl=clamp(this.binLevel,0,1); if(lvl>0){ ctx.save(); rr(ctx,BIN.x,BIN.y,BIN.w,BIN.h,8); ctx.clip(); ctx.fillStyle='rgba(255,111,125,.45)'; ctx.fillRect(BIN.x,BIN.y+BIN.h*(1-lvl),BIN.w,BIN.h*lvl); ctx.restore(); }
+    rr(ctx,BIN.x-4,BIN.y-8,BIN.w+8,12,4); ctx.fillStyle='#7f8ba0'; ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.5)'; ctx.font='bold 11px "Noto Sans JP",sans-serif'; ctx.textAlign='center'; ctx.fillText('ごみ',BIN.x+BIN.w/2,BIN.y+BIN.h-10);
+    // 買い物袋
+    if(this.bag||this.t-this.bagT<400){ const a=this.bag?Math.min(1,(this.t-this.bagT)/250):Math.max(0,1-(this.t-this.bagT)/400); ctx.save(); ctx.globalAlpha=a; ctx.translate(BAG.x,BAG.y); rr(ctx,-26,-44,52,60,6); g=ctx.createLinearGradient(-26,0,26,0); g.addColorStop(0,'#c9a074'); g.addColorStop(.5,'#e8c39a'); g.addColorStop(1,'#b8895c'); ctx.fillStyle=g; ctx.fill(); ctx.strokeStyle='#8d6a45'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(-14,-44); ctx.quadraticCurveTo(0,-72,14,-44); ctx.stroke(); ctx.fillStyle='#6b4a2b'; ctx.font='bold 12px "Noto Sans JP",sans-serif'; ctx.fillText('買い物',0,-10); ctx.restore(); }
+    // --- 冷蔵庫本体 ---
+    ctx.save(); ctx.shadowColor='rgba(0,0,0,.6)'; ctx.shadowBlur=40; ctx.shadowOffsetY=18; rr(ctx,FR.x,FR.y,FR.w,FR.h,20); ctx.fillStyle='#8b96a8'; ctx.fill(); ctx.restore();
+    g=ctx.createLinearGradient(FR.x,0,FR.x+FR.w,0); g.addColorStop(0,'#6d788b'); g.addColorStop(.06,'#aeb9c9'); g.addColorStop(.5,'#8e99ab'); g.addColorStop(.94,'#b3bfcf'); g.addColorStop(1,'#59647a'); rr(ctx,FR.x,FR.y,FR.w,FR.h,20); ctx.fillStyle=g; ctx.fill();
+    ctx.save(); rr(ctx,FR.x,FR.y,FR.w,FR.h,20); ctx.clip(); ctx.globalAlpha=.12; for(let x=FR.x;x<FR.x+FR.w;x+=3){ ctx.fillStyle=(x/3)%2?'#fff':'#000'; ctx.fillRect(x,FR.y,1,FR.h); } ctx.restore();
+    // 庫内
+    rr(ctx,INT.x,INT.y,INT.w,INT.h,10); g=ctx.createLinearGradient(0,INT.y,0,INT.y+INT.h); g.addColorStop(0,'#e8f4fb'); g.addColorStop(.25,'#c6dcea'); g.addColorStop(1,'#8aa5b9'); ctx.fillStyle=g; ctx.fill();
+    ctx.save(); rr(ctx,INT.x,INT.y,INT.w,INT.h,10); ctx.clip();
+    // 奥の壁（暗い）
+    g=ctx.createLinearGradient(INT.x,0,INT.x+INT.w,0); g.addColorStop(0,'rgba(20,40,60,.55)'); g.addColorStop(.2,'rgba(60,90,115,.25)'); g.addColorStop(.8,'rgba(60,90,115,.25)'); g.addColorStop(1,'rgba(20,40,60,.55)'); ctx.fillStyle=g; ctx.fillRect(INT.x,INT.y,INT.w,INT.h);
+    // 庫内灯
+    g=ctx.createRadialGradient(INT.x+INT.w/2,INT.y+6,4,INT.x+INT.w/2,INT.y+6,300); g.addColorStop(0,'rgba(255,255,255,.9)'); g.addColorStop(.3,'rgba(200,235,255,.25)'); g.addColorStop(1,'rgba(200,235,255,0)'); ctx.fillStyle=g; ctx.fillRect(INT.x,INT.y,INT.w,INT.h);
+    rr(ctx,INT.x+INT.w/2-30,INT.y,60,7,3); ctx.fillStyle='#fff'; ctx.fill();
+    // 各段: 奥のくもり → 奥の品 → ガラス棚 → 手前の品
+    for(let sh=0;sh<4;sh++){
+      const y=SHELF_Y[sh];
+      // 奥の暗がり（可視性が低いほど濃い）
+      g=ctx.createLinearGradient(0,y-96,0,y-30); g.addColorStop(0,`rgba(15,30,50,${.55*(1-V)+.15})`); g.addColorStop(1,'rgba(15,30,50,0)'); ctx.fillStyle=g; ctx.fillRect(INT.x,y-96,INT.w,66);
+    }
+    const backS=[...this.sprites.values()].filter(s=>s.back&&!s.leaving), frontS=[...this.sprites.values()].filter(s=>!s.back||s.leaving);
+    for(const sp of backS) this.drawSprite(sp);
+    for(let sh=0;sh<4;sh++){
+      const y=SHELF_Y[sh];
+      g=ctx.createLinearGradient(0,y-4,0,y+8); g.addColorStop(0,'rgba(255,255,255,.75)'); g.addColorStop(.3,'rgba(190,225,245,.55)'); g.addColorStop(1,'rgba(120,160,190,.35)'); ctx.fillStyle=g; rr(ctx,INT.x+4,y-4,INT.w-8,12,3); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fillRect(INT.x+4,y-4,INT.w-8,1.5);
+    }
+    // 野菜室（装飾）
+    g=ctx.createLinearGradient(0,540,0,INT.y+INT.h); g.addColorStop(0,'rgba(200,230,245,.35)'); g.addColorStop(1,'rgba(120,160,190,.5)'); rr(ctx,INT.x+8,542,INT.w-16,58,6); ctx.fillStyle=g; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.stroke();
+    ctx.fillStyle='rgba(30,60,90,.55)'; ctx.font='bold 11px "Noto Sans JP",sans-serif'; ctx.textAlign='center'; ctx.fillText('手前：見える　　奥：可視性 '+Math.round(V*100)+'% で見える',INT.x+INT.w/2,584);
+    for(const sp of frontS) this.drawSprite(sp);
+    ctx.restore();
+    // ガラス反射
+    ctx.save(); rr(ctx,INT.x,INT.y,INT.w,INT.h,10); ctx.clip(); g=ctx.createLinearGradient(INT.x,INT.y,INT.x+120,INT.y+400); g.addColorStop(0,'rgba(255,255,255,.18)'); g.addColorStop(.4,'rgba(255,255,255,.02)'); g.addColorStop(1,'rgba(255,255,255,0)'); ctx.fillStyle=g; ctx.fillRect(INT.x,INT.y,INT.w,INT.h); ctx.restore();
+    // 開いたドア
+    ctx.save(); ctx.beginPath(); ctx.moveTo(FR.x+FR.w-6,FR.y+8); ctx.lineTo(FR.x+FR.w+50,FR.y+48); ctx.lineTo(FR.x+FR.w+50,FR.y+FR.h-48); ctx.lineTo(FR.x+FR.w-6,FR.y+FR.h-8); ctx.closePath();
+    g=ctx.createLinearGradient(FR.x+FR.w,0,FR.x+FR.w+50,0); g.addColorStop(0,'#5b6678'); g.addColorStop(.5,'#c3cddb'); g.addColorStop(1,'#7c8798'); ctx.fillStyle=g; ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=20; ctx.shadowOffsetX=10; ctx.fill(); ctx.restore();
+    for(let i=0;i<3;i++){ const yy=FR.y+120+i*160; ctx.beginPath(); ctx.moveTo(FR.x+FR.w+2,yy); ctx.lineTo(FR.x+FR.w+44,yy+22); ctx.lineTo(FR.x+FR.w+44,yy+62); ctx.lineTo(FR.x+FR.w+2,yy+40); ctx.closePath(); ctx.fillStyle='rgba(220,240,255,.35)'; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.stroke(); }
+    // 飛んでいる物・粒子
+    this.flyers=this.flyers.filter(f=>{ const p=clamp((this.t-f.t0)/f.dur,0,1), e=easeInOut(p);
+      const mx=(f.from.x+f.to.x)/2, my=Math.min(f.from.y,f.to.y)+f.arc; const x=(1-e)*(1-e)*f.from.x+2*(1-e)*e*mx+e*e*f.to.x, y=(1-e)*(1-e)*f.from.y+2*(1-e)*e*my+e*e*f.to.y;
+      const s=f.shrink? f.s*(1-.5*e) : f.s;
+      if(f.kind==='trim'){ ctx.save(); ctx.translate(x,y); ctx.fillStyle=COL.trim; for(let i=0;i<4;i++){ ctx.beginPath(); ctx.ellipse(-8+i*6,(i%2)*5,5,2.5,i*.6,0,7); ctx.fill(); } ctx.restore(); }
+      else if(f.kind==='plate'){ ctx.save(); ctx.translate(x,y); ctx.beginPath(); ctx.ellipse(0,0,s*.55,s*.2,0,0,7); ctx.fillStyle='#f3f6fa'; ctx.fill(); ctx.beginPath(); ctx.ellipse(0,-3,s*.35,s*.12,0,0,7); ctx.fillStyle=COL.eat; ctx.fill(); ctx.restore(); }
+      else drawFoodFx(ctx,f.kind,x,y,s,{spoiled:f.spoiled});
+      if(p>=1){ f.onDone&&f.onDone(); return false; } return true; });
+    this.parts=this.parts.filter(pt=>{ pt.x+=pt.vx; pt.y+=pt.vy; pt.vy+=.08; pt.life-=pt.decay; ctx.save(); ctx.globalAlpha=Math.max(0,pt.life); ctx.fillStyle=pt.color; ctx.beginPath(); ctx.arc(pt.x,pt.y,pt.r,0,7); ctx.fill(); ctx.restore(); return pt.life>0; });
+  }
+  drawSprite(sp){
+    const ctx=this.ctx; if(sp.a<=.02) return;
+    ctx.save(); ctx.globalAlpha=sp.a*(sp.back?.92:1);
+    if(sp.hidden){ // 見えない：シルエット
+      ctx.globalAlpha=sp.a*.75; drawFoodFx(ctx,sp.kind,sp.x,sp.y,sp.s,{hidden:true,spoiled:sp.spoiled});
+      ctx.globalAlpha=sp.a*.75; ctx.fillStyle='#9fe0ff'; ctx.font=`bold ${Math.round(sp.s*.4)}px "Noto Sans JP",sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('?',sp.x,sp.y);
+    } else {
+      drawFoodFx(ctx,sp.kind,sp.x,sp.y,sp.s,{spoiled:sp.spoiled});
+      if(sp.lifeFrac!==undefined && sp.lifeFrac<=.34 && !sp.spoiled){ // 期限が近い
+        ctx.globalAlpha=sp.a; ctx.fillStyle='rgba(255,111,125,.95)'; ctx.beginPath(); ctx.arc(sp.x+sp.s*.42,sp.y-sp.s*.42,6,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('!',sp.x+sp.s*.42,sp.y-sp.s*.42+.5); }
+    }
+    ctx.restore();
+  }
+}
+
+/* =====================================================================
+   4. 画面の制御
+   ===================================================================== */
+const scene=new Scene($('#scene'));
+let H0=null, playing=false, speed=1, dayTimer=null, dayBusyUntil=0;
+const DAYS=60;
+const params=()=>({S:+$('#S').value, B:+$('#B').value/100, V:+$('#V').value/100, N:+$('#N').value, P:+$('#P').value/100, T:+$('#T').value/100});
+const SLIDERS=['S','B','V','N','P','T','seed'];
+function updateOutputs(){
+  const v={}; SLIDERS.forEach(k=>{const el=$('#'+k); v[k]=+el.value; const pct=(el.value-el.min)/(el.max-el.min)*100; el.style.setProperty('--pct',pct+'%');});
+  $('#oS').innerHTML=v.S===1?'毎日<small></small>':v.S+'<small>日に1回</small>'; $('#oB').innerHTML=v.B+'<small>%</small>'; $('#oV').innerHTML=v.V+'<small>%</small>';
+  $('#oN').innerHTML=v.N+'<small>人</small>'; $('#oP').innerHTML=v.P+'<small>%</small>'; $('#oT').innerHTML=v.T+'<small>%</small>'; $('#oSeed').textContent=v.seed;
+  scene.V=v.V/100;
+}
+function resetSim(){
+  stop(); H0=new Household(params(), +$('#seed').value*1000003); scene.sprites.clear(); scene.flyers=[]; scene.parts=[]; scene.timers=[]; scene.binLevel=0; scene.bag=0;
+  $('#log').innerHTML=''; $('#dayN').textContent=0; $('#phase').textContent='準備'; updateDash(); logLine('🧊','リセットしました。▶ を押すと 1 日ずつ進みます。');
+}
+function stop(){ playing=false; $('#play').textContent='▶ 再生'; clearTimeout(dayTimer); }
+function stepDay(animate=true){
+  if(!H0) resetSim();
+  if(H0.day>=DAYS){ stop(); $('#phase').textContent='60日 終了'; return; }
+  const rec=H0.step(); const dayMs = speed===0?0:1700/speed;
+  $('#dayN').textContent=H0.day;
+  const ev=H0.events;
+  if(animate && speed>0){
+    scene.sync(H0.items, H0.p.V, true);
+    const ph=ev.find(e=>e.t==='shop')?'買い物 → 調理':'調理'; $('#phase').textContent=ph;
+    const len=scene.playDay(H0, ev, dayMs, H0.p.V);
+    dayBusyUntil=scene.t+len;
+    describe(ev, rec);
+    // ゴミ箱の見た目：60日分の平均（1人1日50 g × 人数）に対する割合で満ちる
+    scene.binLevel = clamp((H0.tot.eat+H0.tot.dump+H0.tot.trim)/(DAYS*JP_PER*H0.p.N)*0.9, 0, 1);
+    updateDash();
+    if(playing) dayTimer=setTimeout(()=>stepDay(true), Math.max(dayMs, len+120));
+  } else { scene.sync(H0.items, H0.p.V, false); describe(ev, rec, true); }
+}
+function runAll(){ if(!H0) resetSim(); stop(); while(H0.day<DAYS){ stepDay(false); } scene.binLevel=clamp((H0.tot.eat+H0.tot.dump+H0.tot.trim)/(DAYS*JP_PER*H0.p.N)*0.9,0,1); $('#dayN').textContent=H0.day; $('#phase').textContent='60日 終了'; updateDash(); logLine('🏁','60 日分を一気に計算しました。下の結果を見てください。'); }
+function logLine(ic, text, cls=''){ const el=document.createElement('div'); el.className=cls; el.innerHTML=`<span class="ic">${ic}</span><span class="d">${H0?H0.day+'日':''}</span><span>${text}</span>`; const log=$('#log'); log.prepend(el); while(log.children.length>14) log.lastChild.remove(); }
+function describe(ev, rec, quiet=false){
+  if(quiet) return;
+  for(const e of ev){
+    if(e.t==='shop') logLine('🛒',`買い物：${e.n} 品（${fmt(e.g/1000,1)} kg）${e.checked?'。出かける前に冷蔵庫の中を確認した':''}`);
+    if(e.t==='cook'){ const n=FOOD_BY[e.used[0]?.k]?.name||'残りもの'; let s=`調理：${e.used.length} 品を使って ${fmt(e.cooked)} g（${n} など）。${e.present} 人が食べた`; if(e.plan) s+='。今日は献立を計画'; if(e.short>50) s+=`。食材が足りず ${fmt(e.short)} g 不足`; logLine('🍳',s);
+      if(e.dumpedLeft>0) logLine('🍽️',`作りすぎて ${fmt(e.dumpedLeft)} g を捨てた（食べ残し）`,'eat'); if(e.stored>0) logLine('🥡',`残った ${fmt(e.stored)} g を保存した（2 日以内に食べないと食べ残しに）`); if(e.trim>0) logLine('🔪',`野菜の皮や芯を ${fmt(e.trim)} g 捨てた（過剰除去）`,'trim'); }
+    if(e.t==='spoil') for(const g of e.gone){ const nm=g.k==='leftover'?'保存した残りもの':FOOD_BY[g.k].name; logLine(g.k==='leftover'?'🍽️':'🗑️',`${nm} ${fmt(g.g)} g が期限切れ${g.hidden?'。<b>奥にあって気づかなかった</b>':''}（${g.k==='leftover'?'食べ残し':'直接廃棄'}）`, g.k==='leftover'?'eat':'dump'); }
+  }
+}
+function updateDash(){
+  const pc=H0?H0.perCap():{eat:0,dump:0,trim:0,total:0}; const tot=H0?H0.tot:{eat:0,dump:0,trim:0,bought:0,short:0};
+  $('#kpiPer').textContent=fmt(pc.total); $('#gFill').style.width=clamp(pc.total/150*100,0,100)+'%';
+  const oni=pc.total/100; $('#onigiri').textContent = oni>0 ? '🍙'.repeat(Math.floor(oni))+(oni%1>=.5?'🍙':'')+(oni<.5&&oni>0?'（おにぎり半分未満）':'') : '';
+  $('#onigiri').title=`1日 おにぎり約 ${fmt(oni,1)} 個分`;
+  $('#kpiYear').textContent=fmt(pc.total*365/1000,1);
+  $('#kpiWord').textContent = !H0||H0.day===0?'' : pc.total<25?'半減目標を達成できる水準です。':pc.total<JP_PER?'日本の家庭の平均より少なめです。':pc.total<80?'日本の家庭の平均に近い水準です。':'平均をかなり上回っています。';
+  const sum=Math.max(1,tot.eat+tot.dump+tot.trim);
+  $('#bEat').style.width=tot.eat/sum*100+'%'; $('#bDump').style.width=tot.dump/sum*100+'%'; $('#bTrim').style.width=tot.trim/sum*100+'%';
+  $('#vEat').textContent=fmt(tot.eat)+' g'; $('#vDump').textContent=fmt(tot.dump)+' g'; $('#vTrim').textContent=fmt(tot.trim)+' g';
+  donut($('#donutMe'),[tot.eat,tot.dump,tot.trim], H0&&sum>1); donut($('#donutJP'),[JP.eat,JP.dump,JP.trim],true);
+  const jpTot=JP.eat+JP.dump+JP.trim;
+  $('#compareTxt').innerHTML = (H0&&sum>1) ? `この家庭：食べ残し <b>${fmt(tot.eat/sum*100)}%</b>・直接廃棄 <b>${fmt(tot.dump/sum*100)}%</b>・過剰除去 <b>${fmt(tot.trim/sum*100)}%</b>。日本の家庭：${fmt(JP.eat/jpTot*100)}%・${fmt(JP.dump/jpTot*100)}%・${fmt(JP.trim/jpTot*100)}%。` : '数日進めると、内訳の形を全国平均と比べられます。';
+  dailyChart($('#daily'), H0?H0.hist:[]);
+  $('#mBought').textContent=fmt(tot.bought/1000,1); $('#mRate').textContent=tot.bought?fmt((tot.eat+tot.dump+tot.trim)/tot.bought*100,1):'0'; $('#mShort').textContent=fmt(tot.short);
+}
+function donut(c, vals, has){
+  const ctx=setupCanvas(c,220,220); const cx=110,cy=110,r=84,rw=30; const cols=[COL.eat,COL.dump,COL.trim]; const sum=vals.reduce((a,b)=>a+b,0);
+  ctx.clearRect(0,0,220,220); let a=-Math.PI/2;
+  if(!has||sum<=0){ ctx.beginPath(); ctx.arc(cx,cy,r,0,7); ctx.strokeStyle='rgba(255,255,255,.1)'; ctx.lineWidth=rw; ctx.stroke(); ctx.fillStyle='#6d7c95'; ctx.font='bold 13px "Noto Sans JP",sans-serif'; ctx.textAlign='center'; ctx.fillText('まだデータなし',cx,cy+5); return; }
+  vals.forEach((v,i)=>{ const ang=v/sum*Math.PI*2; ctx.beginPath(); ctx.arc(cx,cy,r,a+.02,a+ang-.02); ctx.strokeStyle=cols[i]; ctx.lineWidth=rw; ctx.lineCap='butt'; ctx.stroke();
+    if(v/sum>.06){ const m=a+ang/2; ctx.fillStyle='#04101f'; ctx.font='bold 13px "Noto Sans JP",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(Math.round(v/sum*100)+'%',cx+Math.cos(m)*r,cy+Math.sin(m)*r); } a+=ang; });
+}
+function dailyChart(c, hist){
+  const w=520,h=260, ctx=setupCanvas(c,w,h); ctx.clearRect(0,0,w,h);
+  const L=44,R=10,T=14,B=30; const n=DAYS; const data=hist.slice(-n);
+  const raw=Math.max(600, ...data.map(d=>d.eat+d.dump+d.trim))*1.1; const step=[200,250,500,1000,2000,2500,5000].find(st=>raw/st<=5)||10000; const max=Math.ceil(raw/step)*step;
+  ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.fillStyle='#8a97ad'; ctx.font='11px "Noto Sans JP",sans-serif'; ctx.textAlign='right';
+  for(let v=0;v<=max;v+=step){ const y=T+(h-T-B)*(1-v/max); ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(w-R,y); ctx.stroke(); ctx.fillText(fmt(v),L-6,y+4); }
+  const bw=(w-L-R)/n;
+  data.forEach((d,i)=>{ const x=L+i*bw+1; let y=h-B; [['trim',COL.trim],['dump',COL.dump],['eat',COL.eat]].forEach(([k,col])=>{ const hh=d[k]/max*(h-T-B); ctx.fillStyle=col; ctx.fillRect(x,y-hh,Math.max(1,bw-2),hh); y-=hh; }); });
+  ctx.fillStyle='#8a97ad'; ctx.textAlign='center'; for(let d=0;d<=n;d+=10){ ctx.fillText(d+'日',L+d*bw,h-10); }
+  if(!data.length){ ctx.fillStyle='#6d7c95'; ctx.font='bold 13px "Noto Sans JP",sans-serif'; ctx.fillText('▶ を押すと毎日の棒グラフが伸びていきます',w/2,h/2); }
+}
+
+// ---- コントロールのイベント ----
+SLIDERS.forEach(k=>{ $('#'+k).addEventListener('input',()=>{ updateOutputs(); if(H0){ H0.p=Object.assign(H0.p,params()); scene.sync(H0.items,H0.p.V,true); } }); $('#'+k).addEventListener('change',()=>{ if(k==='seed') resetSim(); }); });
+$('#play').addEventListener('click',()=>{ if(!H0||H0.day>=DAYS) resetSim(); if(playing){ stop(); } else { playing=true; $('#play').textContent='❚❚ 一時停止'; if(speed===0){ runAll(); stop(); } else stepDay(true); } });
+$('#stepBtn').addEventListener('click',()=>{ stop(); if(!H0||H0.day>=DAYS) resetSim(); stepDay(true); });
+$('#resetBtn').addEventListener('click',resetSim);
+$('#speed').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b) return; [...$('#speed').children].forEach(x=>x.setAttribute('aria-pressed',x===b)); speed=+b.dataset.v; });
+document.querySelectorAll('.presets button').forEach(b=>b.addEventListener('click',()=>{ const p=JSON.parse(b.dataset.p); for(const k in p) $('#'+k).value=p[k]; updateOutputs(); resetSim(); logLine('👪',`「${b.firstChild.textContent}」の家庭にしました。▶ で始めます。`); }));
+
+// ---- タブ ----
+function showTab(id){ document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===id)); document.querySelectorAll('section.panel').forEach(s=>s.classList.toggle('active',s.id===id)); if(id==='sim') updateDash(); if(id==='lab'&&!labDrawn) drawLab(null); }
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{ showTab(b.dataset.tab); window.scrollTo({top:document.querySelector('.tabs').offsetTop-4,behavior:'smooth'}); }));
+
+// ---- 実験 ----
+const SWEEP={S:{vals:[1,2,3,5,7],label:v=>v===1?'毎日':v+'日に1回',name:'買い物の間隔'},B:{vals:[0,.2,.4,.6,.8],label:v=>Math.round(v*100)+'%',name:'まとめ買い率'},V:{vals:[0,.25,.5,.75,1],label:v=>Math.round(v*100)+'%',name:'冷蔵庫の可視性'},N:{vals:[1,2,3,4,6],label:v=>v+'人',name:'家族人数'},P:{vals:[0,.25,.5,.75,1],label:v=>Math.round(v*100)+'%',name:'献立計画をする日の割合'}};
+let labDrawn=false;
+$('#runLab').addEventListener('click',()=>{ const btn=$('#runLab'); btn.disabled=true; btn.textContent='計算中…'; const key=document.querySelector('input[name=sw]:checked').value;
+  setTimeout(()=>{ const base=params(); const sw=SWEEP[key]; const rows=sw.vals.map(v=>({v, r:runMany(Object.assign({},base,{[key]:v}),150,60,+$('#seed').value)}));
+    drawLab({key,sw,rows}); btn.disabled=false; btn.textContent='実験を実行（約1秒）'; },30); });
+function drawLab(res){
+  const c=$('#labChart'), w=720,h=380, ctx=setupCanvas(c,w,h); ctx.clearRect(0,0,w,h); labDrawn=true;
+  const L=54,R=16,T=24,B=44;
+  if(!res){ ctx.fillStyle='#6d7c95'; ctx.font='bold 14px "Noto Sans JP",sans-serif'; ctx.textAlign='center'; ctx.fillText('左でつまみを選び、「実験を実行」を押してください',w/2,h/2); $('#labTable').innerHTML=''; $('#labFinding').hidden=true; return; }
+  const {key,sw,rows}=res; const max=Math.max(60,...rows.map(r=>r.r.total))*1.15;
+  ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.fillStyle='#8a97ad'; ctx.font='11px "Noto Sans JP",sans-serif'; ctx.textAlign='right';
+  for(let i=0;i<=5;i++){ const y=T+(h-T-B)*(1-i/5); ctx.beginPath(); ctx.moveTo(L,y); ctx.lineTo(w-R,y); ctx.stroke(); ctx.fillText(Math.round(max*i/5)+' g',L-6,y+4); }
+  // 全国平均の線
+  const yjp=T+(h-T-B)*(1-JP_PER/max); ctx.setLineDash([5,5]); ctx.strokeStyle='rgba(255,255,255,.55)'; ctx.beginPath(); ctx.moveTo(L,yjp); ctx.lineTo(w-R,yjp); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle='#dfe9ff'; ctx.textAlign='left'; ctx.fillText('日本の家庭の平均 約50 g',L+6,yjp-5);
+  const bw=(w-L-R)/rows.length;
+  rows.forEach((r,i)=>{ const x=L+i*bw+bw*.22, ww=bw*.56; let y=h-B; [['trim',COL.trim],['dump',COL.dump],['eat',COL.eat]].forEach(([k,col])=>{ const hh=r.r[k]/max*(h-T-B); const g=ctx.createLinearGradient(x,0,x+ww,0); g.addColorStop(0,col); g.addColorStop(1,col+'aa'); ctx.fillStyle=g; rr(ctx,x,y-hh,ww,hh,3); ctx.fill(); y-=hh; });
+    ctx.fillStyle='#e9eef8'; ctx.font='900 15px "Zen Kaku Gothic New","Noto Sans JP",sans-serif'; ctx.textAlign='center'; ctx.fillText(Math.round(r.r.total)+' g',x+ww/2,y-8);
+    ctx.fillStyle='#b8c4d8'; ctx.font='bold 12.5px "Noto Sans JP",sans-serif'; ctx.fillText(sw.label(r.v),x+ww/2,h-B+18); });
+  ctx.fillStyle='#8a97ad'; ctx.font='11px "Noto Sans JP",sans-serif'; ctx.textAlign='center'; ctx.fillText(sw.name+'　（他の条件は現在のつまみの値）',w/2,h-6);
+  // 表
+  $('#labTable').innerHTML='<tr><th>'+sw.name+'</th><th>合計</th><th style="color:var(--amber)">食べ残し</th><th style="color:var(--coral)">直接廃棄</th><th style="color:var(--mint)">過剰除去</th><th>おにぎり</th></tr>'+rows.map(r=>`<tr><td>${sw.label(r.v)}</td><td><b>${fmt(r.r.total,1)} g</b></td><td>${fmt(r.r.eat,1)}</td><td>${fmt(r.r.dump,1)}</td><td>${fmt(r.r.trim,1)}</td><td>${fmt(r.r.total/100,1)} 個</td></tr>`).join('');
+  // 気づき
+  const first=rows[0].r, last=rows[rows.length-1].r; const big=k=>Math.abs(last[k]-first[k]); const most=['eat','dump','trim'].sort((a,b)=>big(b)-big(a))[0]; const nm={eat:'食べ残し',dump:'直接廃棄',trim:'過剰除去'}[most];
+  const dir=last.total>first.total?'増え':'減り';
+  let txt=`<b>読み取り：</b>${sw.name}を ${sw.label(rows[0].v)} → ${sw.label(rows[rows.length-1].v)} にすると、合計は ${fmt(first.total)} g → ${fmt(last.total)} g に${dir}ました。いちばん動いたのは<b>${nm}</b>（${fmt(first[most])} → ${fmt(last[most])} g）です。`;
+  if(key==='V') txt+=' 可視性が下がると、奥の食材が「期限切れ」で捨てられ、さらに同じ物を買い足すため直接廃棄が増えます。';
+  if(key==='S') txt+=' 買い物の間隔が長いほど直接廃棄が増える一方、食べ残しは作る量のブレが原因なので、間隔を変えてもあまり変わりません。';
+  if(key==='B') txt+=' 「多めに買う」は、そのまま「使い切れない量」になって現れます。';
+  if(key==='N') txt+=' 人数が増えても 1 人あたりの食べ残しは減ります（人数が多いと、1 人の不在の影響が相対的に小さいため）。一方、冷蔵庫が混むので直接廃棄は増えやすくなります。';
+  if(key==='P') txt+=' 献立計画は「作る量」「不在の把握」「期限順に使う」「買う前に中を見る」を同時に変えるため、最も効きます。ただし、現実の効果はこれより小さいはずです（しくみ・考えるタブ）。';
+  $('#labFinding').innerHTML=txt; $('#labFinding').hidden=false;
+}
+
+// ---- 食材表 ----
+$('#foodTable').innerHTML='<tr><th>食材</th><th>1パック</th><th>日持ち</th><th>野菜</th></tr>'+FOODS.map(f=>`<tr><td>${f.name}</td><td>${f.pkg} g</td><td>${f.life} 日</td><td>${f.veg?'○（過剰除去あり）':'－'}</td></tr>`).join('')+'<tr><td>残りもの（保存）</td><td>余った量</td><td>2 日</td><td>－</td></tr>';
+
+// ---- 背景（オーロラ） ----
+(function(){ const c=$('#bg'); const ctx=c.getContext('2d'); let w,h; const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; } addEventListener('resize',rs); rs();
+  const blobs=[{x:.2,y:.15,r:.5,c:'rgba(47,111,214,.22)',s:.00007},{x:.85,y:.3,r:.45,c:'rgba(127,227,187,.10)',s:.00005},{x:.5,y:.9,r:.6,c:'rgba(167,139,250,.10)',s:.00004}];
+  let last=0; function f(t){ if(t-last>33){ last=t; ctx.clearRect(0,0,w,h); blobs.forEach((b,i)=>{ const x=(b.x+Math.sin(t*b.s+i)*.08)*w, y=(b.y+Math.cos(t*b.s*1.3+i)*.06)*h, r=b.r*Math.max(w,h); const g=ctx.createRadialGradient(x,y,0,x,y,r); g.addColorStop(0,b.c); g.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h); }); } if(!reduce) requestAnimationFrame(f); }
+  requestAnimationFrame(f); })();
+
+updateOutputs(); resetSim();
+</script>
+</body>
+</html>
