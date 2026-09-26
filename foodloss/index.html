@@ -106,6 +106,13 @@ section{padding-block:clamp(44px,6vw,72px);border-top:1px solid var(--line);disp
 .forecast .v{font-family:var(--display);font-size:30px;font-weight:800;line-height:1.2}
 .forecast .v small{font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted);margin-left:4px}
 .forecast .n{font-size:13px;color:var(--muted)}
+.prob{display:grid;gap:6px;background:var(--ground);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+.prob .row{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.prob .row b{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums}
+.prob .row .ok b{color:var(--paper)}.prob .row .ng b{color:var(--short)}
+.prob .bar{height:10px;display:flex;border-radius:3px;overflow:hidden;background:var(--short-deep)}
+.prob .bar i{display:block;height:100%;background:var(--paper);transition:width .2s}
+.prob .n{font-size:12px;color:var(--muted)}
 .auto{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:10px}
 .auto .t{font-size:13px;color:var(--muted);letter-spacing:.06em}
 
@@ -137,7 +144,7 @@ section{padding-block:clamp(44px,6vw,72px);border-top:1px solid var(--line);disp
 .total .w .v{color:var(--waste)}.total .g .v{color:var(--brass)}.total .s .v{color:var(--short)}
 .stack{height:22px;display:flex;border-radius:4px;overflow:hidden;background:var(--panel-2)}
 .stack i{display:block;height:100%;transition:width .3s}
-.log{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px}
+.log{display:grid;grid-template-columns:repeat(14,minmax(0,40px));gap:4px}
 .log div{aspect-ratio:1;background:var(--panel-2);border-radius:2px;position:relative}
 .log div.w{background:var(--waste)}.log div.s{background:var(--short-deep);box-shadow:inset 0 0 0 1px var(--short)}.log div.e{background:var(--sold)}
 .log div.cur{box-shadow:inset 0 0 0 2px var(--paper)}
@@ -224,15 +231,21 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
 </header>
 
 <section id="game">
-  <div class="sh"><span class="no">店長ゲーム</span><h2>14日間、お店を開ける</h2><p class="sub">明日の予想を見て、仕入れる数を決め、「開店する」を押す。1日の売れ方が流れ、利益と捨てた弁当が積み上がる。14日目が終わると成績が出ます。</p></div>
+  <div class="sh"><span class="no">店長ゲーム</span><h2 id="gTitle">14日間、お店を開ける</h2><p class="sub">明日の予想を見て、仕入れる数を決め、「開店する」を押す。1日の売れ方が流れ、利益と捨てた弁当が積み上がる。最終日が終わると成績が出ます。</p></div>
 
   <div class="game">
     <div class="panel" id="gPanel">
-      <div class="daybar"><span class="d" id="gDay">1日目<small>月曜</small></span><span class="num" style="color:var(--muted);font-size:13px" id="gLeft">残り14日</span></div>
+      <div class="daybar">
+        <span class="d" id="gDay">1日目<small>月曜</small></span>
+        <div class="seg" id="gDays" role="group" aria-label="営業する日数">
+          <button type="button" data-v="7" aria-pressed="false">7日間</button>
+          <button type="button" data-v="14" aria-pressed="true">14日間</button>
+        </div>
+      </div>
       <div class="forecast">
         <span class="k">明日の予想</span>
         <span class="v num" id="gFc">100<small>個 売れそう</small></span>
-        <span class="n" id="gFcN">はずれることもある（±15個くらい）</span>
+        <span class="n" id="gFcR"></span>
       </div>
       <div class="step" id="st1"><i>1</i>仕入れる数を決める</div>
       <div class="stepper">
@@ -241,6 +254,11 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
         <button type="button" id="gPlus" aria-label="10個増やす">＋</button>
       </div>
       <input type="range" id="gRange" min="40" max="200" step="1" value="100" aria-label="仕入れる数">
+      <div class="prob" aria-live="polite">
+        <div class="row"><span class="ok">足りる確率 <b id="pOk">—</b></span><span class="ng">品切れの確率 <b id="pNg">—</b></span></div>
+        <div class="bar"><i id="pBar" style="width:50%"></i></div>
+        <span class="n" id="gFcN"></span>
+      </div>
       <div class="step" id="st2"><i>2</i>売れ残りそうなら、値引きする？</div>
       <div class="seg" id="gMd" role="group" aria-label="値引き">
         <button type="button" data-v="0" aria-pressed="true">しない</button>
@@ -250,7 +268,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
       <div class="step" id="st3"><i>3</i>開店する</div>
       <button class="btn primary" id="gOpen" type="button">開店する ▶</button>
       <div class="auto">
-        <span class="t">オートモード（コンピュータが14日分決める）</span>
+        <span class="t">オートモード（コンピュータが毎日の数を決める）</span>
         <div class="seg" id="gStrat" role="group" aria-label="オートの作戦">
           <button type="button" data-v="fc" aria-pressed="true">予想どおり</button>
           <button type="button" data-v="zero" aria-pressed="false">品切れさせない</button>
@@ -279,7 +297,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
       </div>
       <div class="panel" style="gap:12px">
         <div class="total">
-          <div class="kv g"><span class="k">14日間の利益</span><span class="v" id="cProfit">0<small>円</small></span></div>
+          <div class="kv g"><span class="k" id="cProfitK">14日間の利益</span><span class="v" id="cProfit">0<small>円</small></span></div>
           <div class="kv w"><span class="k">捨てた弁当</span><span class="v" id="cWaste">0<small>個</small></span></div>
           <div class="kv s"><span class="k">買えなかった客</span><span class="v" id="cLost">0<small>人</small></span></div>
         </div>
@@ -294,7 +312,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
           <thead><tr><th>やり方</th><th>利益</th><th>捨てた弁当</th><th>買えなかった客</th><th>品切れした日</th></tr></thead>
           <tbody id="fTable"></tbody>
         </table></div>
-        <p class="cap" style="font-size:13px;color:var(--muted)">同じ14日間の売れ方で、コンピュータが別の作戦をとった場合と比べています。「品切れさせない」は予想＋十分な余裕、「計算上の最適」は下の解説にある臨界比で決めています。どちらも値引きはしていません。</p>
+        <p class="cap" style="font-size:13px;color:var(--muted)">同じ日数・同じ売れ方で、コンピュータが別の作戦をとった場合と比べています。「品切れさせない」は予想＋十分な余裕、「計算上の最適」は下の解説にある臨界比で決めています。どちらも値引きはしていません。</p>
         <button class="btn primary" id="gAgain" type="button">もう一度 ▶</button>
       </div>
     </div>
@@ -500,12 +518,20 @@ var DAYS = 14, DOW = ["月","火","水","木","金","土","日"], DOWMU = [92,92
 var GSIG = 15;
 var game = null, gState = {q:100, md:0, rate:0.3, strat:"fc", auto:false}, gTimer=null, playing=false;
 var shelf = $("shelf"), logEl = $("log");
-for (var i=0;i<DAYS;i++){ var c=document.createElement("div"); logEl.appendChild(c); }
+function buildLog(){
+  logEl.innerHTML = "";
+  for (var i=0;i<DAYS;i++){ var c=document.createElement("div"); logEl.appendChild(c); }
+  logEl.style.gridTemplateColumns = "repeat(" + DAYS + ",minmax(0,40px))";
+}
 
 function newGame(){
   var rng = mulberry32((Date.now() ^ (Math.random()*1e9)) >>> 0), z = normals(rng, DAYS*2), u = [];
   for (var i=0;i<DAYS*20;i++) u.push(rng());
   game = {day:0, days:[], profit:0, waste:0, lost:0, soldAll:0, outDays:0, seq:[], u:u};
+  buildLog();
+  $("gTitle").textContent = DAYS + "日間、お店を開ける";
+  $("cProfitK").textContent = DAYS + "日間の利益";
+  $("fTitle").textContent = DAYS + "日間の成績";
   for (i=0;i<DAYS;i++){
     var fc = DOWMU[i%7], D = Math.max(0, Math.round(fc + GSIG*z[i]));
     game.seq.push({fc:fc, D:D, z2:z[DAYS+i]});
@@ -522,11 +548,15 @@ function newGame(){
 function renderGamePanel(){
   var d = game.day, s = game.seq[Math.min(d, DAYS-1)];
   $("gDay").innerHTML = (d+1) + "日目<small>" + DOW[d%7] + "曜</small>";
-  $("gLeft").textContent = "残り" + (DAYS-d) + "日";
   $("gFc").innerHTML = s.fc + "<small>個 売れそう</small>";
+  $("gFcR").textContent = "10日のうち7日は " + (s.fc-GSIG) + "〜" + (s.fc+GSIG) + "個、20日のうち19日は " + (s.fc-2*GSIG) + "〜" + (s.fc+2*GSIG) + "個";
   $("gQ").innerHTML = gState.q + "<small>個</small>";
+  var pOk = normCdf((gState.q + 0.5 - s.fc)/GSIG);
+  $("pOk").textContent = pct(pOk); $("pNg").textContent = pct(1-pOk);
+  $("pBar").style.width = (pOk*100) + "%";
   var diff = gState.q - s.fc;
-  $("gFcN").textContent = diff === 0 ? "予想と同じ数を仕入れる" : (diff>0 ? "予想より " + diff + "個 多め（余裕をもつ）" : "予想より " + (-diff) + "個 少なめ（品切れを許す）");
+  $("gFcN").textContent = (diff === 0 ? "予想と同じ数。" : (diff>0 ? "予想より " + diff + "個 多め。" : "予想より " + (-diff) + "個 少なめ。")) + "客が " + gState.q + "人以下なら足りる。";
+  Array.prototype.forEach.call($("gDays").querySelectorAll("button"), function(b){ b.disabled = game.day>0 && game.day<DAYS; });
   var busy = playing || game.day>=DAYS;
   $("gOpen").disabled = busy; $("gMinus").disabled = busy; $("gPlus").disabled = busy; $("gRange").disabled = busy;
   $("gAuto").disabled = busy;
@@ -662,7 +692,7 @@ function showFinal(){
   v += " 「品切れさせない」作戦は、捨てた弁当が " + z.waste + "個 で、利益は最適より " + yen(o.profit-z.profit) + "円 少なくなりました。";
   $("fVerdict").textContent = v;
   $("final").classList.add("show");
-  $("gTime").textContent = "14日終了";
+  $("gTime").textContent = DAYS + "日終了";
   $("gMsg").textContent = "お疲れさまでした。成績を見てください。";
   if (!reduceMotion) $("final").scrollIntoView({behavior:"smooth", block:"nearest"});
 }
@@ -685,6 +715,11 @@ function seg(id, key, target){
 }
 seg("gMd","md",gState); $("gMd").addEventListener("click", function(){ gState.rate = gState.md===18 ? 0.5 : 0.3; });
 seg("gStrat","strat",gState);
+$("gDays").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b || b.disabled) return;
+  Array.prototype.forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===b ? "true" : "false"); });
+  DAYS = +b.dataset.v; gState.auto=false; newGame();
+});
 
 /* ================= 実験 ================= */
 var state = {q:100, sigma:20, md:0, rate:0.3, w:0};
