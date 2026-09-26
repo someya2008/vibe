@@ -806,7 +806,9 @@ function update(){
 }
 
 function setup(cv){
-  var dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = parseInt(cv.getAttribute("height"),10);
+  // 描画のたびに cv.height を書き換えるので、最初の高さを別に保存しておく
+  if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
+  var dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = parseInt(cv.dataset.h,10);
   cv.style.height = h + "px";
   cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
   var ctx = cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
