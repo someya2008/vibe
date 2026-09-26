@@ -363,11 +363,16 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
         <input id="wc" type="range" min="0" max="500" step="50" value="0">
         <p class="hint">ごみの処理費や、作るのに使った資源の分。解説の式にも反映されます。</p>
       </div>
+      <div class="ctl">
+        <label for="gw">買えなかった客1人あたりの信用の損 <output id="gOut" class="num">0<small>円</small></output></label>
+        <input id="gw" type="range" min="0" max="5000" step="100" value="0">
+        <p class="hint">品切れで客がほかの店に移り、次から来なくなるかもしれない分。例：店を変える確率5% × その客の1年分の粗利2万円 ＝ 1,000円。</p>
+      </div>
     </div>
 
     <div class="results">
       <div class="kpis">
-        <div class="kpi brass"><span class="k">1日の粗利（平均）</span><span class="v" id="kProfit">—</span><span class="d" id="kProfitD">&nbsp;</span></div>
+        <div class="kpi brass"><span class="k" id="kProfitK">1日の粗利（平均）</span><span class="v" id="kProfit">—</span><span class="d" id="kProfitD">&nbsp;</span></div>
         <div class="kpi waste"><span class="k">捨てる弁当（平均）</span><span class="v" id="kWaste">—</span><span class="d" id="kWasteD">&nbsp;</span></div>
         <div class="kpi short"><span class="k">品切れが起きる日</span><span class="v" id="kOut">—</span><span class="d" id="kOutD">&nbsp;</span></div>
         <div class="kpi"><span class="k">買えなかった客（平均）</span><span class="v" id="kLost">—</span><span class="d">1日あたり</span></div>
@@ -382,12 +387,12 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
         <div class="fig">
           <h3>発注量を変えると</h3>
           <canvas id="cCurve" height="190" aria-label="発注量と粗利・廃棄・買えなかった客の関係"></canvas>
-          <div class="legend"><span><i style="background:var(--brass)"></i>粗利</span><span><i style="background:var(--waste)"></i>捨てる数</span><span><i style="background:var(--short)"></i>買えなかった客</span></div>
+          <div class="legend"><span><i style="background:var(--brass)"></i><span id="lgP">粗利</span></span><span><i style="background:var(--waste)"></i>捨てる数</span><span><i style="background:var(--short)"></i>買えなかった客</span></div>
         </div>
       </div>
       <div class="tbl">
         <table>
-          <thead><tr><th>やり方</th><th>発注量</th><th>1日の粗利</th><th>1日に捨てる</th><th>1年で捨てる</th><th>品切れが起きる日</th></tr></thead>
+          <thead><tr><th>やり方</th><th>発注量</th><th id="thP1">1日の粗利</th><th>1日に捨てる</th><th>1年で捨てる</th><th>品切れが起きる日</th></tr></thead>
           <tbody id="cmp"></tbody>
         </table>
       </div>
@@ -402,7 +407,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
     <p>最後の1個を仕入れるかどうかだけを考えます。その1個が売れれば200円もうかります。売れなければ300円の損です。</p>
   </div>
   <div class="scale">
-    <div class="s"><span class="t">1個足りなかったときの損（売りそこね）</span><span class="y num" id="under">200円</span><span class="c">売値 500円 − 仕入れ値 300円</span></div>
+    <div class="s"><span class="t">1個足りなかったときの損（売りそこね）</span><span class="y num" id="under">200円</span><span class="c" id="underC">売値 500円 − 仕入れ値 300円</span></div>
     <div class="w"><span class="t">1個余ったときの損（捨てる）</span><span class="y num" id="over">300円</span><span class="c" id="overC">仕入れ値 300円 − 売れ残りの価値 0円</span></div>
   </div>
   <div class="prose">
@@ -414,7 +419,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
       ＝ <span class="fr num"><span id="fU">200</span><span id="fD">200 ＋ 300</span></span>
       ＝ <span class="num" id="fR">40%</span>
     </div>
-    <p class="fnote">この比率は「臨界比」と呼ばれます。値引きをしないとき、粗利が最大になるのは、品切れしない日が全体の <b id="fR2" class="num" style="color:var(--paper)">40%</b> になる発注量です（予測のブレが±20個なら <b id="fQ" class="num" style="color:var(--paper)">95個</b>）。</p>
+    <p class="fnote">この比率は「臨界比」と呼ばれます。値引きをしないとき、<span id="fPW">粗利</span>が最大になるのは、品切れしない日が全体の <b id="fR2" class="num" style="color:var(--paper)">40%</b> になる発注量です（予測のブレが±20個なら <b id="fQ" class="num" style="color:var(--paper)">95個</b>）。</p>
   </div>
   <div class="formula" style="gap:10px">
     <h3 style="font-size:18px">諸経費を入れないのはなぜか</h3>
@@ -422,7 +427,30 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
     <p>固定費は、何個仕入れても同じ額だけ引かれます。そのため、店の手元に残るお金の額は下がりますが、「何個仕入れると一番得か」という答えは変わりません。答えを決めるのは、1個増やしたときに増える費用だけです。</p>
     <p>反対に、捨てる1個ごとにかかる処理費のような費用は、答えを変えます。実験の「捨てる1個あたりの追加の費用」で確かめられます。</p>
   </div>
-  <p class="big-claim">粗利が最大になる店は、<br><em id="claim2">10日のうち6日</em>、品切れを起こしている。</p>
+  <div style="display:grid;gap:10px">
+    <p class="big-claim"><span id="claimLead">粗利が最大になる店は、</span><br><em id="claim2">10日のうち6日</em>、品切れを起こしている。</p>
+    <p class="fnote" id="claimSub" style="font-size:15px;max-width:40em"></p>
+  </div>
+
+  <div class="formula" style="gap:12px;max-width:52em">
+    <h3 style="font-size:20px">長い目で見ると：客がほかの店に移る損</h3>
+    <p>コンビニはたくさんあります。品切れが続けば、客は確実に買える店に移るかもしれません。ここまでの計算は、買えなかった客も次の日にはまた来ると仮定していました。</p>
+    <p>客が離れていく損を「<b>信用の損</b>」と呼びます。これを入れると、足りなかったときの損は「粗利200円 ＋ 信用の損」に大きくなり、最適な発注量は増えます。</p>
+    <div class="tbl"><table style="min-width:560px">
+      <thead><tr><th>信用の損（1人あたり）</th><th>臨界比</th><th>最適な発注量</th><th>品切れの日</th><th>買えない客（1日）</th><th>捨てる弁当（1日）</th></tr></thead>
+      <tbody>
+        <tr><td>0円（上の計算）</td><td>40%</td><td>95個</td><td>10日に6日</td><td>10.8人</td><td class="bad">5.7個</td></tr>
+        <tr><td>300円</td><td>63%</td><td>106個</td><td>10日に約4日</td><td>5.2人</td><td class="bad">11.6個</td></tr>
+        <tr><td>1,000円</td><td>80%</td><td>117個</td><td>10日に2日</td><td>2.2人</td><td class="bad">19.1個</td></tr>
+        <tr><td>5,500円</td><td>95%</td><td>133個</td><td>20日に1日</td><td>0.4人</td><td class="bad">33.3個</td></tr>
+        <tr class="r-zero"><td>29,500円</td><td>99%</td><td>147個</td><td>100日に1日</td><td>0.1人</td><td class="bad">46.6個</td></tr>
+      </tbody>
+    </table></div>
+    <p class="fnote">平均100個、予測のブレ±20個、値引きなし、追加の費用なしの場合の理論値です。臨界比 ＝ (200 ＋ 信用の損) ÷ (500 ＋ 信用の損)。</p>
+    <p>長い目で見ると、品切れを減らすほうへ答えが動きます。ただし「絶対に品切れさせない」（品切れの日が100日に1日）が最適になるのは、買えなかった客1人につき約3万円の損が出る場合だけです。弁当1個の粗利200円の約150倍です。</p>
+    <p>一方で、品切れに出会っても、多くの客は店を変えません。小売店の欠品を調べた国際調査では、欠品に出会った客のうち、ほかの店で買う人はおよそ3割でした。残りは、同じ店で別の商品に替える、買うのを先に延ばす、買うのをやめる、のどれかでした。弁当が品切れでも、別の弁当やおにぎりを買う客は多いはずです。</p>
+    <p>どこまで品切れを許すかは、信用の損をどう見積もるかという<b>経営の判断</b>です。その判断が、捨てられる食べ物の量を左右しています。実験の「信用の損」で確かめられます。</p>
+  </div>
 </section>
 
 <section id="accuracy">
@@ -433,7 +461,7 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
   </div>
   <div class="tbl">
     <table>
-      <thead><tr><th>予測のブレ</th><th>最適な発注量</th><th>1日の粗利</th><th>1日に捨てる</th><th>1年で捨てる</th><th>品切れが起きる日</th></tr></thead>
+      <thead><tr><th>予測のブレ</th><th>最適な発注量</th><th id="thP2">1日の粗利</th><th>1日に捨てる</th><th>1年で捨てる</th><th>品切れが起きる日</th></tr></thead>
       <tbody id="acc"></tbody>
     </table>
   </div>
@@ -459,12 +487,14 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
       <li>値引き後は、定価なら買わなかった客も来ます。その平均人数は、値引き後に来る定価の客の数に対して、2割引で0.3倍、3割引で0.6倍、半額で1.2倍と仮定しています。</li>
       <li>実験では各条件で同じ4000日分の乱数を使って平均を出しています。「品切れが起きる日」は、定価で買うつもりの客が1人でも買えなかった日の割合です。</li>
       <li>「粗利」は、売上 − 仕入れ代です（「追加の費用」を動かしたときは、捨てた数 × 追加の費用も引いています）。家賃・人件費などの固定費は、どの発注量でも同じ額なので、最適な発注量に影響しません。そのため計算に入れていません。</li>
-      <li>品切れによる信用の損や、廃棄の処理費は、「追加の費用」を動かさない限り入っていません。</li>
+      <li>品切れによる信用の損や、廃棄の処理費は、それぞれのつまみを動かさない限り入っていません。どちらかを動かすと、表示は「粗利 − 追加の損」（粗利から、捨てた数 × 追加の費用 と、買えなかった定価の客の数 × 信用の損 を引いた額）に変わります。</li>
+      <li>「長い目で見ると」の表は、正規分布の式から求めた理論値です（買えない客の数は σ × 標準正規損失関数）。</li>
     </ul>
     <h3>出典・参考</h3>
     <ul>
       <li>農林水産省・環境省「食品ロス量（令和4年度推計値）」2024年公表。総量472万トン（事業系236万トン、家庭系236万トン）。</li>
       <li>新聞売り子問題（newsvendor problem）と臨界比は、在庫管理・オペレーションズリサーチの標準的な教科書で扱われる古典的なモデルです。</li>
+      <li>欠品に出会った客の行動（ほかの店で買う約3割など）：T. W. Gruen, D. S. Corsten, S. Bharadwaj, <i>Retail Out-of-Stocks: A Worldwide Examination of Extent, Causes and Consumer Responses</i>, Grocery Manufacturers of America, 2002。食品・日用品全般の調査で、コンビニの弁当に限ったものではありません。</li>
       <li>公正取引委員会は2009年、コンビニ本部が加盟店の値引き販売（見切り販売）を制限していたことを優越的地位の濫用にあたるとして、排除措置命令を出しています。</li>
     </ul>
   </div>
@@ -731,21 +761,21 @@ $("gDays").addEventListener("click", function(e){
 });
 
 /* ================= 実験 ================= */
-var state = {q:100, sigma:20, md:0, rate:0.3, w:0};
+var state = {q:100, sigma:20, md:0, rate:0.3, w:0, g:0};
 var Z1 = normals(mulberry32(20241202), N);
 var Z2 = normals(mulberry32(777), N);
 
-function day(Q, D, E, F, pd, w){
+function day(Q, D, E, F, pd, w, g){
   var Db = Math.round(D*F), Da = D-Db;
   var soldFull = Math.min(Q, Db), R = Q-soldFull;
   var after = Da+E, soldDisc = Math.min(R, after), waste = R-soldDisc;
   var servedA = after>0 ? soldDisc*Da/after : 0;
   var lost = (Db-soldFull) + (Da-servedA);
-  return {profit: P*soldFull + pd*soldDisc - C*Q - w*waste, waste: waste, lost: lost, out: lost > 1e-9};
+  return {profit: P*soldFull + pd*soldDisc - C*Q - w*waste - (g||0)*lost, waste: waste, lost: lost, out: lost > 1e-9};
 }
 var cache = {};
 function evaluate(s, sigma){
-  var key = [s.md, s.rate, s.w, sigma].join("|");
+  var key = [s.md, s.rate, s.w, s.g, sigma].join("|");
   if (cache[key]) return cache[key];
   var F = shareBefore(s.md), pd = s.md ? Math.round(P*(1-s.rate)) : 0, m = extraMean(MU, s.md, s.rate);
   var Ds = new Int32Array(N), Es = new Int32Array(N);
@@ -753,7 +783,7 @@ function evaluate(s, sigma){
   var res = [];
   for (var Q=QMIN; Q<=QMAX; Q++){
     var sp=0, sw=0, sl=0, so=0;
-    for (var j=0;j<N;j++){ var r = day(Q, Ds[j], Es[j], F, pd, s.w); sp+=r.profit; sw+=r.waste; sl+=r.lost; if(r.out) so++; }
+    for (var j=0;j<N;j++){ var r = day(Q, Ds[j], Es[j], F, pd, s.w, s.g); sp+=r.profit; sw+=r.waste; sl+=r.lost; if(r.out) so++; }
     res.push({q:Q, profit:sp/N, waste:sw/N, lost:sl/N, out:so/N});
   }
   var opt = res[0], zero = res[res.length-1];
@@ -770,6 +800,11 @@ function update(){
   $("sOut").innerHTML = "±" + state.sigma + "<small>個</small>";
   $("sHint").textContent = "売れる数は、10日のうち約7日が " + (MU-state.sigma) + "〜" + (MU+state.sigma) + "個 の間に入る。";
   $("wOut").innerHTML = state.w + "<small>円</small>";
+  $("gOut").innerHTML = yen(state.g) + "<small>円</small>";
+  var extra = state.w > 0 || state.g > 0, PW = extra ? "損得" : "粗利";
+  $("kProfitK").textContent = extra ? "1日の粗利 − 追加の損（平均）" : "1日の粗利（平均）";
+  $("lgP").textContent = extra ? "粗利 − 追加の損" : "粗利";
+  $("thP1").textContent = $("thP2").textContent = extra ? "1日の粗利 − 追加の損" : "1日の粗利";
   var pd = Math.round(P*(1-state.rate));
   $("mdHint").textContent = state.md ? state.md + "時から " + pd + "円で売る。閉店時に残った分は捨てる。" : "値引きしないと、閉店時に残った弁当はすべて捨てる。";
 
@@ -783,29 +818,34 @@ function update(){
   $("kLost").innerHTML = one(r.lost) + "<small>人</small>";
 
   var v;
-  if (state.q === o.q) v = "この量が、今の条件で粗利が最大になる発注量です。それでも10日のうち約" + Math.round(r.out*10) + "日は品切れが起きます。";
-  else if (state.q > o.q) v = "粗利が最大になる量（" + o.q + "個）より " + (state.q-o.q) + "個 多く仕入れています。増やした分は、売れるより捨てる損のほうが大きくなっています。";
-  else v = "粗利が最大になる量（" + o.q + "個）より " + (o.q-state.q) + "個 少なく仕入れています。もう少し増やすと、売れて得る粗利のほうが大きくなります。";
+  if (state.q === o.q) v = "この量が、今の条件で" + PW + "が最大になる発注量です。それでも10日のうち約" + Math.round(r.out*10) + "日は品切れが起きます。";
+  else if (state.q > o.q) v = PW + "が最大になる量（" + o.q + "個）より " + (state.q-o.q) + "個 多く仕入れています。増やした分は、売れるより捨てる損のほうが大きくなっています。";
+  else v = PW + "が最大になる量（" + o.q + "個）より " + (o.q-state.q) + "個 少なく仕入れています。もう少し増やすと、" + (state.g>0 ? "売れて得る粗利と、守れる信用" : "売れて得る粗利") + "のほうが大きくなります。";
   $("verdict").textContent = v;
 
   var rows = [
     {cls:"r-zero", nm:"絶対に品切れさせない", ds:"品切れの日が100日に1日以下", d:z},
-    {cls:"r-opt", nm:"粗利を最大にする", ds:"新聞売り子問題の答え", d:o},
+    {cls:"r-opt", nm:PW + "を最大にする", ds:"新聞売り子問題の答え", d:o},
     {cls:"you", nm:"あなたの発注量", ds:"つまみで選んだ量", d:r}
   ];
   $("cmp").innerHTML = rows.map(function(x){
     return '<tr class="'+x.cls+'"><td><span class="nm">'+x.nm+'</span><span class="ds">'+x.ds+'</span></td><td>'+x.d.q+'個</td><td>'+yen(x.d.profit)+'円</td><td class="bad">'+one(x.d.waste)+'個</td><td class="bad">'+yen(x.d.waste*365)+'個</td><td>'+pct(x.d.out)+'</td></tr>';
   }).join("");
   var extraW = (z.waste - o.waste)*365, lossP = (o.profit - z.profit)*365;
-  $("claim").innerHTML = "品切れをなくそうとすると、1年で弁当を <span style=\"color:var(--waste)\">" + yen(extraW) + "個</span> 多く捨て、粗利は <span style=\"color:var(--brass)\">" + yen(lossP) + "円</span> 減る。";
+  $("claim").innerHTML = "品切れをなくそうとすると、1年で弁当を <span style=\"color:var(--waste)\">" + yen(extraW) + "個</span> 多く捨て、" + PW + "は <span style=\"color:var(--brass)\">" + yen(lossP) + "円</span> 減る。";
 
-  var under = P - C, over = C + state.w, cr = under/(under+over);
-  $("under").textContent = under + "円"; $("over").textContent = over + "円";
+  var under = P - C + state.g, over = C + state.w, cr = under/(under+over);
+  $("underC").textContent = "売値 500円 − 仕入れ値 300円" + (state.g ? " ＋ 信用の損 " + yen(state.g) + "円" : "");
+  $("under").textContent = yen(under) + "円"; $("over").textContent = over + "円";
   $("overC").textContent = "仕入れ値 300円 − 売れ残りの価値 0円" + (state.w ? " ＋ 追加の費用 " + state.w + "円" : "");
-  $("fU").textContent = under; $("fD").textContent = under + " ＋ " + over;
+  $("fU").textContent = yen(under); $("fD").textContent = yen(under) + " ＋ " + over;
   $("fR").textContent = pct(cr); $("fR2").textContent = pct(cr);
   $("fQ").textContent = (Math.round((MU + 20*invNorm(cr))*10)/10) + "個";
   $("claim2").textContent = "10日のうち" + Math.round((1-cr)*10) + "日";
+  $("claimLead").textContent = PW + "が最大になる店は、";
+  $("fPW").textContent = PW;
+  var zc = invNorm(cr), lostC = 20*(Math.exp(-zc*zc/2)/Math.sqrt(2*Math.PI) - zc*(1-normCdf(zc)));
+  $("claimSub").innerHTML = "ただし、品切れの日でも、足りなくなるのは売り切れた後の夕方から夜です。1日に買えない客は、平均すると約100人のうち <b style=\"color:var(--short)\">" + one(lostC) + "人</b>（予測のブレ±20個、値引きなしの場合）。";
 
   $("acc").innerHTML = [5,10,20,30,40].map(function(sg){
     var e = evaluate(state, sg).opt;
@@ -893,6 +933,7 @@ function drawCurve(){
 $("q").addEventListener("input", function(e){ state.q = +e.target.value; update(); });
 $("sigma").addEventListener("input", function(e){ state.sigma = +e.target.value; update(); });
 $("wc").addEventListener("input", function(e){ state.w = +e.target.value; update(); });
+$("gw").addEventListener("input", function(e){ state.g = +e.target.value; update(); });
 seg("mdTime","md",state); seg("mdRate","rate",state);
 function setQ(q){ state.q = q; $("q").value = q; update(); }
 $("setZero").addEventListener("click", function(){ setQ(cur.zero.q); });
