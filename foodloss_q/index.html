@@ -1,0 +1,999 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>もったいないクイズ ─ フードロス50問</title>
+<meta name="description" content="フードロス（食品ロス）への関心を高める4択クイズ。50問からランダム出題、コンボ・称号・バッジつき。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=BIZ+UDPGothic:wght@400;700&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --bg1:#fff7e6;
+  --bg2:#ffe9c7;
+  --bg3:#d9f2e3;
+  --card:#ffffff;
+  --ink:#2b2a26;
+  --muted:#6d6a62;
+  --line:#ece4d3;
+  --accent:#2f9e6d;      /* 葉っぱの緑 */
+  --accent-deep:#237a54;
+  --sun:#f6a623;         /* 太陽の橙 */
+  --sun-deep:#d98a0c;
+  --tomato:#e8533f;
+  --sky:#3f8fd6;
+  --gold:#f2c14e;
+  --ok:#2f9e6d;
+  --ng:#e8533f;
+  --display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Rounded Mplus 1c","BIZ UDPGothic","Hiragino Sans","Meiryo",sans-serif;
+  --body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  --radius:22px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{background:var(--bg1)}
+body{
+  margin:0;color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.7;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, var(--bg3) 0%, transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, var(--bg2) 0%, transparent 60%),
+    linear-gradient(180deg,var(--bg1) 0%,#fffdf8 100%);
+  min-height:100dvh;
+  padding-inline:clamp(14px,4vw,40px);
+  -webkit-text-size-adjust:100%;
+  overflow-x:hidden;
+}
+h1,h2,h3{font-family:var(--display);font-weight:900;margin:0;line-height:1.25;text-wrap:balance}
+p{margin:0}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:820px;margin-inline:auto;padding-block:clamp(14px,3vw,28px) 48px;display:grid;gap:18px}
+
+/* ---------- header ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:900;font-size:20px;display:flex;align-items:center;gap:8px;color:var(--accent-deep)}
+.brand .logo{font-size:26px;display:inline-block;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-4px) rotate(6deg)}}
+.tools{display:flex;gap:8px}
+.tbtn{
+  border:2px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font-size:16px;font-weight:700;
+  color:var(--muted);display:flex;align-items:center;gap:6px;transition:.15s;
+}
+.tbtn[aria-pressed="true"]{color:var(--accent-deep);border-color:var(--accent);background:#eef8f2}
+.tbtn:hover{transform:translateY(-1px)}
+
+.menuwrap{position:relative}
+.menu{
+  position:absolute;right:0;top:calc(100% + 8px);z-index:80;min-width:230px;
+  background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px;display:grid;gap:2px;
+  box-shadow:0 12px 30px rgba(120,90,30,.18);animation:menuin .15s ease;
+}
+@keyframes menuin{from{opacity:0}to{opacity:1}}
+.menu button{border:0;background:transparent;text-align:left;padding:10px 12px;border-radius:10px;font-size:16px;font-weight:700;color:var(--ink);white-space:nowrap}
+.menu button:hover{background:#f4efe3}
+.menu button[aria-checked="true"]{background:#eef8f2;color:var(--accent-deep)}
+.menu button[aria-checked="true"]::after{content:" ✓";color:var(--accent)}
+
+/* ---------- screens ---------- */
+.screen{display:none;animation:fadein .35s ease}
+.screen.on{display:grid;gap:18px}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{
+  background:var(--card);border-radius:var(--radius);padding:clamp(20px,4vw,34px);
+  box-shadow:0 10px 30px rgba(120,90,30,.10),0 2px 6px rgba(120,90,30,.06);
+  border:1px solid var(--line);
+}
+
+/* ---------- title ---------- */
+.hero{text-align:center;display:grid;gap:14px;justify-items:center}
+.hero .emoji{font-size:clamp(56px,12vw,88px);line-height:1;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12))}
+.hero .emoji span{display:inline-block;animation:wiggle 2.4s ease-in-out infinite}
+.hero .emoji span:nth-child(2){animation-delay:.3s}.hero .emoji span:nth-child(3){animation-delay:.6s}
+@keyframes wiggle{0%,100%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(8deg) translateY(-6px)}}
+.hero h1{font-size:clamp(34px,7vw,56px);color:var(--accent-deep);letter-spacing:.02em}
+.hero h1 small{display:block;font-size:.42em;color:var(--sun-deep);letter-spacing:.2em;margin-bottom:6px;font-weight:700}
+.hero p.lead{font-size:clamp(17px,2.4vw,21px);max-width:34em;color:var(--muted)}
+.best{
+  display:inline-flex;gap:14px;align-items:center;background:#fff8e1;border:2px dashed var(--gold);border-radius:999px;padding:8px 18px;font-weight:700;color:#8a6200;font-size:17px;
+}
+.opts{display:grid;gap:10px;justify-items:center}
+.opts .lbl{font-size:16px;color:var(--muted);font-weight:700}
+.seg{display:inline-flex;flex-wrap:wrap;justify-content:center;background:#f4efe3;border-radius:28px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:10px 20px;font-weight:700;font-size:18px;color:var(--muted);transition:.15s;white-space:nowrap}
+@media (max-width:420px){.seg button{padding:9px 14px;font-size:16px}}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--accent-deep);box-shadow:0 2px 8px rgba(0,0,0,.10)}
+.big{
+  border:0;border-radius:999px;padding:18px 44px;font-family:var(--display);font-weight:900;font-size:clamp(22px,3.4vw,28px);
+  background:linear-gradient(135deg,var(--sun),#ff8a3d);color:#fff;box-shadow:0 8px 0 var(--sun-deep),0 14px 24px rgba(217,138,12,.35);
+  transition:transform .08s,box-shadow .08s;letter-spacing:.06em;
+}
+.big:hover{filter:brightness(1.05)}
+.big:active{transform:translateY(6px);box-shadow:0 2px 0 var(--sun-deep),0 6px 12px rgba(217,138,12,.3)}
+.big.green{background:linear-gradient(135deg,var(--accent),#57c48f);box-shadow:0 8px 0 var(--accent-deep),0 14px 24px rgba(47,158,109,.35)}
+.big.green:active{box-shadow:0 2px 0 var(--accent-deep),0 6px 12px rgba(47,158,109,.3)}
+.howto{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+@media (max-width:600px){.howto{grid-template-columns:minmax(0,1fr)}}
+.howto div{background:#fbf7ee;border-radius:16px;padding:14px 12px;font-size:16px;color:var(--muted)}
+.howto div b{display:block;font-family:var(--display);font-size:20px;color:var(--ink);margin-bottom:2px}
+.howto .ic{font-size:30px;line-height:1.2}
+
+/* ---------- quiz ---------- */
+.hud{display:grid;gap:8px}
+.hud .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700;color:var(--muted);font-size:17px}
+.hud .score{font-family:var(--display);font-size:24px;color:var(--accent-deep)}
+.hud .score small{font-size:15px;color:var(--muted);font-family:var(--body);margin-left:4px}
+.bar{height:14px;background:#efe8d8;border-radius:999px;overflow:hidden;position:relative}
+.bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#7ad3a6);border-radius:999px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.combo{
+  display:inline-flex;align-items:center;gap:6px;background:#fff1cf;color:#a35d00;border-radius:999px;padding:4px 12px;font-family:var(--display);font-weight:900;font-size:17px;
+  opacity:0;transform:scale(.8);transition:.25s;
+}
+.combo.on{opacity:1;transform:scale(1)}
+.combo.pop{animation:pop .4s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+.qcard{position:relative;overflow:hidden}
+.qcard.enter{animation:slidein .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes slidein{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+.qmeta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;font-size:16px;color:var(--muted);font-weight:700}
+.qnum{font-family:var(--display);font-size:18px;color:var(--sun-deep)}
+.stars{color:var(--gold);letter-spacing:2px;font-size:18px}
+.stars .off{color:#e2dccb}
+.lv{background:#f4efe3;border-radius:999px;padding:2px 12px;font-size:15px}
+.qtext{font-family:var(--display);font-weight:700;font-size:clamp(21px,3.4vw,28px);line-height:1.55;color:var(--ink);margin-bottom:20px}
+.choices{display:grid;gap:12px}
+.choice{
+  display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:12px;text-align:left;
+  border:3px solid var(--line);background:#fffdf8;border-radius:18px;padding:14px 16px;font-size:clamp(18px,2.6vw,22px);font-weight:700;line-height:1.5;color:var(--ink);
+  transition:transform .12s,border-color .15s,background .15s,box-shadow .15s;
+}
+.choice .k{
+  width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:20px;
+  background:#f1ecdf;color:var(--muted);
+}
+.choice:hover:not(:disabled){transform:translateY(-2px);border-color:var(--sun);box-shadow:0 8px 18px rgba(246,166,35,.18)}
+.choice:disabled{cursor:default}
+.choice.correct{border-color:var(--ok);background:#edf9f2;animation:glow .7s ease}
+.choice.correct .k{background:var(--ok);color:#fff}
+.choice.wrong{border-color:var(--ng);background:#fdeeeb;animation:shake .5s ease}
+.choice.wrong .k{background:var(--ng);color:#fff}
+.choice.dim{opacity:.45}
+@keyframes glow{0%{box-shadow:0 0 0 0 rgba(47,158,109,.6)}100%{box-shadow:0 0 0 22px rgba(47,158,109,0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+
+.verdict{
+  position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;
+  font-family:var(--display);font-weight:900;font-size:clamp(60px,14vw,120px);opacity:0;
+}
+.verdict.show{animation:stamp .9s ease forwards}
+.verdict.ok{color:var(--ok)}.verdict.ng{color:var(--ng)}
+@keyframes stamp{0%{opacity:0;transform:scale(2.2) rotate(-8deg)}25%{opacity:.95;transform:scale(1) rotate(-8deg)}70%{opacity:.95}100%{opacity:0;transform:scale(1.1) rotate(-8deg)}}
+
+.expl{display:none;gap:12px}
+.expl.on{display:grid;animation:fadein .4s ease}
+.expl .head{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:900;font-size:22px}
+.expl .head.ok{color:var(--ok)}.expl .head.ng{color:var(--ng)}
+.expl .pts{margin-left:auto;font-size:18px;color:var(--sun-deep);font-family:var(--display)}
+.expl .ans{background:#f4fbf7;border-left:6px solid var(--ok);border-radius:10px;padding:10px 14px;font-weight:700;font-size:19px}
+.expl .why{font-size:clamp(17px,2.3vw,19px);line-height:1.8}
+.expl .src{font-size:15px;color:var(--muted)}
+.expl .src::before{content:"出典：";font-weight:700}
+.next{justify-self:end}
+
+/* ---------- result ---------- */
+.result{text-align:center;display:grid;gap:14px;justify-items:center}
+.result .rank-ic{font-size:clamp(64px,14vw,100px);line-height:1;animation:bounce .9s cubic-bezier(.3,1.6,.4,1) both}
+@keyframes bounce{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+.result .rank{font-size:clamp(28px,5.5vw,44px);color:var(--accent-deep)}
+.result .rank small{display:block;font-size:.45em;color:var(--muted);letter-spacing:.2em;margin-bottom:4px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%}
+@media (max-width:520px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.stats div{background:#fbf7ee;border-radius:16px;padding:12px 8px;display:grid;gap:2px}
+.stats .k{font-size:14px;color:var(--muted);font-weight:700}
+.stats .v{font-family:var(--display);font-size:clamp(24px,5vw,34px);font-weight:900;color:var(--ink);line-height:1.2}
+.newbest{color:#a35d00;background:#fff1cf;border-radius:999px;padding:6px 16px;font-weight:900;font-family:var(--display);animation:pop .6s ease 2}
+.badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 14px;font-weight:700;font-size:16px;
+  background:#fff;border:2px solid var(--line);color:var(--muted);
+}
+.badge.got{border-color:var(--gold);background:#fff8e1;color:#8a6200;animation:pop .5s ease}
+.badge .ic{font-size:22px}
+.msg{font-size:18px;color:var(--muted);max-width:32em}
+.actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.ghost{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:14px 26px;font-weight:700;font-size:18px;color:var(--muted)}
+.ghost:hover{border-color:var(--accent);color:var(--accent-deep)}
+.review{display:grid;gap:8px;text-align:left;width:100%}
+.review h3{font-size:20px;color:var(--muted);margin-top:8px;text-wrap:pretty}
+.rv{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;background:#fbf7ee;border-radius:14px;padding:10px 12px;font-size:16px}
+.rv .m{font-size:22px;line-height:1.2}
+.rv .q{font-weight:700}
+.rv .a{color:var(--muted)}
+
+footer{text-align:center;font-size:14px;color:var(--muted);padding-top:8px}
+footer a{color:var(--accent-deep)}
+
+/* ---------- fx ---------- */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:50}
+.flash{position:fixed;inset:0;pointer-events:none;z-index:40;opacity:0}
+.flash.ok{background:rgba(47,158,109,.18);animation:flash .5s ease}
+.flash.ng{background:rgba(232,83,63,.18);animation:flash .5s ease}
+@keyframes flash{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.toast{
+  position:fixed;left:50%;bottom:18px;transform:translate(-50%,20px);z-index:70;max-width:min(92vw,560px);
+  background:#2b2a26;color:#fff;border-radius:14px;padding:12px 18px;font-size:16px;line-height:1.5;box-shadow:0 10px 30px rgba(0,0,0,.25);
+  opacity:0;transition:.3s;pointer-events:none;
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.float{
+  position:fixed;z-index:60;pointer-events:none;font-family:var(--display);font-weight:900;font-size:34px;color:var(--sun-deep);
+  text-shadow:0 2px 0 #fff;animation:floatup 1s ease forwards;
+}
+@keyframes floatup{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,-90px)}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="logo">🍙</span>もったいないクイズ</div>
+    <div class="tools">
+      <button class="tbtn" id="btnSe" aria-pressed="true" title="効果音">🔔<span>効果音</span></button>
+      <div class="menuwrap">
+        <button class="tbtn" id="btnBgm" aria-pressed="true" aria-haspopup="menu" aria-expanded="false" title="音楽をえらぶ">🎵<span>音楽</span></button>
+        <div class="menu" id="bgmMenu" role="menu" hidden>
+          <button role="menuitemradio" data-t="uke">🎸 ウクレレ</button>
+          <button role="menuitemradio" data-t="jazz">☕ カフェジャズ</button>
+          <button role="menuitemradio" data-t="auto">🔀 おまかせ（ラウンドごと）</button>
+          <button role="menuitemradio" data-t="off">🔇 音楽を止める</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== タイトル ===== -->
+  <section class="screen on" id="s-title">
+    <div class="card hero">
+      <div class="emoji"><span>🥕</span><span>🍞</span><span>🍅</span></div>
+      <h1><small>FOOD LOSS QUIZ</small>フードロス 50問クイズ</h1>
+      <p class="lead">まだ食べられるのに捨てられる食べ物。4つの中から答えをえらんで、「もったいない」の理由を知ろう。</p>
+      <div class="best" id="bestBox" hidden>🏆 ベストスコア <b class="num" id="bestScore">0</b> 点 ／ 学習ずみ <b class="num" id="seenCount">0</b>/50 問</div>
+      <div class="opts">
+        <div class="lbl">1回にちょうせんする問題数</div>
+        <div class="seg" id="segN" role="group" aria-label="問題数">
+          <button data-n="10" aria-pressed="true">10問</button>
+          <button data-n="20" aria-pressed="false">20問</button>
+          <button data-n="50" aria-pressed="false">全50問</button>
+        </div>
+        <div class="lbl">BGM</div>
+        <div class="seg" id="segBgm" role="group" aria-label="BGM">
+          <button data-t="uke" aria-pressed="false">🎸 ウクレレ</button>
+          <button data-t="jazz" aria-pressed="false">☕ カフェジャズ</button>
+          <button data-t="auto" aria-pressed="true">🔀 おまかせ</button>
+        </div>
+      </div>
+      <button class="big" id="btnStart">スタート！</button>
+      <div class="howto">
+        <div><div class="ic">🎲</div><b>毎回ちがう問題</b>50問からランダムに出題。選択肢の順番も毎回かわります。</div>
+        <div><div class="ic">🔥</div><b>コンボでボーナス</b>連続正解すると得点がアップ。難しい問題ほど高得点。</div>
+        <div><div class="ic">🏅</div><b>称号とバッジ</b>結果に応じて称号がもらえます。全50問クリアをめざそう。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== クイズ ===== -->
+  <section class="screen" id="s-quiz">
+    <div class="hud">
+      <div class="row">
+        <div>第 <b class="num" id="qIdx">1</b> 問 ／ <span class="num" id="qTotal">10</span> 問</div>
+        <div class="combo" id="combo">🔥 <span id="comboN">0</span> コンボ</div>
+        <div class="score">SCORE <span class="num" id="score">0</span><small>点</small></div>
+        <button class="tbtn" id="btnQuit" title="タイトルにもどる">⏏<span>やめる</span></button>
+      </div>
+      <div class="bar" aria-hidden="true"><i id="bar"></i></div>
+    </div>
+
+    <div class="card qcard" id="qcard">
+      <div class="qmeta">
+        <span class="qnum" id="qLabel">Q1</span>
+        <span><span class="stars" id="stars"></span> <span class="lv" id="lvName"></span></span>
+      </div>
+      <div class="qtext" id="qtext"></div>
+      <div class="choices" id="choices"></div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+
+    <div class="card expl" id="expl">
+      <div class="head" id="explHead"><span id="explIcon"></span><span id="explTitle"></span><span class="pts" id="explPts"></span></div>
+      <div class="ans">正解：<span id="explAns"></span></div>
+      <div class="why" id="explWhy"></div>
+      <div class="src" id="explSrc"></div>
+      <button class="big green next" id="btnNext">つぎへ ▶</button>
+    </div>
+  </section>
+
+  <!-- ===== 結果 ===== -->
+  <section class="screen" id="s-result">
+    <div class="card result">
+      <div class="rank-ic" id="rankIc">🏆</div>
+      <h2 class="rank" id="rankName"><small>RESULT</small></h2>
+      <div class="newbest" id="newBest" hidden>✨ ベストスコア更新！</div>
+      <div class="stats">
+        <div><span class="k">スコア</span><span class="v num" id="rScore">0</span></div>
+        <div><span class="k">正解</span><span class="v num" id="rCorrect">0/10</span></div>
+        <div><span class="k">最大コンボ</span><span class="v num" id="rCombo">0</span></div>
+      </div>
+      <div class="badges" id="badges"></div>
+      <p class="msg" id="rMsg"></p>
+      <div class="actions">
+        <button class="big" id="btnAgain">もう一回！</button>
+        <button class="ghost" id="btnTitle">タイトルへ</button>
+      </div>
+      <div class="review" id="review"></div>
+    </div>
+  </section>
+
+  <footer>
+    数値は農林水産省・消費者庁・環境省・FAO・UNEP などの公表資料にもとづきます（各解説に出典を記載）。
+    BGM は Suno で制作（Pro プラン）。効果音はブラウザ内で合成。
+    姉妹アプリ：<a href="../foodloss/index.html">品切れか廃棄か</a>
+  </footer>
+</div>
+<canvas id="fx"></canvas>
+<div class="flash" id="flash"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   問題データ（50問）
+   q: 問題文  c: 選択肢（先頭が正解。表示時にシャッフル）
+   lv: 1=やさしい 2=ふつう 3=むずかしい
+   why: 解説  src: 出典
+   ========================================================= */
+const QUESTIONS = [
+{lv:1,q:"「食品ロス（フードロス）」とは、どんな食品のことでしょう？",
+ c:["まだ食べられるのに捨てられてしまう食品","魚の骨や卵のからなど、食べられない部分","賞味期限が切れた食品だけ","天候不順で不作になった農作物"],
+ why:"食品ロスは「本来食べられるのに捨てられる食品」を指します。骨・皮・からなど食べられない部分は含みません。食べられない部分まで含めた全体は「食品廃棄物」と呼び、区別されています。",
+ src:"農林水産省「食品ロスとは」"},
+{lv:1,q:"「賞味期限」の意味として正しいものはどれでしょう？",
+ c:["おいしく食べられる期限","安全に食べられる期限","お店で売ってよい期限","食品がつくられた日"],
+ why:"賞味期限は、決められた方法で保存したときに「品質が保たれ、おいしく食べられる」期限です。期限を過ぎてもすぐに食べられなくなるわけではありません。一方「消費期限」は安全に食べられる期限で、こちらは守る必要があります。",
+ src:"消費者庁「消費期限と賞味期限」"},
+{lv:1,q:"「消費期限」が表示されているのは、次のうちどれでしょう？",
+ c:["お弁当やサンドイッチ","カップめん","缶づめ","スナック菓子"],
+ why:"消費期限は、おおむね5日以内に品質が急速に悪くなる食品につけられます。お弁当・サンドイッチ・生めん・生菓子などです。カップめんや缶づめのように長もちする食品には賞味期限がつきます。",
+ src:"消費者庁「消費期限と賞味期限」"},
+{lv:1,q:"次のうち、「食品ロス」にあたるのはどれでしょう？",
+ c:["未開封のまま賞味期限が切れて捨てた缶づめ","焼き魚の骨","バナナの皮","卵のから"],
+ why:"未開封の缶づめは本来食べられる食品なので、捨てれば食品ロスです。骨・皮・からはもともと食べられない部分なので、食品ロスには数えません（食品廃棄物には含まれます）。",
+ src:"農林水産省「食品ロスとは」"},
+{lv:1,q:"買い物のとき、食品ロスを減らすために効果的なのはどれでしょう？",
+ c:["出かける前に冷蔵庫の中身を確認する","安いものは全部まとめ買いする","冷蔵庫を見ずに思いつきで買う","賞味期限が近いものはすぐ捨てる"],
+ why:"家庭の食品ロスの大きな原因は「うっかり買いすぎ」と「あるのを忘れる」ことです。冷蔵庫を確認し、必要な分だけ買えば、使い切れずに捨てる食品を減らせます。",
+ src:"消費者庁「家庭での食品ロス削減」"},
+{lv:1,q:"スーパーやコンビニで呼びかけられている「てまえどり」とは、どんな行動でしょう？",
+ c:["すぐ食べる商品は、棚の手前（期限が近いもの）から取ること","商品を棚の手前にならべる作業","レジに近い商品だけを買うこと","手のとどく高さの商品だけを買うこと"],
+ why:"棚の手前には期限が近い商品がならんでいます。すぐ食べるなら手前から取ることで、期限切れで捨てられる商品を減らせます。2021年から消費者庁・農林水産省・環境省とコンビニ各社が共同で呼びかけています。",
+ src:"消費者庁・農林水産省・環境省「てまえどり」（2021年）"},
+{lv:1,q:"「食品ロス削減の日」は、いつでしょう？",
+ c:["10月30日","4月22日","6月5日","12月25日"],
+ why:"食品ロス削減推進法で、10月を「食品ロス削減月間」、10月30日を「食品ロス削減の日」と定めています。ちなみに4月22日はアースデイ、6月5日は環境の日です。",
+ src:"食品ロス削減推進法（2019年）"},
+{lv:1,q:"日本の食品ロスを国民1人あたりにすると、1日どのくらいの量になるでしょう？",
+ c:["おにぎり約1個分（約100g）","米つぶ約10つぶ","食パン約1斤","お弁当約3個分"],
+ why:"2023年度の食品ロス量は約464万トン。これを国民1人あたりに直すと、毎日おにぎり約1個分（約102g）を捨てている計算になります。1年間では1人あたり約37kgです。",
+ src:"農林水産省・環境省「食品ロス量（令和5年度推計値）」"},
+{lv:1,q:"外食のとき、食べ残しを減らす工夫として適切なのはどれでしょう？",
+ c:["食べきれる量を考えて注文する","とりあえず大盛りを頼む","好きなものだけ食べて残す","残った料理はすぐ捨てる"],
+ why:"外食産業の食品ロスの多くは食べ残しです。小盛りや少なめを選ぶ、シェアする、食べきれる量だけ注文するといった工夫で減らせます。",
+ src:"農林水産省「外食時の食品ロス削減」"},
+{lv:1,q:"曲がったキュウリなど「規格外」の野菜の味は、ふつうの野菜とくらべてどうでしょう？",
+ c:["形がちがうだけで、味や栄養はほぼ同じ","味がかなり悪い","食べると体によくない","栄養がほとんどない"],
+ why:"規格は、箱づめや店頭でならべやすいように「形や大きさ」を決めたものです。味や栄養はほとんど変わりません。規格外というだけで捨てられる野菜を減らすため、規格外品の販売や加工が広がっています。",
+ src:"農林水産省「規格外農産物の活用」"},
+{lv:1,q:"冷蔵庫に入れる食品の量は、どのくらいが目安とされているでしょう？",
+ c:["7割くらい","ぎっしり満杯","2割以下","どれだけ入れても同じ"],
+ why:"詰めすぎると冷気が回らず、冷えにくくなって電気代も増えます。さらに奥の食品が見えなくなり、期限切れで捨てるもとになります。7割程度にして中身が見えるようにするのがおすすめです。",
+ src:"環境省・消費者庁「食品ロス削減のための保存の工夫」"},
+{lv:1,q:"まだ食べられるのに捨てられそうな食品を企業などから集め、必要な人や施設に届ける活動を何というでしょう？",
+ c:["フードバンク","フードコート","フードトラック","フードファイト"],
+ why:"フードバンクは、包装の傷や印字ミスなどで売れなくなった食品を、福祉施設や生活に困っている人へ無償で届ける活動です。1967年にアメリカで始まり、日本では2000年ごろから活動が始まりました。",
+ src:"農林水産省「フードバンク」"},
+{lv:1,q:"レストランで食べきれなかった料理を持ち帰るための容器を何というでしょう？",
+ c:["ドギーバッグ（mottECO）","エコバッグ","ランチバッグ","ビニール袋"],
+ why:"ドギーバッグは持ち帰り用の容器です。日本では環境省などが「mottECO（もってこ）」という名前で普及を進めています。お店の了承を得たうえで、持ち帰った料理は自己責任で早めに食べることが大切です。",
+ src:"環境省「mottECO（もってこ）」"},
+{lv:1,q:"家庭の食品ロスのうち「直接廃棄」とは、どんな捨て方でしょう？",
+ c:["手をつけずに、そのまま捨てること","食べ残しを捨てること","野菜の皮をむきすぎること","生ごみを直接燃やすこと"],
+ why:"直接廃棄は、買ったものの使わないまま、未開封や未調理で捨ててしまうことです。「買いすぎ」「奥にしまって忘れた」が主な原因で、家庭の食品ロスの大きな割合を占めます。",
+ src:"消費者庁「家庭系食品ロスの内訳」"},
+{lv:1,q:"家庭の食品ロスのうち「過剰除去」とは、どんなことでしょう？",
+ c:["野菜の皮や葉など、食べられる部分まで取りすぎて捨てること","賞味期限が過ぎた食品を捨てること","冷蔵庫の中身を全部捨てること","食べすぎて体調をくずすこと"],
+ why:"過剰除去は、皮を厚くむきすぎたり、キャベツの外葉や大根の葉など食べられる部分を捨ててしまうことです。皮ごと調理する、葉も料理に使うといった工夫で減らせます。",
+ src:"消費者庁「家庭系食品ロスの内訳」"},
+{lv:1,q:"未開封のポテトチップスの賞味期限が1日過ぎていました。どう考えるのが適切でしょう？",
+ c:["品質はほぼ変わらないので、見た目やにおいを確かめて食べられる","必ず捨てなければならない","法律で食べてはいけないと決まっている","食べると必ず食中毒になる"],
+ why:"賞味期限は「おいしさの目安」であり、安全に関わる消費期限とはちがいます。多くの食品では期限後もすぐに食べられなくなるわけではありません。ただし、開封後や保存状態が悪い場合は別なので、五感で確かめましょう。",
+ src:"消費者庁「消費期限と賞味期限」"},
+{lv:1,q:"ご飯がたくさん余ったとき、食品ロスを防ぐ上手な保存方法はどれでしょう？",
+ c:["小分けにして冷凍する","常温でふたをして置いておく","炊飯器で何日も保温する","水につけておく"],
+ why:"ご飯は温かいうちに小分けにして冷凍すると、味を保ったまま長期間保存できます。長時間の保温は味が落ち、常温放置は傷みの原因になります。",
+ src:"農林水産省「食材を無駄にしない保存方法」"},
+{lv:1,q:"食品ロスが出ると、食べ物以外にも無駄になるものがあります。それは何でしょう？",
+ c:["食べ物をつくり、運ぶのに使った水・エネルギー・人の労力","何も無駄にならない","食器だけ","お店の看板"],
+ why:"食べ物は、農地・水・肥料・燃料・働く人の時間などを使ってつくられ、運ばれてきます。捨てられると、それらすべてが無駄になります。さらにごみとして処理するために追加のお金とエネルギーもかかります。",
+ src:"FAO「Food Wastage Footprint」（2013年）"},
+{lv:2,q:"日本の食品ロスの量（2023年度推計）は、年間およそどのくらいでしょう？",
+ c:["約460万トン","約46万トン","約4,600万トン","約4.6万トン"],
+ why:"2023年度の食品ロス量は464万トンと推計されています。内訳は、事業系（製造・流通・外食など）が231万トン、家庭系が233万トンです。10トントラック約46万台分に相当する量です。",
+ src:"農林水産省・環境省「食品ロス量（令和5年度推計値）」"},
+{lv:2,q:"日本の食品ロスのうち、家庭から出る分はどのくらいの割合でしょう？",
+ c:["約半分","約1割","約9割","ほぼゼロ"],
+ why:"2023年度推計では、家庭系233万トン・事業系231万トンと、ほぼ半分ずつです。食品ロスは企業だけの問題ではなく、一人ひとりの家庭の行動が大きく関わっています。",
+ src:"農林水産省・環境省「食品ロス量（令和5年度推計値）」"},
+{lv:2,q:"世界で生産された食料のうち、捨てられている割合はどのくらいと推計されているでしょう？",
+ c:["約3分の1","約100分の1","約10分の1","約3分の2"],
+ why:"FAO（国連食糧農業機関）の2011年の報告では、世界で生産される食料の約3分の1、年間約13億トンが捨てられていると推計されました。この報告が世界的に食品ロス問題への関心を高めるきっかけになりました。",
+ src:"FAO「Global Food Losses and Food Waste」（2011年）"},
+{lv:2,q:"世界で飢餓（じゅうぶんな食べ物が得られない状態）に苦しむ人は、およそ何人でしょう？",
+ c:["約7億人","約700万人","約7,000万人","約70億人"],
+ why:"国連の報告では、2023年に約7.3億人（推計幅7.1〜7.6億人）が飢餓の状態にあるとされています。世界人口の約11人に1人にあたります。一方で世界では大量の食料が捨てられており、この不均衡が問題とされています。",
+ src:"FAO ほか「世界の食料安全保障と栄養の現状 2024」"},
+{lv:2,q:"SDGs（持続可能な開発目標）で、食品ロスの半減が目標に入っているのはどれでしょう？",
+ c:["目標12「つくる責任 つかう責任」","目標4「質の高い教育をみんなに」","目標7「エネルギーをみんなに そしてクリーンに」","目標14「海の豊かさを守ろう」"],
+ why:"目標12のターゲット12.3で「2030年までに小売・消費レベルの1人あたり食料廃棄を半減させ、生産・供給の過程での食料損失を減らす」と定められています。食品ロスは世界共通の課題です。",
+ src:"国連「持続可能な開発目標（SDGs）」ターゲット12.3"},
+{lv:2,q:"日本の食品ロス削減を進めるための法律「食品ロス削減推進法」ができたのは、いつでしょう？",
+ c:["2019年","1999年","2009年","2024年"],
+ why:"食品ロス削減推進法は2019年5月に成立し、同年10月に施行されました。国・自治体・事業者・消費者それぞれの役割を定め、「国民運動」として食品ロス削減に取り組むことをうたっています。",
+ src:"消費者庁「食品ロスの削減の推進に関する法律」"},
+{lv:2,q:"宴会での食べ残しを減らす「3010（さんまるいちまる）運動」とは、どんな運動でしょう？",
+ c:["最初の30分と最後の10分は席で料理を楽しむ","30人以上で10品以上を注文する","30分以内に食べ終える","料理の3割を残して1割を捨てる"],
+ why:"乾杯後の30分と、お開き前の10分は席について料理を楽しもう、という呼びかけです。宴会では席を立って話しているうちに料理が残りがちです。2011年に長野県松本市で始まり、全国に広がりました。",
+ src:"長野県松本市「残さず食べよう！30・10運動」"},
+{lv:1,q:"食品ロスが環境に与える影響として、正しいものはどれでしょう？",
+ c:["つくる・運ぶ・捨てる過程で温室効果ガスが出る","環境への影響はまったくない","燃やすと空気がきれいになる","海面が下がる"],
+ why:"食べ物をつくる段階（農業・畜産）、運ぶ段階（輸送）、捨てる段階（焼却・埋め立て）のそれぞれで温室効果ガスが排出されます。捨てられた食品の分は、環境負荷だけが残る無駄になります。",
+ src:"UNEP「Food Waste Index Report」"},
+{lv:2,q:"生ごみを燃やして処理するときに、問題になることは何でしょう？",
+ c:["水分が多くて燃えにくく、多くのエネルギーが必要になる","燃えすぎて危険","燃やすとお金になる","特に問題はない"],
+ why:"生ごみの約8割は水分です。水分の多いごみは燃えにくく、燃やすのに多くの燃料と費用がかかります。食品ロスを減らすことは、ごみ処理の負担を減らすことにもつながります。",
+ src:"環境省「一般廃棄物処理実態調査」ほか"},
+{lv:2,q:"食品リサイクル法で、食品廃棄物の再生利用として推奨されているのはどれでしょう？",
+ c:["家畜のえさや肥料にする","海に流す","土に埋めるだけにする","そのまま燃やす"],
+ why:"食品リサイクル法では、まず「発生をおさえる」ことが最優先で、次に飼料化・肥料化などの再生利用、それが難しければ熱回収、最後に減量、という優先順位が決められています。",
+ src:"農林水産省「食品リサイクル法」"},
+{lv:2,q:"日本の食料自給率（カロリーベース、2023年度）は、およそどのくらいでしょう？",
+ c:["約38％","約8％","約68％","約98％"],
+ why:"日本の食料自給率はカロリーベースで38％（2023年度）です。食べ物の6割以上を輸入にたよりながら、年間460万トン以上を捨てているのが現状で、この矛盾が食品ロス問題の大きな論点です。",
+ src:"農林水産省「食料自給率（令和5年度）」"},
+{lv:2,q:"家庭で余っている食品を持ち寄り、フードバンクなどに寄付する活動を何というでしょう？",
+ c:["フードドライブ","フードバンク","フードコート","フードデリバリー"],
+ why:"フードドライブは、家庭で使い切れない未開封の食品を学校や職場、店頭などに持ち寄って集め、フードバンクや福祉施設へ寄付する活動です。フードバンクは食品を「受け取り届ける団体」、フードドライブは「集める活動」です。",
+ src:"環境省「フードドライブ実施の手引き」"},
+{lv:2,q:"節分の恵方巻やクリスマスケーキの大量廃棄が問題になったのは、なぜでしょう？",
+ c:["売り切れをさけるため、需要より多くつくって売れ残るから","味が悪くて売れないから","法律で禁止されたから","冷凍できないから"],
+ why:"季節商品は1日だけ大量に売れ、翌日にはほとんど売れません。品切れをおそれて多めにつくると、大量の売れ残りが出ます。2019年から農林水産省が需要に見合った販売を業界に呼びかけ、予約販売などが広がりました。",
+ src:"農林水産省「季節食品の需要に見合った販売の推進」（2019年）"},
+{lv:2,q:"世界の食品廃棄のうち、最も多くの量が出ている場所はどこでしょう？（UNEP 2024年報告）",
+ c:["家庭","レストランなどの外食","スーパーなどの小売店","農場"],
+ why:"UNEP（国連環境計画）の2024年の報告では、2022年に世界で約10.5億トンの食品が廃棄され、そのうち約6割が家庭から出ています。外食が約28％、小売が約12％です。家庭の行動が世界的にもカギになります。",
+ src:"UNEP「Food Waste Index Report 2024」"},
+{lv:2,q:"コンビニがお弁当を「多めに」仕入れると、どうなるでしょう？",
+ c:["品切れは減るが、売れ残り（廃棄）が増える","品切れも廃棄も両方減る","廃棄が減る","何も変わらない"],
+ why:"仕入れを増やせば品切れは減りますが、売れなければ廃棄になります。逆に減らせば廃棄は減りますが、品切れで買えないお客さんが増えます。この「品切れか廃棄か」のトレードオフが、お店の食品ロスの根本にあります。",
+ src:"新聞売り子問題（在庫管理の基本モデル）"},
+{lv:2,q:"天気や曜日、近くのイベントなどから「売れる数」をより正確に予測できるようになると、どうなるでしょう？",
+ c:["廃棄も品切れも、両方を減らせる","廃棄だけが増える","品切れだけが増える","予測は食品ロスと関係がない"],
+ why:"予測のブレが小さくなれば、「多めに仕入れて保険をかける」必要が減ります。その結果、廃棄と品切れの両方を減らせます。AIを使った需要予測が食品ロス対策として注目されるのはこのためです。",
+ src:"農林水産省「需要予測の高度化による食品ロス削減」"},
+{lv:2,q:"食品の「3R」のうち、食品ロス対策として最も優先されるのはどれでしょう？",
+ c:["リデュース（そもそも出さない）","リサイクル（えさや肥料にする）","リユース（別の用途で使う）","どれも同じ優先度"],
+ why:"えさや肥料へのリサイクルも大切ですが、つくる・運ぶ段階で使った資源は戻ってきません。だから「そもそも出さない（リデュース）」が最優先です。食品リサイクル法でも発生抑制が最上位に置かれています。",
+ src:"農林水産省「食品リサイクル法」（発生抑制の優先）"},
+{lv:2,q:"賞味期限内なのに食品が傷んでいることがあります。なぜでしょう？",
+ c:["開封後や、表示とちがう方法で保存した場合は期限が保証されないから","賞味期限の表示がまちがっているから","冷蔵庫に入れると期限が短くなるから","偶然で、理由はない"],
+ why:"期限表示は「未開封で、表示された保存方法を守った場合」のものです。開封すると空気や菌が入り、劣化が早まります。「要冷蔵」の食品を常温に置くのも同じです。表示を守って保存し、開封後は早めに食べましょう。",
+ src:"消費者庁「消費期限と賞味期限」"},
+{lv:2,q:"売れ残りそうな料理や食品を、アプリなどでお得に買えるようにする仕組みを何というでしょう？",
+ c:["フードシェアリング","フードコート","フードマイレージ","フードチェーン"],
+ why:"フードシェアリングは、閉店間際に余りそうな料理や、規格外の食材を、必要な人にアプリなどでつなぐ仕組みです。お店は廃棄を減らして売上を得られ、買う人は安く手に入る、双方に利点があります。",
+ src:"消費者庁「食品ロス削減の取組事例」"},
+{lv:3,q:"日本の食品ロス削減目標は「2030年度までに2000年度の量から半減」です。基準となる2000年度の食品ロス量はどのくらいでしょう？",
+ c:["約980万トン","約98万トン","約500万トン","約2,000万トン"],
+ why:"2000年度の食品ロスは980万トン（事業系547万トン、家庭系433万トン）でした。半減目標の489万トンは2022年度に達成されたため、2025年に事業系は「60％削減（219万トン）」へと目標が引き上げられました。",
+ src:"消費者庁「食品ロスの削減の推進に関する基本方針」（2025年改定）"},
+{lv:3,q:"食品業界の「3分の1ルール」とは、どんな商慣習でしょう？",
+ c:["賞味期限の3分の1が過ぎるまでに、小売店へ納品しなければならない","商品の3分の1は必ず廃棄する","3分の1の値段で販売する","賞味期限を3分の1に短くする"],
+ why:"製造日から賞味期限までの期間を3等分し、最初の3分の1までに納品、次の3分の1までに販売する慣習です。期限がまだ十分残っていても納品できず、返品や廃棄になる原因でした。現在は「2分の1ルール」への緩和が進んでいます。",
+ src:"農林水産省「納品期限の見直し（食品ロス削減のための商慣習見直し）」"},
+{lv:3,q:"世界の温室効果ガス排出量のうち、食品ロス・廃棄に由来する分はどのくらいと推計されているでしょう？",
+ c:["約8〜10％","約0.1％","約1％","約50％"],
+ why:"UNEPの推計では、世界の温室効果ガス排出の約8〜10％が、食べられずに捨てられた食品に由来します。これは航空業界全体の排出量を大きく上回ります。食品ロス削減は、気候変動対策としても重要です。",
+ src:"UNEP「Food Waste Index Report 2021」"},
+{lv:3,q:"もし「食品ロス・廃棄」を1つの国とみなすと、温室効果ガスの排出量は世界で何位になるでしょう？",
+ c:["中国・アメリカに次ぐ第3位","第1位","第10位くらい","第50位くらい"],
+ why:"FAOの2013年の報告では、捨てられた食品の生産・廃棄で出る温室効果ガスは年間約33億トン（CO2換算）で、国別にならべると中国・アメリカに次ぐ3番目の規模とされました。",
+ src:"FAO「Food Wastage Footprint: Impacts on Natural Resources」（2013年）"},
+{lv:3,q:"家庭から出る食品ロスを金額に直すと、4人家族で年間およそいくらになるでしょう？（京都市の推計）",
+ c:["約6万円","約600円","約6,000円","約60万円"],
+ why:"京都市の調査では、家庭で捨てられる食品を金額に換算すると、4人家族で年間約6万円になると推計されています。食品ロスは環境だけでなく、家計にとっても大きな損失です。",
+ src:"京都市「家庭ごみ細組成調査」、消費者庁資料"},
+{lv:3,q:"日本の卵のパックに書かれている賞味期限は、何の期限でしょう？",
+ c:["生で安全に食べられる期限（加熱すれば期限後もしばらく食べられる）","加熱しても食べられなくなる期限","からが割れやすくなる日","産卵した日"],
+ why:"日本の卵の賞味期限は「生で食べられる期限」として設定されています。期限を過ぎた卵は、じゅうぶんに加熱すれば、しばらくは食べられます（ひび割れがなく冷蔵保存の場合）。捨てる前に加熱調理を考えましょう。",
+ src:"日本卵業協会「たまごの賞味期限」、農林水産省"},
+{lv:3,q:"国連が定めた「国際食料ロス・廃棄啓発デー」は、いつでしょう？",
+ c:["9月29日","1月1日","3月11日","11月11日"],
+ why:"2019年の国連総会で9月29日が「International Day of Awareness of Food Loss and Waste」と定められ、2020年から世界で啓発活動が行われています。SDGsの目標12.3達成に向けた取り組みの一つです。",
+ src:"国連「International Day of Awareness of Food Loss and Waste」"},
+{lv:3,q:"日本の事業系食品ロス（2022年度推計）のうち、最も量が多い業種はどれでしょう？",
+ c:["食品製造業","食品卸売業","外食産業","食品小売業"],
+ why:"2022年度の事業系236万トンの内訳は、食品製造業117万トン、外食産業60万トン、食品小売業49万トン、食品卸売業10万トンです。製造段階では、規格外品や納品期限切れ、製造ミスなどで多くのロスが出ています。",
+ src:"農林水産省「食品ロス量（令和4年度推計値）」"},
+{lv:3,q:"賞味期限の表示を「年月日」から「年月」に変える動きがあります。その主なねらいは何でしょう？",
+ c:["日付ごとの細かい管理で生じる返品・廃棄を減らすため","消費者に期限を気にさせないため","印刷代を安くするため","賞味期限を長く見せるため"],
+ why:"「年月日」表示だと、1日でも古い商品は納品できないなど、日付単位で細かく管理する必要があり、返品や廃棄の原因になっていました。賞味期限が長い食品を「年月」表示にすると、物流や在庫の管理が楽になり、ロスが減ります。",
+ src:"農林水産省「賞味期限の年月表示化」"},
+{lv:3,q:"途上国と先進国では、食品ロスが出る「段階」にちがいがあります。正しいのはどれでしょう？",
+ c:["途上国は収穫後の貯蔵・輸送段階、先進国は消費段階で多い","途上国も先進国も、消費段階だけで出る","途上国では食品ロスは出ない","先進国では生産段階だけで出る"],
+ why:"途上国では、冷蔵設備や道路が不十分なため、収穫後から市場に届くまでに傷んで失われる分が多くなります。先進国では、店頭や家庭で「食べられるのに捨てる」分が多くなります。対策の重点は国によって異なります。",
+ src:"FAO「Global Food Losses and Food Waste」（2011年）"},
+{lv:3,q:"国際的な用語では「フードロス」と「フードウェイスト」を区別します。正しい使い分けはどれでしょう？",
+ c:["フードロスは生産・流通段階、フードウェイストは小売・消費段階での廃棄","フードロスは家庭、フードウェイストは工場での廃棄","どちらも同じ意味","フードロスは食べ残し、フードウェイストは皮や骨"],
+ why:"FAOなどの国際的な定義では、収穫から流通までの段階で失われるものを「フードロス」、小売店や飲食店・家庭で捨てられるものを「フードウェイスト」と呼びます。日本語の「食品ロス」はこの両方を合わせた意味で使われています。",
+ src:"FAO「The State of Food and Agriculture 2019」"},
+{lv:3,q:"世界の1人あたり食品廃棄量（家庭・外食・小売の合計）は、年間およそどのくらいでしょう？（UNEP 2024年報告）",
+ c:["約130kg","約13kg","約1.3kg","約1,300kg"],
+ why:"UNEPの2024年の報告では、2022年に世界で1人あたり年間約132kgの食品が廃棄されたと推計されています。うち家庭からが約79kgです。国の豊かさにかかわらず、家庭の廃棄量は世界的に大きな差がないことも分かっています。",
+ src:"UNEP「Food Waste Index Report 2024」"},
+{lv:3,q:"農林水産省の食品ロス削減国民運動のロゴマーク・キャラクターの名前はどれでしょう？",
+ c:["ろすのん","ごみぞう","もったいくん","のこさん"],
+ why:"「ろすのん」は、食品ロス（loss）を「なくす（non）」という意味で名づけられた、農林水産省の食品ロス削減国民運動「NO-FOODLOSS PROJECT」のキャラクターです。2013年に登場し、食品ロス削減に取り組む企業や自治体が使えます。",
+ src:"農林水産省「NO-FOODLOSS PROJECT」"},
+];
+
+/* =========================================================
+   ユーティリティ
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const shuffle = a => { const r = a.slice(); for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; };
+const LS = {
+  get(k, d){ try { const v = localStorage.getItem("flq:" + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v){ try { localStorage.setItem("flq:" + k, JSON.stringify(v)); } catch {} }
+};
+const LV = { 1: { name: "やさしい", pts: 100 }, 2: { name: "ふつう", pts: 200 }, 3: { name: "むずかしい", pts: 300 } };
+const KEYS = ["A", "B", "C", "D"];
+
+/* =========================================================
+   サウンド
+   効果音: Web Audio で合成（外部ファイル不要）
+   BGM   : bgm/ の mp3 を 2 曲（読み込めない場合は合成 BGM に自動で切りかえ）
+   ========================================================= */
+const TRACKS = {
+  uke:  { file: "bgm/counting_with_a_ukulele.mp3", name: "ウクレレ" },
+  jazz: { file: "bgm/cafe_jazz_hop.mp3",           name: "カフェジャズ" },
+};
+const BGM_VOL = 0.35;
+const Sound = (() => {
+  let ctx = null, master = null, seGain = null, bgmGain = null;
+  let seOn = LS.get("se", true), bgmOn = LS.get("bgm", true);
+  let bgmTimer = null, bgmStep = 0, bgmNext = 0, bgmPlaying = false; // 合成 BGM 用
+  let trackPref = LS.get("track", "auto");   // "uke" | "jazz" | "auto"
+  const audios = {};                          // key -> HTMLAudioElement
+  let curKey = null, fades = new Map(), useSynth = false;
+  function audioFor(key){
+    if (audios[key]) return audios[key];
+    const a = new Audio(TRACKS[key].file);
+    a.loop = true; a.preload = "auto"; a.volume = 0;
+    a.addEventListener("error", () => {
+      console.warn("BGM を読み込めません:", TRACKS[key].file, a.error && a.error.code);
+      if (curKey === key) { useSynth = true; label(); toast("BGM ファイル（bgm/ フォルダの mp3）を読み込めないため、かんたんな合成音楽で代用します。"); if (bgmOn) synthStart(); }
+    });
+    audios[key] = a; return a;
+  }
+  // 音量をなめらかに変える（終わったら onDone）
+  function fade(a, to, ms, onDone){
+    clearInterval(fades.get(a));
+    const from = a.volume, t0 = performance.now();
+    const id = setInterval(() => {
+      const p = Math.min(1, (performance.now() - t0) / ms);
+      a.volume = from + (to - from) * p;
+      if (p >= 1) { clearInterval(id); fades.delete(a); onDone && onDone(); }
+    }, 40);
+    fades.set(a, id);
+  }
+  function pickKey(){ return trackPref === "auto" ? (Math.random() < 0.5 ? "uke" : "jazz") : trackPref; }
+  function label(){
+    const btn = $("#btnBgm"); if (!btn) return;
+    btn.setAttribute("aria-pressed", bgmOn);
+    btn.innerHTML = bgmOn ? `🎵<span>${curKey && !useSynth ? TRACKS[curKey].name : "音楽 ON"}</span>` : `🔇<span>音楽 OFF</span>`;
+  }
+  let toastTimer = null;
+  function toast(msg, ms = 4500){ const t = $("#toast"); if (!t) return; t.textContent = msg; t.classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), ms); }
+  // 自動再生がブロックされたときは、次のタップ／キー操作で再試行する
+  let retryArmed = false;
+  function armRetry(){
+    if (retryArmed) return; retryArmed = true;
+    const h = () => { retryArmed = false; document.removeEventListener("pointerdown", h, true); document.removeEventListener("keydown", h, true); if (bgmOn) api.startBgm(); };
+    document.addEventListener("pointerdown", h, true); document.addEventListener("keydown", h, true);
+  }
+
+  function ensure(){
+    if (ctx) { if (ctx.state === "suspended") ctx.resume(); return true; }
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      master = ctx.createGain(); master.gain.value = 0.9; master.connect(ctx.destination);
+      seGain = ctx.createGain(); seGain.gain.value = seOn ? 1 : 0; seGain.connect(master);
+      bgmGain = ctx.createGain(); bgmGain.gain.value = 0; bgmGain.connect(master);
+      return true;
+    } catch { return false; }
+  }
+  function tone(freq, t0, dur, { type = "sine", vol = 0.25, dest = seGain, attack = 0.005, slideTo = null } = {}){
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t0);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(dest); o.start(t0); o.stop(t0 + dur + 0.05);
+  }
+  const N = { C4:261.63, D4:293.66, E4:329.63, G4:392.00, A4:440.00, C5:523.25, D5:587.33, E5:659.25, G5:783.99, A5:880.00, C6:1046.5, E6:1318.5, G6:1568.0, C3:130.81, G3:196.00, A3:220.00, F3:174.61, F4:349.23 };
+
+  const api = {
+    get seOn(){ return seOn; }, get bgmOn(){ return bgmOn; },
+    unlock(){ ensure(); },
+    click(){ if (!seOn || !ensure()) return; tone(N.C6, ctx.currentTime, 0.06, { type: "sine", vol: 0.12 }); },
+    correct(streak = 1){
+      if (!seOn || !ensure()) return;
+      const t = ctx.currentTime, seq = [N.C5, N.E5, N.G5, N.C6];
+      seq.forEach((f, i) => tone(f, t + i * 0.08, 0.28, { type: "triangle", vol: 0.22 }));
+      if (streak >= 3) [N.E6, N.G6].forEach((f, i) => tone(f, t + 0.36 + i * 0.08, 0.35, { type: "triangle", vol: 0.16 }));
+    },
+    wrong(){
+      if (!seOn || !ensure()) return;
+      const t = ctx.currentTime;
+      tone(180, t, 0.32, { type: "sawtooth", vol: 0.12, slideTo: 110 });
+      tone(120, t + 0.05, 0.32, { type: "square", vol: 0.05, slideTo: 80 });
+    },
+    fanfare(){
+      if (!seOn || !ensure()) return;
+      const t = ctx.currentTime;
+      const seq = [[N.C5,0],[N.C5,.12],[N.C5,.24],[N.C5,.36],[N.G4,.6],[N.A4,.72],[N.C5,.84],[N.A4,.96],[N.C5,1.08]];
+      seq.forEach(([f, d]) => tone(f, t + d, 0.24, { type: "triangle", vol: 0.22 }));
+      [N.C5, N.E5, N.G5].forEach(f => tone(f, t + 1.3, 1.2, { type: "triangle", vol: 0.14 }));
+      [N.E6].forEach(f => tone(f, t + 1.3, 1.2, { type: "sine", vol: 0.08 }));
+    },
+    setSe(on){ seOn = on; LS.set("se", on); if (seGain) seGain.gain.value = on ? 1 : 0; },
+    setBgm(on){ bgmOn = on; LS.set("bgm", on); if (!on) api.stopBgm(); label(); },
+    _debug(){ const a = curKey && audios[curKey]; return { curKey, useSynth, synth: bgmPlaying, playing: !!(a && !a.paused), volume: a ? a.volume : null, duration: a ? a.duration : null, othersPlaying: Object.keys(audios).filter(k => k !== curKey && !audios[k].paused) }; },
+    get track(){ return trackPref; },
+    // 曲の設定を変える。ON なら即座にその曲へ切りかえる（おまかせは今の曲を維持、未再生なら選ぶ）
+    setTrack(t){ trackPref = t; LS.set("track", t); if (bgmOn) switchTo(t === "auto" ? (curKey || pickKey()) : t); },
+    get failed(){ return useSynth; },
+    // ラウンド開始時に呼ぶ：曲を（必要なら新しく）選んで再生
+    // ラウンド開始時（newRound=true）は設定にしたがって曲を選び直す。それ以外は今の曲を続ける
+    startBgm(newRound = false){
+      if (!bgmOn) return;
+      const pref = () => (trackPref === "auto" ? pickKey() : trackPref);
+      switchTo(newRound ? pref() : (curKey || pref()));
+    },
+    stopBgm(){
+      Object.values(audios).forEach(a => { if (!a.paused) fade(a, 0, 500, () => a.pause()); });
+      synthStop();
+    },
+    pauseBgm(){ Object.values(audios).forEach(a => { if (!a.paused) a.pause(); }); synthStop(); },
+    resumeBgm(){ if (!bgmOn) return; if (useSynth) { synthStart(); return; } if (curKey && audios[curKey]) { const a = audios[curKey]; a.volume = BGM_VOL; const p = a.play(); if (p && p.catch) p.catch(() => {}); } },
+  };
+  // 指定した曲へ切りかえて再生する（別の曲が鳴っていればクロスフェード）
+  function switchTo(key){
+      if (!bgmOn) return;
+      if (useSynth) { curKey = key; label(); synthStart(); return; }
+      if (key !== curKey && curKey && audios[curKey]) { const old = audios[curKey]; fade(old, 0, 700, () => old.pause()); }
+      curKey = key; label();
+      const a = audioFor(key);
+      if (!a.paused && a.volume > 0) { fade(a, BGM_VOL, 400); return; }
+      const p = a.play();
+      if (p && p.catch) p.catch(err => {
+        console.warn("BGM を再生できません:", err && err.name, err && err.message);
+        if (err && err.name === "NotAllowedError") { toast("ブラウザが音の自動再生をブロックしました。画面をもう一度タップすると再生します。"); armRetry(); }
+        else if (err && err.name !== "AbortError") { useSynth = true; label(); toast("BGM ファイルを再生できないため、かんたんな合成音楽で代用します。"); synthStart(); }
+      });
+      fade(a, BGM_VOL, 1200);
+  }
+  // ---- 合成 BGM（mp3 が使えないときの予備）----
+  function synthStart(){
+      if (!bgmOn || !ensure() || bgmPlaying) return;
+      bgmPlaying = true; bgmStep = 0; bgmNext = ctx.currentTime + 0.1;
+      bgmGain.gain.cancelScheduledValues(ctx.currentTime);
+      bgmGain.gain.setValueAtTime(0, ctx.currentTime);
+      bgmGain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 1.2);
+      bgmTimer = setInterval(schedule, 120);
+  }
+  function synthStop(){
+      if (!bgmPlaying) return;
+      bgmPlaying = false; clearInterval(bgmTimer);
+      const t = ctx.currentTime; bgmGain.gain.cancelScheduledValues(t); bgmGain.gain.setValueAtTime(bgmGain.gain.value, t); bgmGain.gain.linearRampToValueAtTime(0, t + 0.5);
+  }
+  // ゆったりしたペンタトニックのループ（8分音符、112BPM、4小節）
+  const STEP = 60 / 112 / 2;
+  const MEL = [
+    N.C5, N.E5, N.G5, N.E5,  N.A5, N.G5, N.E5, N.D5,   N.C5, N.D5, N.E5, N.G5,  N.A5, N.G5, N.E5, N.C5,
+    N.A4, N.C5, N.E5, N.C5,  N.G5, N.E5, N.D5, N.C5,   N.D5, N.E5, N.G5, N.A5,  N.G5, N.E5, N.D5, N.C5,
+  ];
+  const BASS = [N.C3, N.A3, N.F3, N.G3];
+  function schedule(){
+    while (bgmNext < ctx.currentTime + 0.3) {
+      const i = bgmStep % MEL.length;
+      if (i % 8 === 0) tone(BASS[(i / 8) | 0], bgmNext, STEP * 7, { type: "triangle", vol: 0.16, dest: bgmGain, attack: 0.02 });
+      if (i % 2 === 0 || Math.random() < 0.6) tone(MEL[i], bgmNext, STEP * 1.6, { type: "sine", vol: 0.11, dest: bgmGain, attack: 0.02 });
+      if (i % 4 === 2) tone(MEL[i] / 2, bgmNext, STEP * 2, { type: "triangle", vol: 0.05, dest: bgmGain, attack: 0.03 });
+      bgmNext += STEP; bgmStep++;
+    }
+  }
+  return api;
+})();
+
+/* =========================================================
+   紙吹雪
+   ========================================================= */
+const FX = (() => {
+  const cv = $("#fx"), c = cv.getContext("2d");
+  let parts = [], raf = null;
+  function resize(){ cv.width = innerWidth * devicePixelRatio; cv.height = innerHeight * devicePixelRatio; cv.style.width = innerWidth + "px"; cv.style.height = innerHeight + "px"; c.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); }
+  addEventListener("resize", resize); resize();
+  const COLORS = ["#f6a623", "#2f9e6d", "#e8533f", "#3f8fd6", "#f2c14e", "#ff8a3d", "#7ad3a6"];
+  function burst(x, y, n = 80, spread = 9){
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, v = 3 + Math.random() * spread;
+      parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 4, g: 0.25 + Math.random() * .1, r: Math.random() * Math.PI, vr: (Math.random() - .5) * .3, w: 6 + Math.random() * 8, h: 4 + Math.random() * 6, col: COLORS[i % COLORS.length], life: 70 + Math.random() * 50 });
+    }
+    if (!raf) loop();
+  }
+  function rain(n = 160){
+    for (let i = 0; i < n; i++) parts.push({ x: Math.random() * innerWidth, y: -20 - Math.random() * innerHeight * .6, vx: (Math.random() - .5) * 2, vy: 2 + Math.random() * 3, g: 0.03, r: Math.random() * Math.PI, vr: (Math.random() - .5) * .2, w: 8 + Math.random() * 8, h: 5 + Math.random() * 6, col: COLORS[i % COLORS.length], life: 220 + Math.random() * 100 });
+    if (!raf) loop();
+  }
+  function loop(){
+    c.clearRect(0, 0, innerWidth, innerHeight);
+    parts = parts.filter(p => p.life > 0 && p.y < innerHeight + 40);
+    for (const p of parts) {
+      p.vy += p.g; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.r += p.vr; p.life--;
+      c.save(); c.translate(p.x, p.y); c.rotate(p.r); c.globalAlpha = Math.min(1, p.life / 30);
+      c.fillStyle = p.col; c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); c.restore();
+    }
+    raf = parts.length ? requestAnimationFrame(loop) : (c.clearRect(0, 0, innerWidth, innerHeight), null);
+  }
+  return { burst, rain };
+})();
+
+/* =========================================================
+   ゲーム本体
+   ========================================================= */
+const G = { n: 10, deck: [], list: [], i: 0, score: 0, correct: 0, streak: 0, maxStreak: 0, log: [], locked: false, lv3ok: 0, lv3n: 0 };
+
+function show(id){ document.querySelectorAll(".screen").forEach(s => s.classList.remove("on")); $(id).classList.add("on"); window.scrollTo({ top: 0, behavior: "smooth" }); }
+
+// 出題デッキ：50問を使い切るまで同じ問題が出ないようにする（localStorage に保持）
+function drawQuestions(n){
+  let deck = LS.get("deck", []);
+  const valid = deck.filter(i => i >= 0 && i < QUESTIONS.length);
+  if (valid.length < n) {
+    // 残りを使い切り、足りない分は新しくシャッフルした山から（重複を避けて）補う
+    const rest = shuffle(QUESTIONS.map((_, i) => i).filter(i => !valid.includes(i)));
+    deck = valid.concat(rest);
+  } else deck = valid;
+  const picked = deck.slice(0, n);
+  LS.set("deck", deck.slice(n));
+  return picked.map(i => {
+    const q = QUESTIONS[i];
+    const opts = shuffle(q.c.map((t, k) => ({ t, ok: k === 0 })));
+    return { ...q, id: i, opts };
+  });
+}
+
+function start(){
+  Sound.unlock(); Sound.click(); Sound.startBgm(true);
+  Object.assign(G, { list: drawQuestions(G.n), i: 0, score: 0, correct: 0, streak: 0, maxStreak: 0, log: [], locked: false, lv3ok: 0, lv3n: 0 });
+  $("#qTotal").textContent = G.n; $("#score").textContent = 0; updateCombo();
+  show("#s-quiz"); render();
+}
+
+function markSeen(id){ const seen = new Set(LS.get("seen", [])); seen.add(id); LS.set("seen", [...seen]); }
+// 途中でやめたとき：まだ表示していない問題を山の先頭にもどす
+function returnUnseen(){ const rest = G.list.slice(G.i + 1).map(q => q.id); if (rest.length) LS.set("deck", rest.concat(LS.get("deck", []).filter(i => !rest.includes(i)))); }
+
+function render(){
+  const q = G.list[G.i];
+  clearTimeout(G.explTimer);
+  markSeen(q.id);
+  $("#qIdx").textContent = G.i + 1; $("#qLabel").textContent = "Q" + (G.i + 1);
+  $("#bar").style.width = (G.i / G.n * 100) + "%";
+  $("#stars").innerHTML = [1, 2, 3].map(k => `<span class="${k <= q.lv ? "" : "off"}">★</span>`).join("");
+  $("#lvName").textContent = LV[q.lv].name + "・" + LV[q.lv].pts + "点";
+  $("#qtext").textContent = q.q;
+  const box = $("#choices"); box.innerHTML = "";
+  q.opts.forEach((o, k) => {
+    const b = document.createElement("button");
+    b.className = "choice"; b.innerHTML = `<span class="k">${KEYS[k]}</span><span>${o.t}</span>`;
+    b.addEventListener("click", () => answer(k, b));
+    box.appendChild(b);
+  });
+  $("#expl").classList.remove("on"); $("#verdict").className = "verdict";
+  const card = $("#qcard"); card.classList.remove("enter"); void card.offsetWidth; card.classList.add("enter");
+  G.locked = false;
+}
+
+function updateCombo(){
+  const el = $("#combo"); $("#comboN").textContent = G.streak;
+  el.classList.toggle("on", G.streak >= 2);
+  if (G.streak >= 2) { el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
+}
+
+function answer(k, btn){
+  if (G.locked) return; G.locked = true;
+  const q = G.list[G.i], ok = q.opts[k].ok;
+  const btns = [...document.querySelectorAll(".choice")];
+  btns.forEach(b => b.disabled = true);
+  const okIdx = q.opts.findIndex(o => o.ok);
+  if (q.lv === 3) G.lv3n++;
+  let gained = 0;
+  if (ok) {
+    G.streak++; G.maxStreak = Math.max(G.maxStreak, G.streak); G.correct++;
+    if (q.lv === 3) G.lv3ok++;
+    const mult = 1 + Math.min(G.streak - 1, 5) * 0.2; // 連続正解で最大 2.0倍
+    gained = Math.round(LV[q.lv].pts * mult);
+    G.score += gained;
+    btn.classList.add("correct");
+    btns.forEach((b, i) => { if (i !== k) b.classList.add("dim"); });
+    Sound.correct(G.streak);
+    const r = btn.getBoundingClientRect();
+    FX.burst(r.left + r.width / 2, r.top + r.height / 2, 60 + G.streak * 10);
+    floatText(r.left + r.width / 2, r.top, "+" + gained);
+    stamp("ok", "○"); flash("ok");
+  } else {
+    G.streak = 0;
+    btn.classList.add("wrong"); btns[okIdx].classList.add("correct");
+    btns.forEach((b, i) => { if (i !== k && i !== okIdx) b.classList.add("dim"); });
+    Sound.wrong(); stamp("ng", "×"); flash("ng");
+  }
+  animateScore(G.score); updateCombo();
+  G.log.push({ q, ok, picked: q.opts[k].t });
+  // 解説
+  const h = $("#explHead"); h.className = "head " + (ok ? "ok" : "ng");
+  $("#explIcon").textContent = ok ? "🎉" : "💡";
+  $("#explTitle").textContent = ok ? (G.streak >= 3 ? `せいかい！ ${G.streak}連続！` : "せいかい！") : "ざんねん…";
+  $("#explPts").textContent = ok ? `+${gained}点` : "";
+  $("#explAns").textContent = q.opts[okIdx].t;
+  $("#explWhy").textContent = q.why; $("#explSrc").textContent = q.src;
+  $("#btnNext").textContent = G.i + 1 >= G.n ? "けっかを見る ▶" : "つぎへ ▶";
+  G.explTimer = setTimeout(() => { $("#expl").classList.add("on"); $("#expl").scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 650);
+}
+
+function animateScore(target){
+  const el = $("#score"); const from = +el.textContent || 0; const t0 = performance.now();
+  (function step(t){ const p = Math.min(1, (t - t0) / 500); el.textContent = Math.round(from + (target - from) * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); })(t0);
+}
+function stamp(cls, txt){ const v = $("#verdict"); v.className = "verdict"; v.textContent = txt; void v.offsetWidth; v.classList.add(cls, "show"); }
+function flash(cls){ const f = $("#flash"); f.className = "flash"; void f.offsetWidth; f.classList.add(cls); }
+function floatText(x, y, txt){ const d = document.createElement("div"); d.className = "float"; d.textContent = txt; d.style.left = x + "px"; d.style.top = (y - 10) + "px"; document.body.appendChild(d); setTimeout(() => d.remove(), 1000); }
+
+function next(){
+  if (!$("#expl").classList.contains("on")) return; // 解説を表示してから進む
+  Sound.click();
+  if (G.i + 1 >= G.n) return finish();
+  G.i++; render();
+}
+
+const RANKS = [
+  { min: 1.0, ic: "🏆", name: "フードロス博士", msg: "全問正解！食品ロスの知識は完ぺきです。学んだことを、ぜひまわりの人にも伝えてください。" },
+  { min: 0.8, ic: "🥇", name: "食品ロスマスター", msg: "すばらしい！ほとんどの問題を理解しています。まちがえた問題の解説をもう一度読んで、博士をめざそう。" },
+  { min: 0.6, ic: "🥈", name: "もったいない上級者", msg: "よくできました。数字や制度の問題は、解説の「理由」をおさえるとぐっと覚えやすくなります。" },
+  { min: 0.4, ic: "🥉", name: "もったいない見習い", msg: "いいスタートです。賞味期限と消費期限のちがい、家庭でできる工夫から、もう一度チャレンジしてみよう。" },
+  { min: 0,   ic: "🌱", name: "これからが楽しみ", msg: "まずは知ることから。解説を読んでもう一回やってみると、きっと点数が上がります。" },
+];
+
+function finish(){
+  $("#bar").style.width = "100%";
+  const rate = G.correct / G.n;
+  const rank = RANKS.find(r => rate >= r.min);
+  $("#rankIc").textContent = rank.ic;
+  $("#rankName").innerHTML = `<small>RESULT</small>${rank.name}`;
+  $("#rScore").textContent = G.score; $("#rCorrect").textContent = `${G.correct}/${G.n}`; $("#rCombo").textContent = G.maxStreak;
+  $("#rMsg").textContent = rank.msg;
+
+  // ベストスコア（問題数ごと）
+  const bestKey = "best" + G.n, best = LS.get(bestKey, 0);
+  const isNew = G.score > best; if (isNew) LS.set(bestKey, G.score);
+  $("#newBest").hidden = !isNew;
+
+  // バッジ
+  const seen = LS.get("seen", []).length;
+  const badges = [
+    { ic: "💯", name: "パーフェクト", got: G.correct === G.n, tip: "全問正解" },
+    { ic: "🔥", name: "5コンボ", got: G.maxStreak >= 5, tip: "5問連続正解" },
+    { ic: "🧠", name: "難問ハンター", got: G.lv3n > 0 && G.lv3ok === G.lv3n, tip: "むずかしい問題を全部正解" },
+    { ic: "📚", name: "50問コンプリート", got: seen >= QUESTIONS.length, tip: "50問すべてに出会った" },
+  ];
+  $("#badges").innerHTML = badges.map(b => `<span class="badge ${b.got ? "got" : ""}" title="${b.tip}"><span class="ic">${b.got ? b.ic : "🔒"}</span>${b.name}</span>`).join("");
+
+  // ふりかえり（まちがえた問題）
+  const miss = G.log.filter(l => !l.ok);
+  $("#review").innerHTML = miss.length
+    ? `<h3>もう一度おさえておきたい問題（${miss.length}問）</h3>` + miss.map(l => `<div class="rv"><span class="m">💡</span><div><div class="q">${l.q.q}</div><div class="a">正解：${l.q.c[0]}</div></div></div>`).join("")
+    : `<h3>まちがえた問題はありません 🎉</h3>`;
+
+  show("#s-result");
+  Sound.fanfare();
+  setTimeout(() => FX.rain(rate >= 0.8 ? 220 : 120), 200);
+  if (isNew) setTimeout(() => FX.burst(innerWidth / 2, innerHeight * .3, 120, 12), 900);
+  refreshTitle();
+}
+
+function refreshTitle(){
+  const best = LS.get("best" + G.n, 0), seen = LS.get("seen", []).length;
+  $("#bestBox").hidden = !(best || seen);
+  $("#bestScore").textContent = best; $("#seenCount").textContent = seen;
+}
+
+/* ---------- イベント ---------- */
+$("#btnStart").addEventListener("click", start);
+$("#btnNext").addEventListener("click", next);
+$("#btnAgain").addEventListener("click", start);
+$("#btnTitle").addEventListener("click", () => { Sound.click(); show("#s-title"); refreshTitle(); });
+$("#btnQuit").addEventListener("click", () => { Sound.click(); clearTimeout(G.explTimer); returnUnseen(); show("#s-title"); refreshTitle(); });
+$("#segBgm").addEventListener("click", e => { const b = e.target.closest("button"); if (b) chooseBgm(b.dataset.t); });
+$("#segN").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  Sound.unlock(); Sound.click();
+  G.n = +b.dataset.n;
+  $("#segN").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+  LS.set("n", G.n); refreshTitle();
+});
+$("#btnSe").addEventListener("click", e => { const on = !Sound.seOn; Sound.unlock(); Sound.setSe(on); e.currentTarget.setAttribute("aria-pressed", on); if (on) Sound.click(); });
+// 音楽の設定 UI（ヘッダーのメニュー／タイトル画面の選択）を同じ状態にそろえる
+function syncBgmUI(){
+  $("#segBgm").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.t === Sound.track));
+  $("#bgmMenu").querySelectorAll("button").forEach(x => x.setAttribute("aria-checked", Sound.bgmOn ? x.dataset.t === Sound.track : x.dataset.t === "off"));
+}
+function chooseBgm(t){
+  Sound.unlock(); Sound.click();
+  if (t === "off") Sound.setBgm(false);
+  else { if (!Sound.bgmOn) Sound.setBgm(true); Sound.setTrack(t); }
+  syncBgmUI();
+}
+const bgmMenu = $("#bgmMenu");
+function toggleMenu(open){ const o = open ?? bgmMenu.hidden; bgmMenu.hidden = !o; $("#btnBgm").setAttribute("aria-expanded", o); }
+$("#btnBgm").addEventListener("click", e => { e.stopPropagation(); Sound.unlock(); toggleMenu(); });
+bgmMenu.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; e.stopPropagation(); chooseBgm(b.dataset.t); toggleMenu(false); });
+document.addEventListener("click", () => { if (!bgmMenu.hidden) toggleMenu(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !bgmMenu.hidden) toggleMenu(false); });
+document.addEventListener("keydown", e => {
+  if (!$("#s-quiz").classList.contains("on")) return;
+  const k = e.key.toUpperCase();
+  if (!G.locked && KEYS.includes(k)) { const b = document.querySelectorAll(".choice")[KEYS.indexOf(k)]; if (b) b.click(); }
+  else if (!G.locked && "1234".includes(e.key) && e.key !== "") { const b = document.querySelectorAll(".choice")[+e.key - 1]; if (b) b.click(); }
+  else if (G.locked && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); next(); }
+});
+// 画面が隠れたら音楽を止める（タブ切りかえ・スリープ対策）
+document.addEventListener("visibilitychange", () => { if (document.hidden) Sound.pauseBgm(); else Sound.resumeBgm(); });
+
+/* ---------- 初期化 ---------- */
+(function init(){
+  G.n = LS.get("n", 10);
+  $("#segN").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", +x.dataset.n === G.n));
+  $("#btnSe").setAttribute("aria-pressed", Sound.seOn); Sound.setBgm(Sound.bgmOn); syncBgmUI();
+  refreshTitle();
+  // データの健全性チェック（選択肢は必ず4つ・重複なし）
+  QUESTIONS.forEach((q, i) => { if (q.c.length !== 4 || new Set(q.c).size !== 4) console.warn("選択肢の数がおかしい問題:", i, q.q); });
+  console.log("問題数:", QUESTIONS.length);
+})();
+</script>
+</body>
+</html>
