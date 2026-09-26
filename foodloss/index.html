@@ -209,6 +209,9 @@ td.bad{color:var(--waste)}
 .formula .eq .fr span:first-child{border-bottom:1px solid var(--paper);padding-inline:6px}
 .big-claim{font-family:var(--display);font-size:clamp(24px,4vw,40px);font-weight:800;line-height:1.4;max-width:22em}
 .big-claim em{font-style:normal;color:var(--short)}
+.dv-bar{display:inline-block;height:8px;border-radius:2px;background:var(--waste);vertical-align:middle;margin-right:8px}
+tr.best td{background:rgba(201,165,94,.10)}
+tr.best td .nm{color:var(--brass)}
 .qs{display:grid;gap:0;counter-reset:q;max-width:44em;padding:0;margin:0}
 .qs li{list-style:none;counter-increment:q;padding:14px 0 14px 56px;border-top:1px solid var(--line);position:relative}
 .qs li::before{content:"問" counter(q);position:absolute;left:0;top:14px;font-family:var(--display);color:var(--brass);font-weight:800}
@@ -467,6 +470,38 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
   </div>
 </section>
 
+<section id="delivery">
+  <div class="sh"><span class="no">配送</span><h2>発注を1日に何回するか</h2>
+    <p class="sub">朝に1日分をまとめて仕入れるのをやめて、1日に2回、3回と分けて届けてもらうとどうなるか。午前の売れ行きを見てから、次の便の数を決められます。</p></div>
+  <div class="split" style="align-items:start">
+    <div class="prose">
+      <p>朝の時点では、その日が暑いのか、近くで行事があるのかまでは読み切れません。昼までの売れ方を見れば、その日の客の多さがかなり分かります。発注を分けると、この情報を次の便に生かせるので、予測のブレが小さくなり、捨てる量も品切れも減ります。</p>
+      <p>そのかわり、トラックが店に来る回数が増えます。運転手の人件費、燃料、CO2が増えます。どちらが得かは、配送1回の費用で決まります。</p>
+    </div>
+    <div class="panel">
+      <div class="ctl">
+        <label for="kc">配送1回あたりの費用 <output id="kOut" class="num">1,500<small>円</small></output></label>
+        <input id="kc" type="range" min="0" max="6000" step="250" value="1500">
+        <p class="hint">この店の弁当の分として負担する、トラック1回分の費用（仮の数字）。予測のブレ・追加の費用・信用の損は、上の実験の設定を使います。</p>
+      </div>
+      <p class="hint" style="font-size:13px;color:var(--muted)">便の時刻：1回＝6時／2回＝6時・16時／3回＝6時・11時・16時</p>
+    </div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>1日の配送</th><th>1日に捨てる</th><th>1年で捨てる</th><th>買えない客（1日）</th><th id="thDv">1日の粗利</th><th>配送費（1日）</th><th>差し引き</th></tr></thead>
+      <tbody id="dv"></tbody>
+    </table>
+  </div>
+  <p class="verdict" id="dvVerdict">&nbsp;</p>
+  <div class="formula" style="gap:10px;max-width:52em">
+    <h3 style="font-size:18px">実際のコンビニは、配送を減らしている</h3>
+    <p>大手コンビニは近年、弁当やおにぎりの配送を1日3回から2回に減らしています。運転手の不足や労働時間の規制（いわゆる物流の2024年問題）、燃料費の上昇、CO2の削減が理由です。</p>
+    <p>配送を減らしても捨てる量が増えないように、各社は弁当の<b>消費期限を延ばす</b>工夫を進めています。1回の配送で長く売れるようになれば、少ない配送回数でも売れ残りが増えにくくなります。「予測を当てやすくする」かわりに、「予測が外れても捨てずに済む時間を延ばす」方法です。</p>
+    <p>食品ロスを減らす方法には、それぞれ費用があります。どの方法を選ぶかは、運転手不足やCO2まで含めた、社会全体の費用とのつり合いで決まります。</p>
+  </div>
+</section>
+
 <section id="think">
   <div class="sh"><span class="no">考える</span><h2>答えは、ひとつではない</h2></div>
   <ol class="qs">
@@ -488,12 +523,15 @@ footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px 
       <li>実験では各条件で同じ4000日分の乱数を使って平均を出しています。「品切れが起きる日」は、定価で買うつもりの客が1人でも買えなかった日の割合です。</li>
       <li>「粗利」は、売上 − 仕入れ代です（「追加の費用」を動かしたときは、捨てた数 × 追加の費用も引いています）。家賃・人件費などの固定費は、どの発注量でも同じ額なので、最適な発注量に影響しません。そのため計算に入れていません。</li>
       <li>品切れによる信用の損や、廃棄の処理費は、それぞれのつまみを動かさない限り入っていません。どちらかを動かすと、表示は「粗利 − 追加の損」（粗利から、捨てた数 × 追加の費用 と、買えなかった定価の客の数 × 信用の損 を引いた額）に変わります。</li>
+      <li>「配送」の節：1日の客数のブレ（σ）のうち4分の3は、天気や行事など、その日全体に共通する原因によるもので、残りは時間帯ごとの偶然のばらつきと仮定しています。店は各便の前に、それまでに来た客の数（買えなかった客を含む）から、その日の客の多さを推定し直します（正規分布のベイズ更新）。各便の仕入れ数は「次の便までの予測 ＋ 安全分」とし、安全分の大きさは2000日分の計算で最も得になる値を探しています。弁当は閉店まで売れるものとし、値引きはしていません。</li>
       <li>「長い目で見ると」の表は、正規分布の式から求めた理論値です（買えない客の数は σ × 標準正規損失関数）。</li>
     </ul>
     <h3>出典・参考</h3>
     <ul>
       <li>農林水産省・環境省「食品ロス量（令和4年度推計値）」2024年公表。総量472万トン（事業系236万トン、家庭系236万トン）。</li>
       <li>新聞売り子問題（newsvendor problem）と臨界比は、在庫管理・オペレーションズリサーチの標準的な教科書で扱われる古典的なモデルです。</li>
+      <li>初期の売れ行きを見て予測を直すことで、需要の不確実性による費用を減らす考え方（クイック・レスポンス）：M. Fisher, A. Raman, "Reducing the Cost of Demand Uncertainty through Accurate Response to Early Sales", <i>Operations Research</i> 44(1), 1996。</li>
+      <li>大手コンビニの配送回数の削減（1日3回→2回など）と消費期限の延長は、各社の発表と報道（日本経済新聞、日本食糧新聞ほか、2023〜2026年）によります。</li>
       <li>欠品に出会った客の行動（ほかの店で買う約3割など）：T. W. Gruen, D. S. Corsten, S. Bharadwaj, <i>Retail Out-of-Stocks: A Worldwide Examination of Extent, Causes and Consumer Responses</i>, Grocery Manufacturers of America, 2002。食品・日用品全般の調査で、コンビニの弁当に限ったものではありません。</li>
       <li>公正取引委員会は2009年、コンビニ本部が加盟店の値引き販売（見切り販売）を制限していたことを優越的地位の濫用にあたるとして、排除措置命令を出しています。</li>
     </ul>
@@ -853,6 +891,62 @@ function update(){
     return '<tr'+mark+'><td><span class="nm">±'+sg+'個</span></td><td>'+e.q+'個</td><td>'+yen(e.profit)+'円</td><td class="bad">'+one(e.waste)+'個</td><td class="bad">'+yen(e.waste*365)+'個</td><td>'+pct(e.out)+'</td></tr>';
   }).join("");
   drawDist(); drawCurve();
+  renderDelivery();
+}
+
+/* ================= 配送の回数 ================= */
+// 基本の区間：6-11時、11-16時、16-24時（HOURLYの合計で 18, 36, 46）
+var SEGW = [18/100, 36/100, 46/100], RHO = 0.75, ND = 2000;
+var PLANS = {1:[[0,1,2]], 2:[[0,1],[2]], 3:[[0],[1],[2]]};
+var DZ1 = normals(mulberry32(4242), ND), DZ2 = normals(mulberry32(5151), ND*3);
+var dvCache = {};
+function dvSim(k, sigma, w, g, z1, z2){
+  var plan = PLANS[k], sLv = RHO*sigma*sigma, sNz = (1-RHO)*sigma*sigma;
+  var tp=0, tw=0, tl=0;
+  for (var d=0; d<ND; d++){
+    var a = Math.sqrt(sLv)*DZ1[d], Dseg = [];
+    for (var i=0;i<3;i++) Dseg.push(Math.max(0, Math.round(SEGW[i]*(MU+a) + Math.sqrt(sNz*SEGW[i])*DZ2[d*3+i])));
+    var stock=0, ordered=0, sold=0, lost=0, seen=0, W=0;
+    for (var j=0;j<plan.length;j++){
+      var final = j===plan.length-1;
+      var wr = 0; plan[j].forEach(function(i){ wr += SEGW[i]; });
+      // それまでの客数から、その日全体の多さ a を推定し直す
+      var m=0, v=sLv;
+      if (W>0){ var vc = W*W*sLv + sNz*W; m = W*sLv/vc*(seen - W*MU); v = sLv - (W*sLv)*(W*sLv)/vc; }
+      var mean = wr*(MU+m), sd = Math.sqrt(wr*wr*v + sNz*wr);
+      var target = Math.round(mean + (final ? z2 : z1)*sd);
+      var q = Math.max(0, target - stock); ordered += q; stock += q;
+      plan[j].forEach(function(i){ var s1 = Math.min(stock, Dseg[i]); stock -= s1; sold += s1; lost += Dseg[i]-s1; seen += Dseg[i]; W += SEGW[i]; });
+    }
+    tp += P*sold - C*ordered - w*stock - g*lost; tw += stock; tl += lost;
+  }
+  return {profit:tp/ND, waste:tw/ND, lost:tl/ND};
+}
+function dvBest(k, sigma, w, g){
+  var key = [k,sigma,w,g].join("|"); if (dvCache[key]) return dvCache[key];
+  var best=null, z1s = k===1 ? [0] : [0,0.25,0.5,0.75,1,1.25,1.5,1.75,2,2.5,3];
+  for (var z2=-1.5; z2<=2.51; z2+=0.25){
+    for (var t=0;t<z1s.length;t++){
+      var r = dvSim(k, sigma, w, g, z1s[t], z2);
+      if (!best || r.profit > best.profit) best = r;
+    }
+  }
+  return (dvCache[key] = best);
+}
+function renderDelivery(){
+  var K = +$("kc").value, extra = state.w > 0 || state.g > 0;
+  $("kOut").innerHTML = yen(K) + "<small>円</small>";
+  $("thDv").textContent = extra ? "1日の粗利 − 追加の損" : "1日の粗利";
+  var rows = [1,2,3].map(function(k){ var b = dvBest(k, state.sigma, state.w, state.g); return {k:k, b:b, cost:K*k, net:b.profit - K*k}; });
+  var bi = 0; rows.forEach(function(r,i){ if (r.net > rows[bi].net) bi = i; });
+  var wmax = Math.max(rows[0].b.waste, 0.1);
+  $("dv").innerHTML = rows.map(function(r,i){
+    return '<tr'+(i===bi?' class="best"':'')+'><td><span class="nm">'+r.k+'回</span>'+(i===bi?'<span class="ds">いちばん得</span>':'')+'</td>'
+      +'<td class="bad"><span class="dv-bar" style="width:'+Math.round(r.b.waste/wmax*60)+'px"></span>'+one(r.b.waste)+'個</td>'
+      +'<td class="bad">'+yen(r.b.waste*365)+'個</td><td>'+one(r.b.lost)+'人</td><td>'+yen(r.b.profit)+'円</td><td>−'+yen(r.cost)+'円</td><td><b>'+yen(r.net)+'円</b></td></tr>';
+  }).join("");
+  var be2 = rows[1].b.profit - rows[0].b.profit, be3 = rows[2].b.profit - rows[1].b.profit;
+  $("dvVerdict").textContent = "1回を2回にすると、捨てる弁当は1日 " + one(rows[0].b.waste - rows[1].b.waste) + "個 減ります。2回にして得になるのは、配送1回の費用が " + yen(Math.max(0,be2)) + "円 以下のとき。2回を3回にして得になるのは、" + yen(Math.max(0,be3)) + "円 以下のときです。";
 }
 
 function setup(cv){
@@ -934,6 +1028,7 @@ $("q").addEventListener("input", function(e){ state.q = +e.target.value; update(
 $("sigma").addEventListener("input", function(e){ state.sigma = +e.target.value; update(); });
 $("wc").addEventListener("input", function(e){ state.w = +e.target.value; update(); });
 $("gw").addEventListener("input", function(e){ state.g = +e.target.value; update(); });
+$("kc").addEventListener("input", renderDelivery);
 seg("mdTime","md",state); seg("mdRate","rate",state);
 function setQ(q){ state.q = q; $("q").value = q; update(); }
 $("setZero").addEventListener("click", function(){ setQ(cur.zero.q); });
