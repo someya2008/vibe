@@ -1138,7 +1138,7 @@ WIDGETS.sound = function(el){
       for(let i=0;i<d.length;i++){ const t=i/sr; const k=Math.floor(t*F); const ts=k/F; if(i===0||Math.floor((i-1)/sr*F)!==k){ const v=Math.sin(2*Math.PI*f0*ts)*Math.exp(-ts*1.2); hold=(Math.round((v+1)/2*(L-1))/(L-1))*2-1; } d[i]=hold*.3; }
       const srcN=ctx.createBufferSource(); srcN.buffer=buf; srcN.connect(ctx.destination); srcN.start(); }catch(e){} }
   fs.addEventListener("input",draw); bt.addEventListener("input",draw); draw();
-  el.append(h("label",{},"サンプリング周波数：",lab1,fs), h("label",{},"量子化ビット数：",lab2,bt), svg, info, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:play},"🔊 この設定の音を聞く（440 Hz）"), h("span",{class:"small muted"},"粗い設定ほどザラザラした音になります")));
+  el.append(h("label",{},"サンプリング周波数：",lab1,fs), h("label",{},"量子化ビット数：",lab2,bt), svg, info, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:play},"🔊 この設定の音を聞く（440 Hz）"), h("span",{class:"small muted"},"440 Hz の音を 1.2 秒かけて減衰させて鳴らします。ビット数が少ないと波が階段状（矩形波に近い形）になるため、鳴り始めの大きい音ほど「ジーッ」というひずみが目立ち、小さくなると 1 段階に満たなくなって音が消えます（1 ビットでは正負しか区別できないので、最大音量の矩形波が鳴り続けます）。これが量子化誤差の正体です。")));
 };
 })();
 
