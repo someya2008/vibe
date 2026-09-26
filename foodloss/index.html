@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>品切れか廃棄か</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=BIZ+UDPGothic:wght@400;700&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --ground:#181613;
+  --panel:#211e1a;
+  --panel-2:#2a2621;
+  --line:#3b362f;
+  --paper:#ebe5d9;
+  --muted:#a69d8e;
+  --faint:#6f685d;
+  --waste:#c0503f;
+  --waste-deep:#7d2c22;
+  --short:#7f9bb2;
+  --short-deep:#3d5264;
+  --brass:#c9a55e;
+  --sold:#5a5349;
+  --display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  --body:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+}
+*{box-sizing:border-box}
+html{background:var(--ground)}
+body{
+  margin:0;background:var(--ground);color:var(--paper);
+  font-family:var(--body);font-size:16px;line-height:1.8;
+  padding-inline:clamp(16px,4vw,48px);
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:1160px;margin-inline:auto}
+h1,h2,h3{font-family:var(--display);font-weight:800;text-wrap:balance;margin:0;line-height:1.3;letter-spacing:.02em}
+p{margin:0}
+.prose{max-width:38em;display:grid;gap:1em}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--brass)}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
+button{font-family:inherit}
+
+/* ---------- buttons ---------- */
+.btn{font:inherit;font-size:15px;font-weight:700;background:var(--panel-2);color:var(--paper);border:1px solid var(--faint);border-radius:6px;padding:10px 16px;cursor:pointer;line-height:1.4;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .08s,background .15s,border-color .15s}
+.btn:hover{border-color:var(--paper);background:#332e28}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--brass);color:var(--ground);border-color:var(--brass);font-size:18px;padding:14px 22px;box-shadow:0 4px 0 #8a6d33}
+.btn.primary:hover{background:#d9b66e}
+.btn.primary:active{box-shadow:0 1px 0 #8a6d33;transform:translateY(3px)}
+.btn.ghost{background:transparent}
+.btn.short{border-color:var(--short);color:var(--short)}
+.btn.brass{border-color:var(--brass);color:var(--brass)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font:inherit;font-size:14px;background:var(--panel-2);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:7px 12px;cursor:pointer;min-width:52px}
+.seg button[aria-pressed="true"]{background:var(--paper);color:var(--ground);border-color:var(--paper);font-weight:700}
+.seg button:hover{border-color:var(--muted)}
+.stepper{display:grid;grid-template-columns:52px 1fr 52px;gap:8px;align-items:stretch}
+.stepper button{font-size:26px;font-weight:700;background:var(--panel-2);color:var(--paper);border:1px solid var(--faint);border-radius:6px;cursor:pointer;line-height:1}
+.stepper button:hover{border-color:var(--paper)}
+.stepper .val{display:grid;place-items:center;background:var(--ground);border:1px solid var(--line);border-radius:6px;font-family:var(--display);font-size:40px;font-weight:800;line-height:1;padding:8px 0}
+.stepper .val small{font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted)}
+input[type=range]{width:100%;accent-color:var(--brass);height:28px;margin:0;cursor:pointer}
+.ctl{display:grid;gap:8px}
+.ctl label,.ctl .lbl{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-weight:700}
+.ctl output{font-family:var(--display);font-size:26px;font-weight:800;color:var(--paper);white-space:nowrap}
+.ctl output small,.kv small{font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted);margin-left:3px}
+.ctl .hint{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ---------- hero ---------- */
+.hero{padding-block:clamp(40px,7vw,80px) clamp(28px,4vw,44px);display:grid;gap:22px}
+.hero h1{font-size:clamp(44px,9vw,96px);line-height:1.08;letter-spacing:.04em}
+.hero h1 .w{color:var(--waste)}
+.hero h1 .s{color:var(--short)}
+.hero .lede{font-size:clamp(17px,2.2vw,21px);max-width:34em}
+.rule3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);max-width:760px}
+@media (max-width:640px){.rule3{grid-template-columns:minmax(0,1fr)}}
+.rule3 div{background:var(--panel);padding:14px 16px;display:grid;gap:2px}
+.rule3 b{font-family:var(--display);font-size:20px}
+.rule3 .w b{color:var(--waste)}.rule3 .s b{color:var(--short)}.rule3 .g b{color:var(--brass)}
+.rule3 span{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* ---------- sections ---------- */
+section{padding-block:clamp(44px,6vw,72px);border-top:1px solid var(--line);display:grid;gap:26px}
+.sh{display:grid;gap:8px}
+.sh .no{font-family:var(--display);color:var(--brass);font-size:14px;letter-spacing:.25em}
+.sh h2{font-size:clamp(26px,4vw,38px)}
+.sh .sub{color:var(--muted);max-width:40em}
+
+/* ---------- game ---------- */
+.game{display:grid;grid-template-columns:minmax(0,330px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:900px){.game{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px;display:grid;gap:18px;min-width:0}
+.step{display:flex;gap:10px;align-items:center;font-weight:700;font-size:15px}
+.step i{font-style:normal;font-family:var(--display);color:var(--ground);background:var(--brass);width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;flex:none}
+.step.off{color:var(--faint)}
+.step.off i{background:var(--faint)}
+.daybar{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.daybar .d{font-family:var(--display);font-size:24px;font-weight:800}
+.daybar .d small{font-family:var(--body);font-size:13px;color:var(--muted);font-weight:400;margin-left:6px}
+.forecast{background:var(--ground);border:1px dashed var(--faint);border-radius:6px;padding:12px 14px;display:grid;gap:2px}
+.forecast .k{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.forecast .v{font-family:var(--display);font-size:30px;font-weight:800;line-height:1.2}
+.forecast .v small{font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted);margin-left:4px}
+.forecast .n{font-size:13px;color:var(--muted)}
+.auto{border-top:1px solid var(--line);padding-top:16px;display:grid;gap:10px}
+.auto .t{font-size:13px;color:var(--muted);letter-spacing:.06em}
+
+.stage{display:grid;gap:14px;min-width:0}
+.clock{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px 16px}
+.clock .time{font-family:var(--display);font-size:34px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.clock .msg{color:var(--muted);font-size:14px}
+.clock .msg b{color:var(--paper)}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(14px,1fr));gap:3px;min-height:60px;padding:12px;background:var(--ground);border:1px solid var(--line);border-radius:6px}
+.bento{aspect-ratio:1;background:var(--paper);border-radius:2px;transition:background .25s}
+.bento.full{background:var(--sold)}
+.bento.disc{background:var(--brass)}
+.bento.waste{background:var(--waste)}
+.bento.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--short);opacity:.9}
+.shelf-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--muted)}
+.shelf-legend i{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.today{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+@media (max-width:560px){.today{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.today div{background:var(--panel);padding:10px 12px;display:grid;gap:0}
+.today .k{font-size:12px;color:var(--muted)}
+.today .v{font-family:var(--display);font-size:26px;font-weight:800;line-height:1.3;font-variant-numeric:tabular-nums}
+.today .v small{font-family:var(--body);font-size:12px;font-weight:400;color:var(--muted);margin-left:2px}
+.today .w .v{color:var(--waste)}.today .s .v{color:var(--short)}.today .g .v{color:var(--brass)}
+.total{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:end}
+@media (max-width:560px){.total{grid-template-columns:minmax(0,1fr)}}
+.total .kv{display:grid;gap:0}
+.total .k{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.total .v{font-family:var(--display);font-size:clamp(28px,3.6vw,40px);font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+.total .w .v{color:var(--waste)}.total .g .v{color:var(--brass)}.total .s .v{color:var(--short)}
+.stack{height:22px;display:flex;border-radius:4px;overflow:hidden;background:var(--panel-2)}
+.stack i{display:block;height:100%;transition:width .3s}
+.log{display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px}
+.log div{aspect-ratio:1;background:var(--panel-2);border-radius:2px;position:relative}
+.log div.w{background:var(--waste)}.log div.s{background:var(--short-deep);box-shadow:inset 0 0 0 1px var(--short)}.log div.e{background:var(--sold)}
+.log div.cur{box-shadow:inset 0 0 0 2px var(--paper)}
+
+.final{display:none;border:2px solid var(--brass);border-radius:8px;padding:22px;gap:18px;background:var(--panel)}
+.final.show{display:grid}
+.final h3{font-size:clamp(22px,3.4vw,30px)}
+.final .verdict{font-size:17px;line-height:1.8;max-width:40em}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:600px;font-variant-numeric:tabular-nums}
+th,td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+thead th{font-size:12px;color:var(--muted);font-weight:400;letter-spacing:.06em;background:var(--panel-2)}
+tbody td{font-size:16px}
+tbody tr:last-child td{border-bottom:0}
+td .nm{font-family:var(--display);font-weight:800;font-size:16px;display:block}
+td .ds{font-size:12px;color:var(--muted)}
+tr.you td{background:rgba(201,165,94,.10)}
+tr.you td .nm{color:var(--brass)}
+tr.r-zero td .nm{color:var(--short)}
+td.bad{color:var(--waste)}
+
+/* ---------- lab ---------- */
+.lab{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:860px){.lab{grid-template-columns:minmax(0,1fr)}}
+.results{display:grid;gap:14px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+@media (max-width:620px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{background:var(--panel);padding:12px 14px;display:grid;gap:0;align-content:start}
+.kpi .k{font-size:12px;color:var(--muted);letter-spacing:.06em}
+.kpi .v{font-family:var(--display);font-size:clamp(24px,3vw,30px);font-weight:800;line-height:1.3;font-variant-numeric:tabular-nums}
+.kpi .v small{font-family:var(--body);font-size:12px;font-weight:400;color:var(--muted);margin-left:3px}
+.kpi .d{font-size:12px;color:var(--muted)}
+.kpi.waste .v{color:var(--waste)}.kpi.short .v{color:var(--short)}.kpi.brass .v{color:var(--brass)}
+.figs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (max-width:700px){.figs{grid-template-columns:minmax(0,1fr)}}
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 14px 10px;display:grid;gap:6px;min-width:0}
+.fig h3{font-size:15px}
+.fig .cap{font-size:12px;color:var(--muted);line-height:1.5}
+.fig canvas{width:100%;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px}
+.legend i.box{height:11px;width:11px}
+.verdict{font-family:var(--display);font-size:clamp(17px,2.2vw,20px);font-weight:600;line-height:1.7;border-left:3px solid var(--brass);padding-left:14px}
+
+/* ---------- reasoning ---------- */
+.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;align-items:start}
+@media (max-width:760px){.split{grid-template-columns:minmax(0,1fr)}}
+.scale{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+@media (max-width:560px){.scale{grid-template-columns:minmax(0,1fr)}}
+.scale div{background:var(--panel);padding:18px;display:grid;gap:4px}
+.scale .t{font-size:14px;color:var(--muted)}
+.scale .y{font-family:var(--display);font-size:34px;font-weight:800;line-height:1.2}
+.scale .w .y{color:var(--waste)}.scale .s .y{color:var(--short)}
+.formula{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:20px;display:grid;gap:12px;max-width:44em}
+.formula .eq{font-family:var(--display);font-size:clamp(17px,2.4vw,22px);font-weight:600;line-height:1.7;overflow-x:auto}
+.formula .eq .fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin-inline:6px;line-height:1.35}
+.formula .eq .fr span:first-child{border-bottom:1px solid var(--paper);padding-inline:6px}
+.big-claim{font-family:var(--display);font-size:clamp(24px,4vw,40px);font-weight:800;line-height:1.4;max-width:22em}
+.big-claim em{font-style:normal;color:var(--short)}
+.qs{display:grid;gap:0;counter-reset:q;max-width:44em;padding:0;margin:0}
+.qs li{list-style:none;counter-increment:q;padding:14px 0 14px 56px;border-top:1px solid var(--line);position:relative}
+.qs li::before{content:"問" counter(q);position:absolute;left:0;top:14px;font-family:var(--display);color:var(--brass);font-weight:800}
+.notes{font-size:14px;color:var(--muted);display:grid;gap:10px;max-width:52em}
+.notes h3{font-size:16px;color:var(--paper);margin-top:10px}
+.notes ul{margin:0;padding-left:1.2em;display:grid;gap:4px}
+footer{padding-block:36px 56px;color:var(--faint);font-size:13px;border-top:1px solid var(--line)}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.pop{animation:pop .3s}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1><span class="s">品切れ</span>か、<br><span class="w">廃棄</span>か。</h1>
+  <p class="lede">あなたはコンビニの店長。毎朝、弁当を何個仕入れるか決めます。余れば捨てる。足りなければ客が帰る。明日いくつ売れるかは、だれにも分かりません。</p>
+  <div class="rule3">
+    <div class="g"><b>1個売れると ＋200円</b><span>売値500円 − 仕入れ値300円</span></div>
+    <div class="w"><b>1個余ると −300円</b><span>仕入れ値をまるごと損。弁当はごみになる</span></div>
+    <div class="s"><b>1個足りないと もうけそこね 200円</b><span>お金は減らないが、客は手ぶらで帰る</span></div>
+  </div>
+</header>
+
+<section id="game">
+  <div class="sh"><span class="no">店長ゲーム</span><h2>14日間、お店を開ける</h2><p class="sub">明日の予想を見て、仕入れる数を決め、「開店する」を押す。1日の売れ方が流れ、利益と捨てた弁当が積み上がる。14日目が終わると成績が出ます。</p></div>
+
+  <div class="game">
+    <div class="panel" id="gPanel">
+      <div class="daybar"><span class="d" id="gDay">1日目<small>月曜</small></span><span class="num" style="color:var(--muted);font-size:13px" id="gLeft">残り14日</span></div>
+      <div class="forecast">
+        <span class="k">明日の予想</span>
+        <span class="v num" id="gFc">100<small>個 売れそう</small></span>
+        <span class="n" id="gFcN">はずれることもある（±15個くらい）</span>
+      </div>
+      <div class="step" id="st1"><i>1</i>仕入れる数を決める</div>
+      <div class="stepper">
+        <button type="button" id="gMinus" aria-label="10個減らす">−</button>
+        <div class="val num" id="gQ">100<small>個</small></div>
+        <button type="button" id="gPlus" aria-label="10個増やす">＋</button>
+      </div>
+      <input type="range" id="gRange" min="40" max="200" step="1" value="100" aria-label="仕入れる数">
+      <div class="step" id="st2"><i>2</i>売れ残りそうなら、値引きする？</div>
+      <div class="seg" id="gMd" role="group" aria-label="値引き">
+        <button type="button" data-v="0" aria-pressed="true">しない</button>
+        <button type="button" data-v="20" aria-pressed="false">20時から3割引</button>
+        <button type="button" data-v="18" aria-pressed="false">18時から半額</button>
+      </div>
+      <div class="step" id="st3"><i>3</i>開店する</div>
+      <button class="btn primary" id="gOpen" type="button">開店する ▶</button>
+      <div class="auto">
+        <span class="t">オートモード（コンピュータが14日分決める）</span>
+        <div class="seg" id="gStrat" role="group" aria-label="オートの作戦">
+          <button type="button" data-v="fc" aria-pressed="true">予想どおり</button>
+          <button type="button" data-v="zero" aria-pressed="false">品切れさせない</button>
+          <button type="button" data-v="opt" aria-pressed="false">計算上の最適</button>
+        </div>
+        <button class="btn" id="gAuto" type="button">オートで進める ▶▶</button>
+        <button class="btn ghost" id="gReset" type="button">最初からやり直す</button>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="clock"><span class="time num" id="gTime">--:--</span><span class="msg" id="gMsg">仕入れる数を決めて、開店してください。</span></div>
+      <div class="shelf" id="shelf" aria-label="棚の弁当"></div>
+      <div class="shelf-legend">
+        <span><i style="background:var(--paper)"></i>棚にある</span>
+        <span><i style="background:var(--sold)"></i>定価で売れた</span>
+        <span><i style="background:var(--brass)"></i>値引きで売れた</span>
+        <span><i style="background:var(--waste)"></i>捨てた</span>
+        <span><i style="box-shadow:inset 0 0 0 1px var(--short)"></i>買えなかった客</span>
+      </div>
+      <div class="today">
+        <div class="g"><span class="k">今日の利益</span><span class="v" id="tProfit">—</span></div>
+        <div><span class="k">売れた</span><span class="v" id="tSold">—</span></div>
+        <div class="w"><span class="k">捨てた</span><span class="v" id="tWaste">—</span></div>
+        <div class="s"><span class="k">買えなかった客</span><span class="v" id="tLost">—</span></div>
+      </div>
+      <div class="panel" style="gap:12px">
+        <div class="total">
+          <div class="kv g"><span class="k">14日間の利益</span><span class="v" id="cProfit">0<small>円</small></span></div>
+          <div class="kv w"><span class="k">捨てた弁当</span><span class="v" id="cWaste">0<small>個</small></span></div>
+          <div class="kv s"><span class="k">買えなかった客</span><span class="v" id="cLost">0<small>人</small></span></div>
+        </div>
+        <div class="stack" aria-label="売れた・捨てた・買えなかったの割合"><i id="bSold" style="background:var(--sold);width:0"></i><i id="bWaste" style="background:var(--waste);width:0"></i><i id="bLost" style="background:var(--short-deep);width:0"></i></div>
+        <div class="log" id="log" aria-label="日ごとの結果"></div>
+        <div class="legend"><span><i class="box" style="background:var(--waste)"></i>捨てた日</span><span><i class="box" style="background:var(--short-deep);box-shadow:inset 0 0 0 1px var(--short)"></i>品切れした日</span><span><i class="box" style="background:var(--sold)"></i>ちょうど売り切れた日</span></div>
+      </div>
+      <div class="final" id="final">
+        <h3 id="fTitle">14日間の成績</h3>
+        <p class="verdict" id="fVerdict" style="border:0;padding:0;font-family:var(--body);font-weight:400"></p>
+        <div class="tbl"><table>
+          <thead><tr><th>やり方</th><th>利益</th><th>捨てた弁当</th><th>買えなかった客</th><th>品切れした日</th></tr></thead>
+          <tbody id="fTable"></tbody>
+        </table></div>
+        <p class="cap" style="font-size:13px;color:var(--muted)">同じ14日間の売れ方で、コンピュータが別の作戦をとった場合と比べています。「品切れさせない」は予想＋十分な余裕、「計算上の最適」は下の解説にある臨界比で決めています。どちらも値引きはしていません。</p>
+        <button class="btn primary" id="gAgain" type="button">もう一度 ▶</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="lab">
+  <div class="sh"><span class="no">実験</span><h2>発注量を変えると、利益と廃棄はどう動くか</h2><p class="sub">ゲームの1日を4000回くり返して平均を出します。つまみを動かすと、すぐに計算し直します。</p></div>
+  <div class="lab">
+    <div class="panel">
+      <div class="ctl">
+        <label for="q">発注量 <output id="qOut" class="num">100<small>個</small></output></label>
+        <input id="q" type="range" min="40" max="220" step="1" value="100">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="btn short" id="setZero" type="button" style="font-size:13px;padding:8px">品切れさせない量</button>
+          <button class="btn brass" id="setOpt" type="button" style="font-size:13px;padding:8px">利益が最大の量</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <label for="sigma">需要予測のブレ <output id="sOut" class="num">±20<small>個</small></output></label>
+        <input id="sigma" type="range" min="5" max="40" step="5" value="20">
+        <p class="hint" id="sHint"></p>
+      </div>
+      <div class="ctl">
+        <span class="lbl">値引きを始める時刻</span>
+        <div class="seg" id="mdTime" role="group" aria-label="値引きを始める時刻">
+          <button type="button" data-v="0" aria-pressed="true">しない</button>
+          <button type="button" data-v="22" aria-pressed="false">22時</button>
+          <button type="button" data-v="20" aria-pressed="false">20時</button>
+          <button type="button" data-v="18" aria-pressed="false">18時</button>
+          <button type="button" data-v="16" aria-pressed="false">16時</button>
+        </div>
+        <span class="lbl" style="margin-top:4px">値引きの大きさ</span>
+        <div class="seg" id="mdRate" role="group" aria-label="値引きの大きさ">
+          <button type="button" data-v="0.2" aria-pressed="false">2割引</button>
+          <button type="button" data-v="0.3" aria-pressed="true">3割引</button>
+          <button type="button" data-v="0.5" aria-pressed="false">半額</button>
+        </div>
+        <p class="hint" id="mdHint"></p>
+      </div>
+      <div class="ctl">
+        <label for="wc">捨てる1個あたりの追加の費用 <output id="wOut" class="num">0<small>円</small></output></label>
+        <input id="wc" type="range" min="0" max="500" step="50" value="0">
+        <p class="hint">ごみの処理費や、作るのに使った資源の分。解説の式にも反映されます。</p>
+      </div>
+    </div>
+
+    <div class="results">
+      <div class="kpis">
+        <div class="kpi brass"><span class="k">1日の利益（平均）</span><span class="v" id="kProfit">—</span><span class="d" id="kProfitD">&nbsp;</span></div>
+        <div class="kpi waste"><span class="k">捨てる弁当（平均）</span><span class="v" id="kWaste">—</span><span class="d" id="kWasteD">&nbsp;</span></div>
+        <div class="kpi short"><span class="k">品切れが起きる日</span><span class="v" id="kOut">—</span><span class="d" id="kOutD">&nbsp;</span></div>
+        <div class="kpi"><span class="k">買えなかった客（平均）</span><span class="v" id="kLost">—</span><span class="d">1日あたり</span></div>
+      </div>
+      <p class="verdict" id="verdict">&nbsp;</p>
+      <div class="figs">
+        <div class="fig">
+          <h3>明日、何個売れるか</h3>
+          <canvas id="cDist" height="190" aria-label="需要の分布と発注量"></canvas>
+          <div class="legend"><span><i class="box" style="background:var(--waste-deep)"></i>仕入れすぎになる日</span><span><i class="box" style="background:var(--short-deep)"></i>足りなくなる日</span></div>
+        </div>
+        <div class="fig">
+          <h3>発注量を変えると</h3>
+          <canvas id="cCurve" height="190" aria-label="発注量と利益・廃棄・買えなかった客の関係"></canvas>
+          <div class="legend"><span><i style="background:var(--brass)"></i>利益</span><span><i style="background:var(--waste)"></i>捨てる数</span><span><i style="background:var(--short)"></i>買えなかった客</span></div>
+        </div>
+      </div>
+      <div class="tbl">
+        <table>
+          <thead><tr><th>やり方</th><th>発注量</th><th>1日の利益</th><th>1日に捨てる</th><th>1年で捨てる</th><th>品切れが起きる日</th></tr></thead>
+          <tbody id="cmp"></tbody>
+        </table>
+      </div>
+      <p class="big-claim" id="claim" style="font-size:clamp(20px,3vw,28px)">&nbsp;</p>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="sh"><span class="no">理由</span><h2>なぜ、品切れを許すほうが得なのか</h2></div>
+  <div class="prose">
+    <p>最後の1個を仕入れるかどうかだけを考えます。その1個が売れれば200円もうかります。売れなければ300円の損です。</p>
+  </div>
+  <div class="scale">
+    <div class="s"><span class="t">1個足りなかったときの損（売りそこね）</span><span class="y num" id="under">200円</span></div>
+    <div class="w"><span class="t">1個余ったときの損（捨てる）</span><span class="y num" id="over">300円</span></div>
+  </div>
+  <div class="prose">
+    <p>損の大きさが違うので、売れる確率と売れない確率が五分五分では、仕入れる価値がありません。その1個が売れる確率が十分に高いときだけ仕入れるのが得です。式にすると次のようになります。</p>
+  </div>
+  <div class="formula">
+    <div class="eq">品切れしない確率 ＝
+      <span class="fr"><span>足りないときの損</span><span>足りないときの損 ＋ 余ったときの損</span></span>
+      ＝ <span class="fr num"><span id="fU">200</span><span id="fD">200 ＋ 300</span></span>
+      ＝ <span class="num" id="fR">40%</span>
+    </div>
+    <p class="notes" style="font-size:14px">この比率は「臨界比」と呼ばれます。値引きをしないとき、利益が最大になるのは、品切れしない日が全体の <b id="fR2" class="num" style="color:var(--paper)">40%</b> になる発注量です（予測のブレが±20個なら <b id="fQ" class="num" style="color:var(--paper)">95個</b>）。</p>
+  </div>
+  <p class="big-claim">利益が最大になる店は、<br><em id="claim2">10日のうち6日</em>、品切れを起こしている。</p>
+  <div class="prose">
+    <p>捨てる損に、ごみの処理費や、作るのに使った水やエネルギーの分を足すと、余ったときの損が大きくなります。すると最適な発注量は下がり、捨てる量も減ります。上の実験の「追加の費用」で確かめられます。</p>
+  </div>
+</section>
+
+<section id="accuracy">
+  <div class="sh"><span class="no">予測</span><h2>本当に効くのは、予測を当てること</h2></div>
+  <div class="prose">
+    <p>最適な発注量でも、捨てる弁当はゼロになりません。売れる数が読めない限り、品切れと廃棄のどちらかは必ず起きます。両方を同時に減らせるのは、予測のブレを小さくすることだけです。天気・曜日・近くの行事から売れる数をより正しく読む工夫が、廃棄を減らします。</p>
+    <p>下の表は、実験の値引き条件のまま、予測のブレだけを変えて、それぞれ利益が最大になる量を仕入れた場合です。</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>予測のブレ</th><th>最適な発注量</th><th>1日の利益</th><th>1日に捨てる</th><th>1年で捨てる</th><th>品切れが起きる日</th></tr></thead>
+      <tbody id="acc"></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="think">
+  <div class="sh"><span class="no">考える</span><h2>答えは、ひとつではない</h2></div>
+  <ol class="qs">
+    <li>値引きの時刻を早くすると、捨てる数は減ります。それなのに利益が下がることがあるのはなぜでしょう。定価で買うつもりだった客に注目してください。</li>
+    <li>品切れすると、客はほかの店に行き、次からも来なくなるかもしれません。この「信用の損」をモデルに入れると、最適な発注量はどう変わるでしょう。</li>
+    <li>多くのコンビニの契約では、本部の取り分は、捨てた商品の仕入れ値を差し引く前の利益から計算されます。廃棄の損をおもに負うのは加盟店です。本部と店長とで、望ましい発注量は同じになるでしょうか。</li>
+    <li>店にとって一番得な量と、社会にとって一番よい量は同じでしょうか。違うなら、その差をうめるのはだれの役割でしょう。</li>
+  </ol>
+</section>
+
+<section id="notes">
+  <div class="notes">
+    <h3>このモデルの仮定</h3>
+    <ul>
+      <li>日本の食品ロスは年間472万トン（2022年度推計）。うち半分の236万トンは、店や工場など事業者から出ています。</li>
+      <li>売れる数（定価で買う客の数）は、平均μ個・標準偏差σ個の正規分布に従うとし、整数に丸めています。「予測のブレ ±σ」はこのσです。平均から±σの範囲に入る確率は約68％です。ゲームでは曜日ごとに平均を変え、予想はその平均を示しています（σ＝15）。</li>
+      <li>客は6時から24時まで、昼と夕方に多く来るように時間ごとに割り振っています。値引きを始めた後に来た客は、全員が値引き価格で買います。</li>
+      <li>値引き後は、定価なら買わなかった客も来ます。その平均人数は、値引き後に来る定価の客の数に対して、2割引で0.3倍、3割引で0.6倍、半額で1.2倍と仮定しています。</li>
+      <li>実験では各条件で同じ4000日分の乱数を使って平均を出しています。「品切れが起きる日」は、定価で買うつもりの客が1人でも買えなかった日の割合です。</li>
+      <li>品切れによる信用の損や、廃棄の処理費は、「追加の費用」を動かさない限り入っていません。</li>
+    </ul>
+    <h3>出典・参考</h3>
+    <ul>
+      <li>農林水産省・環境省「食品ロス量（令和4年度推計値）」2024年公表。総量472万トン（事業系236万トン、家庭系236万トン）。</li>
+      <li>新聞売り子問題（newsvendor problem）と臨界比は、在庫管理・オペレーションズリサーチの標準的な教科書で扱われる古典的なモデルです。</li>
+      <li>公正取引委員会は2009年、コンビニ本部が加盟店の値引き販売（見切り販売）を制限していたことを優越的地位の濫用にあたるとして、排除措置命令を出しています。</li>
+    </ul>
+  </div>
+</section>
+
+<footer>品切れか廃棄か ─ 新聞売り子問題で考える食品ロス</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var P = 500, C = 300, MU = 100, N = 4000, QMIN = 40, QMAX = 220;
+// 6時〜23時台の来客の割合（合計100）
+var HOURLY = [2,5,5,3,3,9,14,7,3,3,4,7,10,9,6,4,3,3];
+var BARGAIN = {"0.2":0.3, "0.3":0.6, "0.5":1.2};
+var $ = function(id){return document.getElementById(id);};
+function yen(v){ return Math.round(v).toLocaleString("ja-JP"); }
+function pct(v){ return Math.round(v*100) + "%"; }
+function one(v){ return (Math.round(v*10)/10).toFixed(1); }
+function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function normals(rng, n){
+  var out = new Float64Array(n);
+  for (var i=0;i<n;i+=2){
+    var u=1-rng(), v=rng(), r=Math.sqrt(-2*Math.log(u));
+    out[i]=r*Math.cos(2*Math.PI*v); if(i+1<n) out[i+1]=r*Math.sin(2*Math.PI*v);
+  }
+  return out;
+}
+function invNorm(p){
+  var a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.3577518672690,-30.66479806614716,2.506628277459239],
+      b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572],
+      c=[-7.784894002430293e-3,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783],
+      d=[7.784695709041462e-3,0.3224671290700398,2.445134137142996,3.754408661907416];
+  var q,r,pl=0.02425;
+  if(p<pl){q=Math.sqrt(-2*Math.log(p));return(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p>1-pl){q=Math.sqrt(-2*Math.log(1-p));return-(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  q=p-0.5;r=q*q;return(((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function normCdf(x){
+  var t=1/(1+0.3275911*Math.abs(x)/Math.SQRT2), y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x/2);
+  return x>=0 ? (1+y)/2 : (1-y)/2;
+}
+function shareBefore(h){ if(!h) return 1; var s=0; for(var i=0;i<h-6;i++) s+=HOURLY[i]; return s/100; }
+// n人を時間帯に割り振る（最大剰余法）
+function allocate(n, weights){
+  var tot = weights.reduce(function(a,b){return a+b;},0), out=[], rem=[], sum=0;
+  if (!tot || n<=0) return weights.map(function(){return 0;});
+  weights.forEach(function(w,i){ var x=n*w/tot, f=Math.floor(x); out[i]=f; rem[i]={i:i,r:x-f}; sum+=f; });
+  rem.sort(function(a,b){return b.r-a.r;});
+  for (var k=0;k<n-sum;k++) out[rem[k].i]++;
+  return out;
+}
+function extraMean(base, md, rate){ return md ? BARGAIN[String(rate)] * base * (1-shareBefore(md)) : 0; }
+
+/* ================= 店長ゲーム ================= */
+var DAYS = 14, DOW = ["月","火","水","木","金","土","日"], DOWMU = [92,92,98,98,110,118,104];
+var GSIG = 15;
+var game = null, gState = {q:100, md:0, rate:0.3, strat:"fc", auto:false}, gTimer=null, playing=false;
+var shelf = $("shelf"), logEl = $("log");
+for (var i=0;i<DAYS;i++){ var c=document.createElement("div"); logEl.appendChild(c); }
+
+function newGame(){
+  var rng = mulberry32((Date.now() ^ (Math.random()*1e9)) >>> 0), z = normals(rng, DAYS*2), u = [];
+  for (var i=0;i<DAYS*20;i++) u.push(rng());
+  game = {day:0, days:[], profit:0, waste:0, lost:0, soldAll:0, outDays:0, seq:[], u:u};
+  for (i=0;i<DAYS;i++){
+    var fc = DOWMU[i%7], D = Math.max(0, Math.round(fc + GSIG*z[i]));
+    game.seq.push({fc:fc, D:D, z2:z[DAYS+i]});
+  }
+  if (gTimer){ clearInterval(gTimer); gTimer=null; } playing=false;
+  gState.q = game.seq[0].fc; $("gRange").value = gState.q;
+  Array.prototype.forEach.call(logEl.children, function(c){ c.className=""; });
+  ["tProfit","tSold","tWaste","tLost"].forEach(function(id){ $(id).textContent="—"; });
+  $("final").classList.remove("show");
+  $("gTime").textContent="--:--"; $("gMsg").textContent="仕入れる数を決めて、開店してください。";
+  renderGamePanel(); renderTotals(); renderShelf(gState.q, {});
+}
+
+function renderGamePanel(){
+  var d = game.day, s = game.seq[Math.min(d, DAYS-1)];
+  $("gDay").innerHTML = (d+1) + "日目<small>" + DOW[d%7] + "曜</small>";
+  $("gLeft").textContent = "残り" + (DAYS-d) + "日";
+  $("gFc").innerHTML = s.fc + "<small>個 売れそう</small>";
+  $("gQ").innerHTML = gState.q + "<small>個</small>";
+  var diff = gState.q - s.fc;
+  $("gFcN").textContent = diff === 0 ? "予想と同じ数を仕入れる" : (diff>0 ? "予想より " + diff + "個 多め（余裕をもつ）" : "予想より " + (-diff) + "個 少なめ（品切れを許す）");
+  var busy = playing || game.day>=DAYS;
+  $("gOpen").disabled = busy; $("gMinus").disabled = busy; $("gPlus").disabled = busy; $("gRange").disabled = busy;
+  $("gAuto").disabled = busy;
+  $("gAuto").textContent = gState.auto ? "オート実行中…" : "オートで進める ▶▶";
+  Array.prototype.forEach.call(logEl.children, function(c,i){ c.classList.toggle("cur", i===game.day && game.day<DAYS); });
+}
+
+function renderShelf(Q, state){
+  // state: {full, disc, waste, lost}
+  var full = state.full||0, disc = state.disc||0, waste = state.waste||0, lost = state.lost||0;
+  var html = "";
+  for (var i=0;i<Q;i++){
+    var cls = "bento";
+    if (i < full) cls += " full"; else if (i < full+disc) cls += " disc"; else if (waste && i >= Q-waste) cls += " waste";
+    html += '<div class="'+cls+'"></div>';
+  }
+  for (i=0;i<lost;i++) html += '<div class="bento ghost" title="買えなかった客"></div>';
+  shelf.innerHTML = html;
+}
+
+function renderTotals(){
+  $("cProfit").innerHTML = yen(game.profit) + "<small>円</small>";
+  $("cWaste").innerHTML = game.waste + "<small>個</small>";
+  $("cLost").innerHTML = game.lost + "<small>人</small>";
+  var tot = game.soldAll + game.waste + game.lost || 1;
+  $("bSold").style.width = (game.soldAll/tot*100) + "%";
+  $("bWaste").style.width = (game.waste/tot*100) + "%";
+  $("bLost").style.width = (game.lost/tot*100) + "%";
+}
+
+// 1日を時間ごとに再現。返り値は結果と時間ごとの経過
+function simDay(Q, s, md, rate, uOff){
+  var F = shareBefore(md), pd = md ? Math.round(P*(1-rate)) : 0;
+  var Db = Math.round(s.D*F), Da = s.D-Db;
+  var m = extraMean(s.fc, md, rate), E = md ? Math.max(0, Math.round(m + Math.sqrt(m)*s.z2)) : 0;
+  var before = HOURLY.map(function(w,i){ return (md && i>=md-6) ? 0 : w; });
+  var after  = HOURLY.map(function(w,i){ return (md && i>=md-6) ? w : 0; });
+  var cb = allocate(Db, before), ca = allocate(Da+E, after);
+  var stock = Q, full=0, disc=0, lost=0, steps=[];
+  for (var h=0;h<18;h++){
+    var n = cb[h]+ca[h], isDisc = md && (h+6)>=md;
+    for (var k=0;k<n;k++){
+      if (stock>0){ stock--; if (isDisc) disc++; else full++; } else lost++;
+    }
+    steps.push({hour:h+6, full:full, disc:disc, lost:lost, stock:stock, cust:n});
+  }
+  var waste = stock;
+  return {profit: P*full + pd*disc - C*Q, full:full, disc:disc, waste:waste, lost:lost, out:lost>0, steps:steps, D:s.D, E:E};
+}
+
+function openStore(){
+  if (playing || game.day>=DAYS) return;
+  playing = true; renderGamePanel();
+  var d = game.day, s = game.seq[d], Q = gState.q;
+  var r = simDay(Q, s, gState.md, gState.rate);
+  var i = 0, fast = gState.auto;
+  $("gMsg").innerHTML = "<b>" + Q + "個</b> 仕入れて開店。";
+  ["tProfit","tSold","tWaste","tLost"].forEach(function(id){ $(id).textContent="—"; });
+  renderShelf(Q, {});
+  function tick(){
+    if (i < r.steps.length){
+      var st = r.steps[i];
+      $("gTime").textContent = (st.hour<10?"0":"") + st.hour + ":00";
+      renderShelf(Q, {full:st.full, disc:st.disc, lost:st.lost});
+      var msg = "客 " + st.cust + "人";
+      if (gState.md && st.hour===gState.md) msg = "値引き開始。" + msg;
+      if (st.stock===0 && st.lost>0) msg += "　<b style=\"color:var(--short)\">棚が空。客が帰っていく</b>";
+      $("gMsg").innerHTML = msg;
+      i++; return;
+    }
+    clearInterval(gTimer); gTimer=null;
+    finishDay(r, Q);
+  }
+  if (reduceMotion){ finishDay(r,Q); return; }
+  gTimer = setInterval(tick, fast ? 45 : 130);
+}
+
+function finishDay(r, Q){
+  var d = game.day;
+  $("gTime").textContent = "閉店";
+  renderShelf(Q, {full:r.full, disc:r.disc, lost:r.lost, waste:r.waste});
+  $("tProfit").innerHTML = (r.profit<0?"−":"") + yen(Math.abs(r.profit)) + "<small>円</small>";
+  $("tSold").innerHTML = (r.full+r.disc) + "<small>個</small>";
+  $("tWaste").innerHTML = r.waste + "<small>個</small>";
+  $("tLost").innerHTML = r.lost + "<small>人</small>";
+  var m = "実際に来た客は <b>" + r.D + "人</b>（予想 " + game.seq[d].fc + "人）。";
+  if (r.waste>0) m += " <b style=\"color:var(--waste)\">" + r.waste + "個</b> を捨てた。";
+  else if (r.lost>0) m += " <b style=\"color:var(--short)\">" + r.lost + "人</b> が買えなかった。";
+  else m += " ちょうど売り切れた。";
+  $("gMsg").innerHTML = m;
+  game.days.push({q:Q, md:gState.md, r:r});
+  game.profit += r.profit; game.waste += r.waste; game.lost += r.lost; game.soldAll += r.full + r.disc; if (r.out) game.outDays++;
+  var cell = logEl.children[d]; cell.className = r.waste>0 ? "w" : (r.out ? "s" : "e");
+  ["cProfit","cWaste","cLost"].forEach(function(id){ var el=$(id); el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); });
+  renderTotals();
+  game.day++; playing=false;
+  if (game.day >= DAYS){ gState.auto=false; renderGamePanel(); showFinal(); return; }
+  gState.q = gState.auto ? stratQ(gState.strat, game.seq[game.day]) : Q;
+  $("gRange").value = gState.q;
+  renderGamePanel();
+  if (gState.auto) setTimeout(openStore, reduceMotion ? 0 : 500);
+}
+
+function stratQ(strat, s){
+  var cr = (P-C)/P;
+  if (strat==="zero") return Math.min(200, s.fc + Math.round(2.33*GSIG));
+  if (strat==="opt") return Math.max(40, s.fc + Math.round(GSIG*invNorm(cr)));
+  return s.fc;
+}
+
+function showFinal(){
+  var rows = [];
+  function total(strat){
+    var t = {profit:0, waste:0, lost:0, out:0};
+    game.seq.forEach(function(s){ var r = simDay(stratQ(strat,s), s, 0, 0); t.profit+=r.profit; t.waste+=r.waste; t.lost+=r.lost; if(r.out) t.out++; });
+    return t;
+  }
+  var you = {profit:game.profit, waste:game.waste, lost:game.lost, out:game.outDays};
+  var z = total("zero"), o = total("opt"), f = total("fc");
+  rows = [
+    {cls:"you", nm:"あなた", ds:"自分で決めた", t:you},
+    {cls:"r-zero", nm:"品切れさせない", ds:"予想＋35個", t:z},
+    {cls:"", nm:"予想どおり", ds:"予想と同じ数", t:f},
+    {cls:"r-opt", nm:"計算上の最適", ds:"予想−4個（臨界比40%）", t:o}
+  ];
+  $("fTable").innerHTML = rows.map(function(x){
+    return '<tr class="'+x.cls+'"><td><span class="nm">'+x.nm+'</span><span class="ds">'+x.ds+'</span></td><td>'+yen(x.t.profit)+'円</td><td class="bad">'+x.t.waste+'個</td><td>'+x.t.lost+'人</td><td>'+x.t.out+'日</td></tr>';
+  }).join("");
+  var v;
+  if (you.profit >= o.profit) v = "計算上の最適と同じか、それ以上の利益です。捨てた弁当は" + you.waste + "個。運も味方しました。";
+  else if (you.waste > z.waste*0.7) v = "品切れを恐れて多めに仕入れた結果、" + you.waste + "個を捨てました。利益は最適より " + yen(o.profit-you.profit) + "円 少なくなっています。";
+  else v = "捨てた弁当は" + you.waste + "個、買えなかった客は" + you.lost + "人。利益は最適より " + yen(o.profit-you.profit) + "円 少ない結果です。";
+  v += " 「品切れさせない」作戦は、捨てた弁当が " + z.waste + "個 で、利益は最適より " + yen(o.profit-z.profit) + "円 少なくなりました。";
+  $("fVerdict").textContent = v;
+  $("final").classList.add("show");
+  $("gTime").textContent = "14日終了";
+  $("gMsg").textContent = "お疲れさまでした。成績を見てください。";
+  if (!reduceMotion) $("final").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+function setGQ(q){ gState.q = Math.max(40, Math.min(200, q)); $("gRange").value = gState.q; renderGamePanel(); if(!playing) renderShelf(gState.q, {}); }
+$("gMinus").addEventListener("click", function(){ setGQ(gState.q-10); });
+$("gPlus").addEventListener("click", function(){ setGQ(gState.q+10); });
+$("gRange").addEventListener("input", function(e){ setGQ(+e.target.value); });
+$("gOpen").addEventListener("click", function(){ gState.auto=false; openStore(); });
+$("gAuto").addEventListener("click", function(){ if (playing || game.day>=DAYS) return; gState.auto=true; setGQ(stratQ(gState.strat, game.seq[game.day])); openStore(); });
+$("gReset").addEventListener("click", function(){ gState.auto=false; newGame(); });
+$("gAgain").addEventListener("click", function(){ gState.auto=false; newGame(); if(!reduceMotion) $("game").scrollIntoView({behavior:"smooth"}); });
+function seg(id, key, target){
+  $(id).addEventListener("click", function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    Array.prototype.forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===b ? "true" : "false"); });
+    if (typeof target[key] === "string") target[key] = b.dataset.v; else target[key] = +b.dataset.v;
+    if (target === state) update();
+  });
+}
+seg("gMd","md",gState); $("gMd").addEventListener("click", function(){ gState.rate = gState.md===18 ? 0.5 : 0.3; });
+seg("gStrat","strat",gState);
+
+/* ================= 実験 ================= */
+var state = {q:100, sigma:20, md:0, rate:0.3, w:0};
+var Z1 = normals(mulberry32(20241202), N);
+var Z2 = normals(mulberry32(777), N);
+
+function day(Q, D, E, F, pd, w){
+  var Db = Math.round(D*F), Da = D-Db;
+  var soldFull = Math.min(Q, Db), R = Q-soldFull;
+  var after = Da+E, soldDisc = Math.min(R, after), waste = R-soldDisc;
+  var servedA = after>0 ? soldDisc*Da/after : 0;
+  var lost = (Db-soldFull) + (Da-servedA);
+  return {profit: P*soldFull + pd*soldDisc - C*Q - w*waste, waste: waste, lost: lost, out: lost > 1e-9};
+}
+var cache = {};
+function evaluate(s, sigma){
+  var key = [s.md, s.rate, s.w, sigma].join("|");
+  if (cache[key]) return cache[key];
+  var F = shareBefore(s.md), pd = s.md ? Math.round(P*(1-s.rate)) : 0, m = extraMean(MU, s.md, s.rate);
+  var Ds = new Int32Array(N), Es = new Int32Array(N);
+  for (var i=0;i<N;i++){ Ds[i]=Math.max(0, Math.round(MU + sigma*Z1[i])); Es[i]= s.md ? Math.max(0, Math.round(m + Math.sqrt(m)*Z2[i])) : 0; }
+  var res = [];
+  for (var Q=QMIN; Q<=QMAX; Q++){
+    var sp=0, sw=0, sl=0, so=0;
+    for (var j=0;j<N;j++){ var r = day(Q, Ds[j], Es[j], F, pd, s.w); sp+=r.profit; sw+=r.waste; sl+=r.lost; if(r.out) so++; }
+    res.push({q:Q, profit:sp/N, waste:sw/N, lost:sl/N, out:so/N});
+  }
+  var opt = res[0], zero = res[res.length-1];
+  for (var k=0;k<res.length;k++){ if (res[k].profit > opt.profit) opt = res[k]; }
+  for (k=0;k<res.length;k++){ if (res[k].out <= 0.01){ zero = res[k]; break; } }
+  return (cache[key] = {rows:res, opt:opt, zero:zero, at:function(q){return res[q-QMIN];}});
+}
+
+var cur = null;
+function update(){
+  cur = evaluate(state, state.sigma);
+  var r = cur.at(state.q), o = cur.opt, z = cur.zero;
+  $("qOut").innerHTML = state.q + "<small>個</small>";
+  $("sOut").innerHTML = "±" + state.sigma + "<small>個</small>";
+  $("sHint").textContent = "売れる数は、10日のうち約7日が " + (MU-state.sigma) + "〜" + (MU+state.sigma) + "個 の間に入る。";
+  $("wOut").innerHTML = state.w + "<small>円</small>";
+  var pd = Math.round(P*(1-state.rate));
+  $("mdHint").textContent = state.md ? state.md + "時から " + pd + "円で売る。閉店時に残った分は捨てる。" : "値引きしないと、閉店時に残った弁当はすべて捨てる。";
+
+  $("kProfit").innerHTML = yen(r.profit) + "<small>円</small>";
+  var gap = o.profit - r.profit;
+  $("kProfitD").textContent = gap < 0.5 ? "これが最大" : "最大より " + yen(gap) + "円 少ない";
+  $("kWaste").innerHTML = one(r.waste) + "<small>個</small>";
+  $("kWasteD").textContent = "1年で約 " + yen(r.waste*365) + "個";
+  $("kOut").innerHTML = Math.round(r.out*100) + "<small>%</small>";
+  $("kOutD").textContent = "10日のうち約 " + one(r.out*10) + "日";
+  $("kLost").innerHTML = one(r.lost) + "<small>人</small>";
+
+  var v;
+  if (state.q === o.q) v = "この量が、今の条件で利益が最大になる発注量です。それでも10日のうち約" + Math.round(r.out*10) + "日は品切れが起きます。";
+  else if (state.q > o.q) v = "利益が最大になる量（" + o.q + "個）より " + (state.q-o.q) + "個 多く仕入れています。増やした分は、売れるより捨てる損のほうが大きくなっています。";
+  else v = "利益が最大になる量（" + o.q + "個）より " + (o.q-state.q) + "個 少なく仕入れています。もう少し増やすと、売れて得る利益のほうが大きくなります。";
+  $("verdict").textContent = v;
+
+  var rows = [
+    {cls:"r-zero", nm:"絶対に品切れさせない", ds:"品切れの日が100日に1日以下", d:z},
+    {cls:"r-opt", nm:"利益を最大にする", ds:"新聞売り子問題の答え", d:o},
+    {cls:"you", nm:"あなたの発注量", ds:"つまみで選んだ量", d:r}
+  ];
+  $("cmp").innerHTML = rows.map(function(x){
+    return '<tr class="'+x.cls+'"><td><span class="nm">'+x.nm+'</span><span class="ds">'+x.ds+'</span></td><td>'+x.d.q+'個</td><td>'+yen(x.d.profit)+'円</td><td class="bad">'+one(x.d.waste)+'個</td><td class="bad">'+yen(x.d.waste*365)+'個</td><td>'+pct(x.d.out)+'</td></tr>';
+  }).join("");
+  var extraW = (z.waste - o.waste)*365, lossP = (o.profit - z.profit)*365;
+  $("claim").innerHTML = "品切れをなくそうとすると、1年で弁当を <span style=\"color:var(--waste)\">" + yen(extraW) + "個</span> 多く捨て、利益は <span style=\"color:var(--brass)\">" + yen(lossP) + "円</span> 減る。";
+
+  var under = P - C, over = C + state.w, cr = under/(under+over);
+  $("under").textContent = under + "円"; $("over").textContent = over + "円";
+  $("fU").textContent = under; $("fD").textContent = under + " ＋ " + over;
+  $("fR").textContent = pct(cr); $("fR2").textContent = pct(cr);
+  $("fQ").textContent = (Math.round((MU + 20*invNorm(cr))*10)/10) + "個";
+  $("claim2").textContent = "10日のうち" + Math.round((1-cr)*10) + "日";
+
+  $("acc").innerHTML = [5,10,20,30,40].map(function(sg){
+    var e = evaluate(state, sg).opt;
+    var mark = sg === state.sigma ? ' class="you"' : '';
+    return '<tr'+mark+'><td><span class="nm">±'+sg+'個</span></td><td>'+e.q+'個</td><td>'+yen(e.profit)+'円</td><td class="bad">'+one(e.waste)+'個</td><td class="bad">'+yen(e.waste*365)+'個</td><td>'+pct(e.out)+'</td></tr>';
+  }).join("");
+  drawDist(); drawCurve();
+}
+
+function setup(cv){
+  var dpr = window.devicePixelRatio || 1, w = cv.clientWidth, h = parseInt(cv.getAttribute("height"),10);
+  cv.style.height = h + "px";
+  cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
+  var ctx = cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.font = "11px " + css("--body");
+  return {ctx:ctx, w:w, h:h};
+}
+function drawDist(){
+  var g = setup($("cDist")), ctx = g.ctx, W = g.w, H = g.h;
+  var L=10, R=W-10, T=22, B=H-24, x0=0, x1=QMAX;
+  var sx = function(x){return L+(x-x0)/(x1-x0)*(R-L);};
+  var s = state.sigma, pk = 1/(s*Math.sqrt(2*Math.PI));
+  var sy = function(y){return B-(y/pk)*(B-T)*0.92;};
+  ctx.clearRect(0,0,W,H);
+  function area(from, to, color){
+    ctx.beginPath(); ctx.moveTo(sx(from), B);
+    for (var x=from; x<=to; x+=0.5){ ctx.lineTo(sx(x), sy(pk*Math.exp(-(x-MU)*(x-MU)/(2*s*s)))); }
+    ctx.lineTo(sx(to), B); ctx.closePath(); ctx.fillStyle=color; ctx.fill();
+  }
+  area(x0, state.q, css("--waste-deep")); area(state.q, x1, css("--short-deep"));
+  ctx.beginPath();
+  for (var x=x0; x<=x1; x+=0.5){ var y=sy(pk*Math.exp(-(x-MU)*(x-MU)/(2*s*s))); if(x===x0) ctx.moveTo(sx(x),y); else ctx.lineTo(sx(x),y); }
+  ctx.strokeStyle=css("--muted"); ctx.lineWidth=1.2; ctx.stroke();
+  ctx.strokeStyle=css("--line"); ctx.beginPath(); ctx.moveTo(L,B+0.5); ctx.lineTo(R,B+0.5); ctx.stroke();
+  ctx.fillStyle=css("--muted"); ctx.textAlign="center"; ctx.textBaseline="top";
+  for (var t=0;t<=x1;t+=40){ ctx.fillText(t, sx(t), B+5); }
+  ctx.textAlign="right"; ctx.fillText("個", R, B+5);
+  ctx.strokeStyle=css("--paper"); ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(sx(state.q),T-6); ctx.lineTo(sx(state.q),B); ctx.stroke();
+  var pShort = 1-normCdf((state.q+0.5-MU)/s), qx = sx(state.q);
+  ctx.font = "bold 12px " + css("--body"); ctx.textBaseline="top";
+  ctx.fillStyle=css("--waste"); ctx.textAlign="right"; ctx.fillText("仕入れすぎ " + pct(1-pShort) + " ", qx-3, 2);
+  ctx.fillStyle=css("--short"); ctx.textAlign="left"; ctx.fillText(" 足りない " + pct(pShort), qx+3, 2);
+  ctx.fillStyle=css("--paper"); ctx.textAlign="center"; ctx.textBaseline="bottom"; ctx.fillText(state.q + "個", qx, B-2);
+}
+function drawCurve(){
+  var g = setup($("cCurve")), ctx = g.ctx, W = g.w, H = g.h, rows = cur.rows;
+  var L=44, R=W-34, T=18, B=H-24;
+  var sx = function(q){return L+(q-QMIN)/(QMAX-QMIN)*(R-L);};
+  ctx.clearRect(0,0,W,H);
+  var pmin=Infinity, pmax=-Infinity, cmax=0;
+  rows.forEach(function(r){ pmin=Math.min(pmin,r.profit); pmax=Math.max(pmax,r.profit); cmax=Math.max(cmax,r.waste,r.lost); });
+  var step = 10000; pmin = Math.floor(pmin/step)*step; pmax = Math.ceil(pmax/step)*step;
+  var cstep = cmax > 80 ? 40 : 20; cmax = Math.ceil(cmax/cstep)*cstep || cstep;
+  var sy1 = function(v){return B-(v-pmin)/(pmax-pmin)*(B-T);};
+  var sy2 = function(v){return B-v/cmax*(B-T);};
+  ctx.textBaseline="middle"; ctx.lineWidth=1;
+  for (var v=pmin; v<=pmax+1; v+=step){
+    ctx.strokeStyle = v===0 ? css("--faint") : css("--line"); ctx.beginPath(); ctx.moveTo(L,Math.round(sy1(v))+0.5); ctx.lineTo(R,Math.round(sy1(v))+0.5); ctx.stroke();
+    ctx.fillStyle=css("--brass"); ctx.textAlign="right"; ctx.fillText((v/10000)+"万", L-4, sy1(v));
+  }
+  for (v=0; v<=cmax; v+=cstep){ ctx.fillStyle=css("--muted"); ctx.textAlign="left"; ctx.fillText(v+"個", R+4, sy2(v)); }
+  ctx.textAlign="center"; ctx.textBaseline="top"; ctx.fillStyle=css("--muted");
+  for (var q=40;q<=QMAX;q+=40){ ctx.fillText(q, sx(q), B+5); }
+  ctx.textAlign="right"; ctx.fillText("発注量", R, B+5);
+  function vline(q, color, dash, w){ ctx.save(); ctx.strokeStyle=color; ctx.lineWidth=w; ctx.setLineDash(dash); ctx.beginPath(); ctx.moveTo(sx(q),T); ctx.lineTo(sx(q),B); ctx.stroke(); ctx.restore(); }
+  vline(cur.zero.q, css("--short"), [4,4], 1.2); vline(cur.opt.q, css("--brass"), [4,4], 1.2); vline(state.q, css("--paper"), [], 1.6);
+  function line(get, sy, color, w){ ctx.beginPath(); rows.forEach(function(r,i){ var x=sx(r.q), y=sy(get(r)); if(i) ctx.lineTo(x,y); else ctx.moveTo(x,y); }); ctx.strokeStyle=color; ctx.lineWidth=w; ctx.stroke(); }
+  ctx.beginPath(); rows.forEach(function(r,i){ var x=sx(r.q), y=sy1(r.profit); if(i) ctx.lineTo(x,y); else ctx.moveTo(x,y); });
+  ctx.lineTo(sx(QMAX),B); ctx.lineTo(sx(QMIN),B); ctx.closePath(); ctx.globalAlpha=0.12; ctx.fillStyle=css("--brass"); ctx.fill(); ctx.globalAlpha=1;
+  line(function(r){return r.profit;}, sy1, css("--brass"), 2.2);
+  line(function(r){return r.waste;}, sy2, css("--waste"), 2);
+  line(function(r){return r.lost;}, sy2, css("--short"), 2);
+  function dot(x,y,color){ ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fillStyle=color; ctx.fill(); ctx.strokeStyle=css("--ground"); ctx.lineWidth=2; ctx.stroke(); }
+  var r = cur.at(state.q);
+  dot(sx(state.q), sy1(r.profit), css("--brass")); dot(sx(state.q), sy2(r.waste), css("--waste")); dot(sx(state.q), sy2(r.lost), css("--short"));
+  ctx.font = "bold 11px " + css("--body"); ctx.textBaseline="top";
+  var ox = sx(cur.opt.q); ctx.fillStyle=css("--brass"); ctx.textAlign = ox > R-70 ? "right" : "left";
+  ctx.fillText("最大 " + cur.opt.q + "個", ox + (ox > R-70 ? -4 : 4), T);
+  var zx = sx(cur.zero.q); ctx.fillStyle=css("--short"); ctx.textAlign = zx > R-90 ? "right" : "left";
+  ctx.fillText("品切れゼロ " + cur.zero.q + "個", zx + (zx > R-90 ? -4 : 4), T+14);
+}
+
+$("q").addEventListener("input", function(e){ state.q = +e.target.value; update(); });
+$("sigma").addEventListener("input", function(e){ state.sigma = +e.target.value; update(); });
+$("wc").addEventListener("input", function(e){ state.w = +e.target.value; update(); });
+seg("mdTime","md",state); seg("mdRate","rate",state);
+function setQ(q){ state.q = q; $("q").value = q; update(); }
+$("setZero").addEventListener("click", function(){ setQ(cur.zero.q); });
+$("setOpt").addEventListener("click", function(){ setQ(cur.opt.q); });
+var rt; window.addEventListener("resize", function(){ clearTimeout(rt); rt=setTimeout(function(){ if(cur){ drawDist(); drawCurve(); } }, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if(cur){ drawDist(); drawCurve(); } });
+
+newGame();
+update();
+})();
+</script>
+</body>
+</html>
