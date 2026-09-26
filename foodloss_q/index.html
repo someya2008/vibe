@@ -737,9 +737,6 @@ function drawQuestions(n){
   } else deck = valid;
   const picked = deck.slice(0, n);
   LS.set("deck", deck.slice(n));
-  const seen = new Set(LS.get("seen", []));
-  picked.forEach(i => seen.add(i));
-  LS.set("seen", [...seen]);
   return picked.map(i => {
     const q = QUESTIONS[i];
     const opts = shuffle(q.c.map((t, k) => ({ t, ok: k === 0 })));
@@ -754,8 +751,14 @@ function start(){
   show("#s-quiz"); render();
 }
 
+function markSeen(id){ const seen = new Set(LS.get("seen", [])); seen.add(id); LS.set("seen", [...seen]); }
+// 途中でやめたとき：まだ表示していない問題を山の先頭にもどす
+function returnUnseen(){ const rest = G.list.slice(G.i + 1).map(q => q.id); if (rest.length) LS.set("deck", rest.concat(LS.get("deck", []).filter(i => !rest.includes(i)))); }
+
 function render(){
   const q = G.list[G.i];
+  clearTimeout(G.explTimer);
+  markSeen(q.id);
   $("#qIdx").textContent = G.i + 1; $("#qLabel").textContent = "Q" + (G.i + 1);
   $("#bar").style.width = (G.i / G.n * 100) + "%";
   $("#stars").innerHTML = [1, 2, 3].map(k => `<span class="${k <= q.lv ? "" : "off"}">★</span>`).join("");
@@ -816,7 +819,7 @@ function answer(k, btn){
   $("#explAns").textContent = q.opts[okIdx].t;
   $("#explWhy").textContent = q.why; $("#explSrc").textContent = q.src;
   $("#btnNext").textContent = G.i + 1 >= G.n ? "けっかを見る ▶" : "つぎへ ▶";
-  setTimeout(() => { $("#expl").classList.add("on"); $("#expl").scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 650);
+  G.explTimer = setTimeout(() => { $("#expl").classList.add("on"); $("#expl").scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 650);
 }
 
 function animateScore(target){
@@ -828,6 +831,7 @@ function flash(cls){ const f = $("#flash"); f.className = "flash"; void f.offset
 function floatText(x, y, txt){ const d = document.createElement("div"); d.className = "float"; d.textContent = txt; d.style.left = x + "px"; d.style.top = (y - 10) + "px"; document.body.appendChild(d); setTimeout(() => d.remove(), 1000); }
 
 function next(){
+  if (!$("#expl").classList.contains("on")) return; // 解説を表示してから進む
   Sound.click();
   if (G.i + 1 >= G.n) return finish();
   G.i++; render();
@@ -889,7 +893,7 @@ $("#btnStart").addEventListener("click", start);
 $("#btnNext").addEventListener("click", next);
 $("#btnAgain").addEventListener("click", start);
 $("#btnTitle").addEventListener("click", () => { Sound.click(); show("#s-title"); refreshTitle(); });
-$("#btnQuit").addEventListener("click", () => { Sound.click(); Sound.stopBgm(); show("#s-title"); refreshTitle(); });
+$("#btnQuit").addEventListener("click", () => { Sound.click(); Sound.stopBgm(); clearTimeout(G.explTimer); returnUnseen(); show("#s-title"); refreshTitle(); });
 $("#segBgm").addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
   Sound.unlock(); Sound.click();
