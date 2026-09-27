@@ -255,6 +255,7 @@ textarea{font-family:var(--mono);line-height:1.6}
 .sheet td.sel{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
 .sheet td.ref{background:var(--warnbg)}
 .sheet td.rng{background:var(--accent-soft)}
+.sheet.showf td input{color:var(--accent);font-weight:700;text-align:left}
 .sheet:focus{outline:2px solid var(--accent);outline-offset:2px}
 .sheet td input::selection{background:var(--accent);color:#fff}
 .sheet td.err input{color:var(--ng)}
@@ -1296,7 +1297,7 @@ function makeSheet(root, opts){
   function normalizeInput(v){ const n=v.replace(/[！-～]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0)).replace(/　/g," ").replace(/[“”]/g,'"'); const t=n.trim(); if(t.startsWith("=")) return t; if(t!=="" && !isNaN(+t)) return t; return v; }
   const api={ get:a=>value(a), formula:a=>cells[a]||"", set:(a,v)=>{ commit(a,v); }, reset:()=>{ for(const k in cells) delete cells[k]; Object.assign(cells, JSON.parse(initial)); sel="A1"; range=null; clip=null; status.textContent=""; recalc(); },
     copy:(from,to)=>{ const f=cells[from]||""; const [c1,r1]=addr(from),[c2,r2]=addr(to); const nv = f.startsWith("=") ? shiftFormula(f, c2-c1, r2-r1) : f; if(nv==="") delete cells[to]; else cells[to]=nv; recalc(); },
-    showFormulas:(b)=>{ showF=b; refresh(); }, cells, select:(a)=>{ sel=a; range=null; refresh(); }, status };
+    showFormulas:(b)=>{ if(editor) editor.blur(); showF=!!b; wrap.classList.toggle("showf", showF); refresh(); }, cells, select:(a)=>{ sel=a; range=null; refresh(); }, status };
   function value(a, stack=new Set()){ if(a in cache) return cache[a]; const raw=cells[a]; let v;
     if(raw==null||raw==="") v=""; else if(typeof raw==="string" && raw.startsWith("=")){ if(stack.has(a)) return {err:"循環"}; stack.add(a); try{ v=evalNode(parse(tokenize(raw.slice(1))), stack); }catch(e){ v={err:e.message==="名前"?"名前":"式"}; } stack.delete(a); }
     else if(typeof raw==="string" && raw.trim()!=="" && !isNaN(+raw)) v=+raw; else v=raw;
@@ -1333,6 +1334,7 @@ function makeSheet(root, opts){
   function commit(a, v){ v=normalizeInput(v); const old=cells[a]||""; if(old!==v){ if(v==="") delete cells[a]; else cells[a]=v; recalc(); } else refresh(); }
   function recalc(){ for(const k in cache) delete cache[k]; refresh(); if(opts.onChange) opts.onChange(api); }
   function refresh(){
+    if(opts.showBox && opts.showBox.checked!==showF){ showF=opts.showBox.checked; wrap.classList.toggle("showf", showF); }
     let refs=[]; const src = (editor && editAddr) ? editor.value : (cells[sel]||""); if(src.startsWith("=")){ try{ refs=refsOf(parse(tokenize(src.slice(1)))); }catch(e){} }
     const rg=selRange(), multi=rg.w>1||rg.h>1;
     for(let r=1;r<=rows;r++) for(let c=0;c<cols;c++){ const a=addrOf(c,r); const v=value(a), raw=cells[a]||""; const inp=inputs[a];
@@ -1398,8 +1400,11 @@ WIDGETS.sheet = function(el){
   ];
   const list=h("div",{class:"stack"});
   function check(s){ list.innerHTML=""; let n=0; tasks.forEach((t,i)=>{ const ok=t.ok(s); if(ok) n++; list.append(h("div",{class:"pill "+(ok?"ok":""), style:"display:block;white-space:normal"}, `${ok?"✅":"⬜"} 課題 ${i+1}：${t.d}`)); }); if(n===tasks.length) list.append(h("div",{class:"status ok"},"🎉 全課題クリア！")); }
-  const s=makeSheet(el, {cols:5, rows:7, data, onChange:check});
-  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}), "数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), h("p",{class:"small muted"},"セルをクリックして数値や文字を入力し、Enter で確定（矢印キーで移動）。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。数式を入力中に他のセルをクリックするとその番地が式に入り、ドラッグすると範囲（D2:D5）が入ります。セルをドラッグして範囲を選ぶと合計・平均が下に出ます。Ctrl+C／Ctrl+V でコピーすると相対参照が位置に合わせてずれます。選んだセルが参照しているセルは黄色で表示されます。全角で打っても半角に直します。"), h("b",{},"課題"), list); check(s);
+  const showBox=h("input",{type:"checkbox", id:"sheet1-showf"});
+  const s=makeSheet(el, {cols:5, rows:7, data, onChange:check, showBox});
+  ["change","input","click"].forEach(ev=>showBox.addEventListener(ev, ()=>s.showFormulas(showBox.checked)));
+  setTimeout(()=>s.showFormulas(showBox.checked), 300);
+  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, showBox, "数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), h("p",{class:"small muted"},"セルをクリックして数値や文字を入力し、Enter で確定（矢印キーで移動）。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。数式を入力中に他のセルをクリックするとその番地が式に入り、ドラッグすると範囲（D2:D5）が入ります。セルをドラッグして範囲を選ぶと合計・平均が下に出ます。Ctrl+C／Ctrl+V でコピーすると相対参照が位置に合わせてずれます。選んだセルが参照しているセルは黄色で表示されます。全角で打っても半角に直します。"), h("b",{},"課題"), list); check(s);
 };
 
 /* ---------- 5-3 相対参照と絶対参照 ---------- */
@@ -1407,13 +1412,16 @@ WIDGETS.refcopy = function(el){
   const data={A1:"税率",B1:"0.1", A3:"商品",B3:"税抜価格",C3:"税込価格", A4:"ノート",B4:"200", A5:"ペン",B5:"150", A6:"消しゴム",B6:"100", A7:"定規",B7:"300"};
   const msg=h("div",{class:"point", html:"<b>やってみよう</b><span>① C4 に <code>=B4*(1+B1)</code> と入れて Enter。② 「C4 を下にコピー」を押す。C5〜C7 はどうなる？　③ 次に C4 を <code>=B4*(1+$B$1)</code> に直して、もう一度コピー。</span>"});
   const log=h("div",{class:"readout"});
-  const s=makeSheet(el, {cols:4, rows:7, data, onChange:report});
+  const showBox=h("input",{type:"checkbox", id:"sheet2-showf"});
+  const s=makeSheet(el, {cols:4, rows:7, data, onChange:report, showBox});
+  ["change","input","click"].forEach(ev=>showBox.addEventListener(ev, ()=>s.showFormulas(showBox.checked)));
+  setTimeout(()=>s.showFormulas(showBox.checked), 300);
   function report(s){ const rows=["C4","C5","C6","C7"].map(a=>{ const f=s.formula(a); const v=s.get(a); const d = typeof v==="object"&&v ? "#"+v.err : (v===""?"" : typeof v==="number" ? String(+v.toFixed(4)) : v); return `${a}: <b>${f||"（空）"}</b> → ${d}`; }).join("<br>");
     const f4=(s.formula("C4")||"").toUpperCase().replace(/\s/g,""); let verdict="";
     if(f4 && /B1/.test(f4) && !/\$B\$1|B\$1/.test(f4)) verdict=`<span class="hl">B1 が相対参照なので、下にコピーすると B2、B3… とずれてしまいます（税率の入っていないセルを参照 → 結果が税抜のまま）。</span>`;
     else if(/\$B\$1|B\$1/.test(f4)) verdict=`<span style="color:#7fe3bb">$ で行を固定したので、コピーしても税率 B1 を参照し続けます。これが絶対参照。</span>`;
     log.innerHTML=rows+"<br>"+verdict; }
-  el.append(msg, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:()=>{ ["C5","C6","C7"].forEach(a=>s.copy("C4",a)); }},"C4 を C5〜C7 に下にコピー"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+B1)"); }},"C4 に相対参照の式を入れる"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+$B$1)"); }},"C4 に絶対参照の式を入れる"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}),"数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), log); report(s);
+  el.append(msg, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:()=>{ ["C5","C6","C7"].forEach(a=>s.copy("C4",a)); }},"C4 を C5〜C7 に下にコピー"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+B1)"); }},"C4 に相対参照の式を入れる"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+$B$1)"); }},"C4 に絶対参照の式を入れる"), h("label",{class:"check"}, showBox,"数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), log); report(s);
 };
 
 /* ---------- 5-4 グラフ ---------- */
