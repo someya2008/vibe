@@ -254,6 +254,9 @@ textarea{font-family:var(--mono);line-height:1.6}
 .sheet td input{width:100%;height:34px;border:0;background:transparent;font:inherit;padding:0 8px;color:var(--text);outline:none}
 .sheet td.sel{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
 .sheet td.ref{background:var(--warnbg)}
+.sheet td.rng{background:var(--accent-soft)}
+.sheet:focus{outline:2px solid var(--accent);outline-offset:2px}
+.sheet td input::selection{background:var(--accent);color:#fff}
 .sheet td.err input{color:var(--ng)}
 .sheet td.num input{text-align:right}
 .fbar{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:14px}
@@ -1279,12 +1282,21 @@ function shiftFormula(f, dc, dr){ // 相対参照だけをずらす
 
 function makeSheet(root, opts){
   const cols=opts.cols||5, rows=opts.rows||7; const cells={}; Object.assign(cells, opts.data||{});
-  let sel="A1", showF=false; const cache={};
-  const fbar=h("div",{class:"fbar"}), addrEl=h("span",{class:"addr"},"A1"), finp=h("input",{type:"text", placeholder:"= で始めると数式", spellcheck:"false"});
-  fbar.append(addrEl, finp);
-  const tbl=h("table"), wrap=h("div",{class:"sheet"}, tbl), status=h("div",{class:"status"});
   const initial=JSON.stringify(opts.data||{});
-  const api={ get:a=>value(a), formula:a=>cells[a]||"", set:(a,v)=>{ cells[a]=v; recalc(); }, reset:()=>{ for(const k in cells) delete cells[k]; Object.assign(cells, JSON.parse(initial)); sel="A1"; recalc(); }, copy:(from,to)=>{ const f=cells[from]||""; const [c1,r1]=addr(from),[c2,r2]=addr(to); cells[to]= f.startsWith("=") ? shiftFormula(f, c2-c1, r2-r1) : f; recalc(); }, showFormulas:(b)=>{ showF=b; render(); }, cells, select:(a)=>{ sel=a; render(); }, status };
+  let sel="A1", range=null, showF=false, editor=null, editAddr=null, insertSpan=null, dragging=null, clip=null; const cache={};
+  const fbar=h("div",{class:"fbar"}), addrEl=h("span",{class:"addr"},"A1"), finp=h("input",{type:"text", placeholder:"= で始めると数式", spellcheck:"false", autocomplete:"off"});
+  fbar.append(addrEl, finp);
+  const tbl=h("table"), wrap=h("div",{class:"sheet", tabindex:"-1"}, tbl), status=h("div",{class:"status"}), info=h("div",{class:"small muted"});
+  const inputs={}, tds={};
+  const addrOf=(c,r)=>colName(c)+r, clampC=c=>Math.max(0,Math.min(cols-1,c)), clampR=r=>Math.max(1,Math.min(rows,r));
+  const normRange=rg=>{ const c1=Math.min(rg.a[0],rg.b[0]), c2=Math.max(rg.a[0],rg.b[0]), r1=Math.min(rg.a[1],rg.b[1]), r2=Math.max(rg.a[1],rg.b[1]); return {c1,c2,r1,r2,w:c2-c1+1,h:r2-r1+1}; };
+  const rangeStr=rg=> rg.w===1&&rg.h===1 ? addrOf(rg.c1,rg.r1) : addrOf(rg.c1,rg.r1)+":"+addrOf(rg.c2,rg.r2);
+  const selRange=()=> range ? normRange(range) : (()=>{ const [c,r]=addr(sel); return {c1:c,c2:c,r1:r,r2:r,w:1,h:1}; })();
+  /* 全角で入力された数式・数値を半角に直す（日本語入力のまま打った場合） */
+  function normalizeInput(v){ const n=v.replace(/[！-～]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0)).replace(/　/g," ").replace(/[“”]/g,'"'); const t=n.trim(); if(t.startsWith("=")) return t; if(t!=="" && !isNaN(+t)) return t; return v; }
+  const api={ get:a=>value(a), formula:a=>cells[a]||"", set:(a,v)=>{ commit(a,v); }, reset:()=>{ for(const k in cells) delete cells[k]; Object.assign(cells, JSON.parse(initial)); sel="A1"; range=null; clip=null; status.textContent=""; recalc(); },
+    copy:(from,to)=>{ const f=cells[from]||""; const [c1,r1]=addr(from),[c2,r2]=addr(to); const nv = f.startsWith("=") ? shiftFormula(f, c2-c1, r2-r1) : f; if(nv==="") delete cells[to]; else cells[to]=nv; recalc(); },
+    showFormulas:(b)=>{ showF=b; refresh(); }, cells, select:(a)=>{ sel=a; range=null; refresh(); }, status };
   function value(a, stack=new Set()){ if(a in cache) return cache[a]; const raw=cells[a]; let v;
     if(raw==null||raw==="") v=""; else if(typeof raw==="string" && raw.startsWith("=")){ if(stack.has(a)) return {err:"循環"}; stack.add(a); try{ v=evalNode(parse(tokenize(raw.slice(1))), stack); }catch(e){ v={err:e.message==="名前"?"名前":"式"}; } stack.delete(a); }
     else if(typeof raw==="string" && raw.trim()!=="" && !isNaN(+raw)) v=+raw; else v=raw;
@@ -1318,20 +1330,59 @@ function makeSheet(root, opts){
   const isErr=v=>v&&typeof v==="object"&&"err" in v;
   const num=v=>{ if(isErr(v)) return v; if(v===""||v==null) return 0; if(typeof v==="boolean") return v?1:0; if(typeof v==="number") return v; if(!isNaN(+v)) return +v; return {err:"値"}; };
   const disp=v=>{ if(isErr(v)) return "#"+v.err; if(typeof v==="number") return Number.isInteger(v)?String(v):String(+v.toFixed(4)); if(typeof v==="boolean") return v?"TRUE":"FALSE"; return v==null?"":String(v); };
-  function recalc(){ for(const k in cache) delete cache[k]; render(); if(opts.onChange) opts.onChange(api); }
-  function render(){
-    let refs=[]; const f=cells[sel]||""; if(f.startsWith("=")){ try{ refs=refsOf(parse(tokenize(f.slice(1)))); }catch(e){} }
-    tbl.innerHTML=""; const head=h("tr",{}, h("th",{},"")); for(let c=0;c<cols;c++) head.append(h("th",{}, colName(c))); tbl.append(head);
-    for(let r=1;r<=rows;r++){ const tr=h("tr",{}, h("th",{}, String(r))); for(let c=0;c<cols;c++){ const a=colName(c)+r; const v=value(a); const raw=cells[a]||""; const td=h("td",{class:(a===sel?"sel ":"")+(refs.includes(a)?"ref ":"")+(isErr(v)?"err ":"")+(typeof v==="number"?"num":"")});
-        const inp=h("input",{type:"text", value: showF ? raw : disp(v), spellcheck:"false", "data-a":a}); inp.addEventListener("focus",()=>{ if(sel!==a){ sel=a; render(); const el2=tbl.querySelector(`input[data-a="${a}"]`); if(el2) el2.focus(); } inp.value=raw; });
-        inp.addEventListener("blur",()=>{ if(inp.value!==raw){ cells[a]=inp.value; recalc(); } else inp.value= showF?raw:disp(value(a)); });
-        inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); inp.blur(); const nx=tbl.querySelector(`input[data-a="${colName(c)+(r+1)}"]`); if(nx) nx.focus(); } });
-        td.append(inp); tr.append(td); } tbl.append(tr); }
-    addrEl.textContent=sel; finp.value=cells[sel]||"";
+  function commit(a, v){ v=normalizeInput(v); const old=cells[a]||""; if(old!==v){ if(v==="") delete cells[a]; else cells[a]=v; recalc(); } else refresh(); }
+  function recalc(){ for(const k in cache) delete cache[k]; refresh(); if(opts.onChange) opts.onChange(api); }
+  function refresh(){
+    let refs=[]; const src = (editor && editAddr) ? editor.value : (cells[sel]||""); if(src.startsWith("=")){ try{ refs=refsOf(parse(tokenize(src.slice(1)))); }catch(e){} }
+    const rg=selRange(), multi=rg.w>1||rg.h>1;
+    for(let r=1;r<=rows;r++) for(let c=0;c<cols;c++){ const a=addrOf(c,r); const v=value(a), raw=cells[a]||""; const inp=inputs[a];
+      tds[a].className=(a===sel?"sel ":"")+(multi&&c>=rg.c1&&c<=rg.c2&&r>=rg.r1&&r<=rg.r2?"rng ":"")+(refs.includes(a)?"ref ":"")+(isErr(v)?"err ":"")+(typeof v==="number"?"num":"");
+      if(inp!==editor) inp.value = showF ? raw : disp(v); }
+    addrEl.textContent = multi ? rangeStr(rg) : sel; if(finp!==editor) finp.value=cells[sel]||"";
+    if(multi){ const nums=[]; for(let r=rg.r1;r<=rg.r2;r++) for(let c=rg.c1;c<=rg.c2;c++){ const v=value(addrOf(c,r)); if(typeof v==="number") nums.push(v); } const sum=nums.reduce((x,y)=>x+y,0); info.textContent = nums.length ? `選択範囲 ${rangeStr(rg)}：合計 ${disp(sum)}　平均 ${disp(sum/nums.length)}　数値の個数 ${nums.length}` : `選択範囲 ${rangeStr(rg)}`; } else info.textContent="";
   }
-  finp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ cells[sel]=finp.value; recalc(); } });
-  finp.addEventListener("blur",()=>{ if((cells[sel]||"")!==finp.value){ cells[sel]=finp.value; recalc(); } });
-  root.append(fbar, wrap, status); recalc(); return api;
+  /* 数式の入力中に、セルをクリック／ドラッグして番地を差し込む */
+  const isFormulaEdit=()=> editor && editor.value.trimStart().startsWith("=");
+  function canInsert(){ const pos=editor.selectionStart; if(insertSpan && pos===insertSpan[1]) return true; const before=editor.value.slice(0,pos).replace(/\s+$/,""); return /[=+\-*\/^(,:<>&]$/.test(before); }
+  function insertRef(text){ const v=editor.value; let st,en; if(insertSpan){ [st,en]=insertSpan; } else { st=en=editor.selectionStart; } editor.value=v.slice(0,st)+text+v.slice(en); insertSpan=[st,st+text.length]; editor.setSelectionRange(insertSpan[1],insertSpan[1]); refresh(); }
+  function focusCell(a, selectAll=true){ const inp=inputs[a]; inp.focus(); if(selectAll) inp.select(); }
+  /* コピー・貼り付け（相対参照はずらす） */
+  function copySel(){ const rg=selRange(); const data=[]; for(let r=rg.r1;r<=rg.r2;r++){ const row=[]; for(let c=rg.c1;c<=rg.c2;c++) row.push(cells[addrOf(c,r)]||""); data.push(row); } clip={c:rg.c1,r:rg.r1,w:rg.w,h:rg.h,data}; status.className="status"; status.textContent=`${rangeStr(rg)} をコピーしました。貼り付け先のセルを選んで Ctrl+V（または「貼り付け」）`; }
+  function pasteSel(){ if(!clip){ status.className="status ng"; status.textContent="先にコピーしてください（Ctrl+C または「コピー」）"; return; } const rg=selRange(); const W = (rg.w>1||rg.h>1) && rg.w%clip.w===0 ? rg.w : clip.w, H = (rg.w>1||rg.h>1) && rg.h%clip.h===0 ? rg.h : clip.h; const changed=[];
+    for(let j=0;j<H;j++) for(let i=0;i<W;i++){ const c=rg.c1+i, r=rg.r1+j; if(c>=cols||r>rows) continue; const src=clip.data[j%clip.h][i%clip.w]; const dc=c-(clip.c+i%clip.w), dr=r-(clip.r+j%clip.h); const nv=src.startsWith("=")?shiftFormula(src,dc,dr):src; const a=addrOf(c,r); if(nv==="") delete cells[a]; else cells[a]=nv; if(src.startsWith("=")) changed.push(`${a}: ${nv}`); }
+    range = (W>1||H>1) ? {a:[rg.c1,rg.r1], b:[Math.min(cols-1,rg.c1+W-1), Math.min(rows,rg.r1+H-1)]} : null; recalc(); status.className="status ok"; status.innerHTML = changed.length ? "貼り付けました。数式の参照はコピー元との位置関係を保ってずれています：<span class='mono small'>"+changed.join("　")+"</span>" : "貼り付けました。"; }
+  function fillDown(){ const rg=selRange(); if(rg.h<2){ status.className="status ng"; status.textContent="コピー元のセルを一番上にして、下方向に範囲をドラッグしてから押してください（例：D2 から D5 まで）"; return; } for(let c=rg.c1;c<=rg.c2;c++) for(let r=rg.r1+1;r<=rg.r2;r++) api.copy(addrOf(c,rg.r1), addrOf(c,r)); status.className="status ok"; status.textContent=`${addrOf(rg.c1,rg.r1)}${rg.w>1?":"+addrOf(rg.c2,rg.r1):""} の内容を下にコピーしました（相対参照は行ごとにずれます）`; }
+  function clearSel(){ const rg=selRange(); for(let r=rg.r1;r<=rg.r2;r++) for(let c=rg.c1;c<=rg.c2;c++) delete cells[addrOf(c,r)]; recalc(); }
+  /* 表を1回だけ組み立て、以後は値とクラスだけ更新する */
+  const head=h("tr",{}, h("th",{},"")); for(let c=0;c<cols;c++) head.append(h("th",{}, colName(c))); tbl.append(head);
+  for(let r=1;r<=rows;r++){ const tr=h("tr",{}, h("th",{}, String(r))); for(let c=0;c<cols;c++){ const a=addrOf(c,r); const td=h("td"); const inp=h("input",{type:"text", spellcheck:"false", autocomplete:"off", "data-a":a, "aria-label":a}); tds[a]=td; inputs[a]=inp; td.append(inp); tr.append(td);
+      td.addEventListener("mousedown", e=>{ if(e.button!==0) return;
+        if(isFormulaEdit() && editAddr!==a && canInsert()){ e.preventDefault(); dragging={mode:"insert", anchor:[c,r]}; insertRef(a); return; }
+        if(e.detail>=2 || (editor===inp)) return;               // ダブルクリック／編集中のセル自身：通常どおりカーソルを置く
+        e.preventDefault(); dragging={mode:"select", anchor:[c,r]}; range=null; sel=a; refresh(); });
+      td.addEventListener("mouseover", ()=>{ if(!dragging) return; const rg=normRange({a:dragging.anchor, b:[c,r]}); if(dragging.mode==="insert") insertRef(rangeStr(rg)); else { range={a:dragging.anchor, b:[c,r]}; refresh(); } });
+      inp.addEventListener("focus", ()=>{ editor=inp; editAddr=a; sel=a; range=null; insertSpan=null; inp.value=cells[a]||""; refresh(); });
+      inp.addEventListener("blur", ()=>{ if(editor===inp){ const v=inp.value; editor=null; editAddr=null; insertSpan=null; commit(a,v); } });
+      inp.addEventListener("input", ()=>{ insertSpan=null; refresh(); });
+      inp.addEventListener("keydown", e=>{ if(e.isComposing||e.keyCode===229) return; const dirty = inp.value!==(cells[a]||""); const [cc,rr]=[c,r];
+        if(e.key==="Enter"){ e.preventDefault(); focusCell(addrOf(cc, clampR(rr+(e.shiftKey?-1:1)))); return; }
+        if(e.key==="Tab"){ e.preventDefault(); focusCell(addrOf(clampC(cc+(e.shiftKey?-1:1)), rr)); return; }
+        if(e.key==="Escape"){ inp.value=cells[a]||""; insertSpan=null; refresh(); return; }
+        if((e.ctrlKey||e.metaKey) && (e.key==="c"||e.key==="C") && !dirty){ e.preventDefault(); copySel(); return; }
+        if((e.ctrlKey||e.metaKey) && (e.key==="v"||e.key==="V") && !dirty){ e.preventDefault(); inp.blur(); pasteSel(); focusCell(sel); return; }
+        if(!dirty && !isFormulaEdit()){ const mv={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key]; if(mv){ e.preventDefault(); focusCell(addrOf(clampC(cc+mv[0]), clampR(rr+mv[1]))); return; } }
+        if(e.key.length===1||e.key==="Backspace"||e.key==="Delete") insertSpan=null; });
+    } tbl.append(tr); }
+  document.addEventListener("mouseup", ()=>{ if(!dragging) return; const d=dragging; dragging=null;
+    if(d.mode==="select"){ const rg=selRange(); if(rg.w===1&&rg.h===1){ range=null; focusCell(sel); } else { if(editor){ editor.blur(); } wrap.focus(); refresh(); } }
+    else { editor.focus(); if(insertSpan) editor.setSelectionRange(insertSpan[1],insertSpan[1]); } });
+  wrap.addEventListener("keydown", e=>{ if(e.target!==wrap) return; if((e.ctrlKey||e.metaKey)&&(e.key==="c"||e.key==="C")){ e.preventDefault(); copySel(); } else if((e.ctrlKey||e.metaKey)&&(e.key==="v"||e.key==="V")){ e.preventDefault(); pasteSel(); } else if(e.key==="Delete"||e.key==="Backspace"){ e.preventDefault(); clearSel(); } else if(e.key==="Escape"){ range=null; refresh(); } });
+  finp.addEventListener("focus", ()=>{ editor=finp; editAddr=sel; range=null; insertSpan=null; refresh(); });
+  finp.addEventListener("blur", ()=>{ if(editor===finp){ const v=finp.value, a=editAddr; editor=null; editAddr=null; insertSpan=null; commit(a,v); } });
+  finp.addEventListener("input", ()=>{ insertSpan=null; refresh(); });
+  finp.addEventListener("keydown", e=>{ if(e.isComposing||e.keyCode===229) return; if(e.key==="Enter"){ e.preventDefault(); const a=editAddr; finp.blur(); focusCell(a); } else if(e.key==="Escape"){ finp.value=cells[editAddr]||""; refresh(); } else if(e.key.length===1||e.key==="Backspace"||e.key==="Delete") insertSpan=null; });
+  const tools=h("div",{class:"row"}, h("button",{class:"btn sm", onclick:copySel},"コピー（Ctrl+C）"), h("button",{class:"btn sm", onclick:()=>{ pasteSel(); }},"貼り付け（Ctrl+V）"), h("button",{class:"btn sm", onclick:fillDown},"選択範囲：一番上の行を下へフィル"), h("button",{class:"btn sm", onclick:clearSel},"選択セルを消去"));
+  root.append(fbar, wrap, info, tools, status); recalc(); return api;
 }
 WIDGETS._makeSheet = makeSheet;
 
@@ -1348,7 +1399,7 @@ WIDGETS.sheet = function(el){
   const list=h("div",{class:"stack"});
   function check(s){ list.innerHTML=""; let n=0; tasks.forEach((t,i)=>{ const ok=t.ok(s); if(ok) n++; list.append(h("div",{class:"pill "+(ok?"ok":""), style:"display:block;white-space:normal"}, `${ok?"✅":"⬜"} 課題 ${i+1}：${t.d}`)); }); if(n===tasks.length) list.append(h("div",{class:"status ok"},"🎉 全課題クリア！")); }
   const s=makeSheet(el, {cols:5, rows:7, data, onChange:check});
-  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}), "数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), h("p",{class:"small muted"},"セルをクリックして入力し、Enter で確定。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。選んだセルが参照しているセルは黄色で表示されます。"), h("b",{},"課題"), list); check(s);
+  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}), "数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), h("p",{class:"small muted"},"セルをクリックして数値や文字を入力し、Enter で確定（矢印キーで移動）。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。数式を入力中に他のセルをクリックするとその番地が式に入り、ドラッグすると範囲（D2:D5）が入ります。セルをドラッグして範囲を選ぶと合計・平均が下に出ます。Ctrl+C／Ctrl+V でコピーすると相対参照が位置に合わせてずれます。選んだセルが参照しているセルは黄色で表示されます。全角で打っても半角に直します。"), h("b",{},"課題"), list); check(s);
 };
 
 /* ---------- 5-3 相対参照と絶対参照 ---------- */
