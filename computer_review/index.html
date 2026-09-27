@@ -936,24 +936,29 @@ const sleep = ms=>new Promise(r=>setTimeout(r,ms));
 
 /* ---------- 汎用：マッチングゲーム ---------- */
 function matching(el, pairs, labels){
-  const left = shuffle(pairs.map((p,i)=>({t:p[0], i}))), right = shuffle(pairs.map((p,i)=>({t:p[1], i})));
   let selL=null, selR=null, done=0;
-  const status = h("div",{class:"status"});
-  const mk = (list, side)=> h("div",{class:"col"}, ...list.map(o=>h("button",{class:"mbtn", "data-i":o.i, onclick:(e)=>pick(side, e.currentTarget)}, o.t)));
-  const L = mk(left,"L"), R = mk(right,"R");
+  const status=h("div",{class:"status"}), grid=h("div",{class:"matchgrid"}), answers=h("div",{class:"stack", hidden:""});
+  function build(){
+    const left=shuffle(pairs.map((p,i)=>({t:p[0], i}))), right=shuffle(pairs.map((p,i)=>({t:p[1], i})));
+    grid.innerHTML=""; selL=selR=null; done=0; status.textContent=""; status.className="status";
+    const mk=(list, side)=>h("div",{class:"col"}, ...list.map(o=>h("button",{class:"mbtn", "data-i":o.i, onclick:(e)=>pick(side, e.currentTarget)}, o.t)));
+    grid.append(mk(left,"L"), mk(right,"R"));
+  }
   function pick(side, btn){
     if(btn.classList.contains("done")) return;
-    if(side==="L"){ L.querySelectorAll(".mbtn").forEach(b=>b.classList.remove("on")); btn.classList.add("on"); selL=btn; }
-    else { R.querySelectorAll(".mbtn").forEach(b=>b.classList.remove("on")); btn.classList.add("on"); selR=btn; }
+    const col=btn.parentElement; col.querySelectorAll(".mbtn").forEach(b=>b.classList.remove("on")); btn.classList.add("on");
+    if(side==="L") selL=btn; else selR=btn;
     if(selL && selR){
-      if(selL.dataset.i===selR.dataset.i){ selL.classList.add("done"); selR.classList.add("done"); selL.classList.remove("on"); selR.classList.remove("on"); done++; status.textContent = done===pairs.length ? "🎉 全部そろいました！" : `✓ 正解（${done}/${pairs.length}）`; status.className="status ok"; }
-      else { selL.classList.add("shake"); selR.classList.add("shake"); setTimeout(()=>{selL.classList.remove("shake","on"); selR.classList.remove("shake","on");},350); status.textContent="✗ ちがう組み合わせです"; status.className="status ng"; }
-      selL=selR=null;
+      const a=selL, b=selR; selL=selR=null;
+      if(a.dataset.i===b.dataset.i){ a.classList.add("done"); b.classList.add("done"); a.classList.remove("on"); b.classList.remove("on"); done++; status.textContent = done===pairs.length ? "🎉 全部そろいました！" : `✓ 正解（${done}/${pairs.length}）`; status.className="status ok"; }
+      else { a.classList.add("shake"); b.classList.add("shake"); setTimeout(()=>{ a.classList.remove("shake","on"); b.classList.remove("shake","on"); },350); status.textContent=`✗ 「${a.textContent}」と「${b.textContent}」は組み合わせがちがいます`; status.className="status ng"; }
     }
   }
-  el.append(h("p",{class:"small muted"}, labels||"左と右から1つずつ選んで、正しい組み合わせを作ろう。"), h("div",{class:"matchgrid"}, L, R), status);
+  answers.append(h("b",{},"正解の組み合わせ"), ...pairs.map(p=>h("div",{class:"small"}, h("b",{},p[0]), " ── ", p[1])));
+  el.append(h("p",{class:"small muted"}, labels||"左と右から1つずつ選んで、正しい組み合わせを作ろう。"), grid, status,
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:build},"↻ やり直す（並びかえ）"), h("button",{class:"btn sm", onclick:()=>{ answers.hidden=!answers.hidden; }},"正解の組み合わせを見る／隠す")), answers);
+  build();
 }
-
 WIDGETS._matching = matching;
 
 /* ============================================================ 1-1 五大装置 */
@@ -1033,9 +1038,10 @@ WIDGETS.sorter = function(el){
   const items = shuffle([ ["キーボード","in"],["マウス","in"],["スキャナ","in"],["マイク","in"],["Web カメラ","in"],["タッチパネル","in","指の位置を読み取るセンサなので入力装置。表示部分（ディスプレイ）は出力装置"],["ディスプレイ","out"],["プリンタ","out"],["スピーカ","out"],["プロジェクタ","out"],["SSD","mem"],["HDD","mem"],["メインメモリ（DRAM）","mem","主記憶装置。記憶装置の仲間"],["USB メモリ","mem"],["CPU","cpu","演算装置と制御装置を合わせたもの"] ]);
   let i=0, ok=0; const card=h("div",{class:"item"}), status=h("div",{class:"status"}), score=h("div",{class:"scoreline"});
   const binBox=h("div",{class:"bins"}, ...bins.map(b=>h("button",{class:"btn", onclick:()=>answer(b[0])}, b[1])));
-  function show(){ if(i>=items.length){ card.textContent=`おわり！ ${ok} / ${items.length} 問正解`; binBox.style.display="none"; el.append(h("button",{class:"btn primary", onclick:()=>{ i=0; ok=0; binBox.style.display=""; el.lastChild.remove(); items.splice(0,items.length,...shuffle(items)); status.textContent=""; show(); }},"もう一度")); return; } card.textContent=items[i][0]; score.textContent=`${i+1} / ${items.length}　正解 ${ok}`; }
+  function show(){ if(i>=items.length){ card.textContent=`おわり！ ${ok} / ${items.length} 問正解`; binBox.style.display="none"; el.append(h("button",{class:"btn primary again", onclick:restart},"もう一度")); return; } card.textContent=items[i][0]; score.textContent=`${i+1} / ${items.length}　正解 ${ok}`; }
   function answer(b){ if(i>=items.length) return; const it=items[i]; const right=it[1]===b; if(right) ok++; status.className="status "+(right?"ok":"ng"); status.textContent=(right?"⭕ 正解":"❌ 正解は「"+bins.find(x=>x[0]===it[1])[1]+"」")+(it[2]?"：" + it[2]:""); i++; show(); }
-  el.append(h("div",{class:"sorter"}, score, card, binBox, status)); show();
+  function restart(){ i=0; ok=0; binBox.style.display=""; const again=el.querySelector(".again"); if(again) again.remove(); items.splice(0,items.length,...shuffle(items)); status.textContent=""; status.className="status"; show(); }
+  el.append(h("div",{class:"sorter"}, score, card, binBox, status), h("button",{class:"btn sm", onclick:restart},"↻ 最初からやり直す")); show();
 };
 
 /* ============================================================ 2-1 ビットスイッチ */
@@ -1277,7 +1283,8 @@ function makeSheet(root, opts){
   const fbar=h("div",{class:"fbar"}), addrEl=h("span",{class:"addr"},"A1"), finp=h("input",{type:"text", placeholder:"= で始めると数式", spellcheck:"false"});
   fbar.append(addrEl, finp);
   const tbl=h("table"), wrap=h("div",{class:"sheet"}, tbl), status=h("div",{class:"status"});
-  const api={ get:a=>value(a), formula:a=>cells[a]||"", set:(a,v)=>{ cells[a]=v; recalc(); }, copy:(from,to)=>{ const f=cells[from]||""; const [c1,r1]=addr(from),[c2,r2]=addr(to); cells[to]= f.startsWith("=") ? shiftFormula(f, c2-c1, r2-r1) : f; recalc(); }, showFormulas:(b)=>{ showF=b; render(); }, cells, select:(a)=>{ sel=a; render(); }, status };
+  const initial=JSON.stringify(opts.data||{});
+  const api={ get:a=>value(a), formula:a=>cells[a]||"", set:(a,v)=>{ cells[a]=v; recalc(); }, reset:()=>{ for(const k in cells) delete cells[k]; Object.assign(cells, JSON.parse(initial)); sel="A1"; recalc(); }, copy:(from,to)=>{ const f=cells[from]||""; const [c1,r1]=addr(from),[c2,r2]=addr(to); cells[to]= f.startsWith("=") ? shiftFormula(f, c2-c1, r2-r1) : f; recalc(); }, showFormulas:(b)=>{ showF=b; render(); }, cells, select:(a)=>{ sel=a; render(); }, status };
   function value(a, stack=new Set()){ if(a in cache) return cache[a]; const raw=cells[a]; let v;
     if(raw==null||raw==="") v=""; else if(typeof raw==="string" && raw.startsWith("=")){ if(stack.has(a)) return {err:"循環"}; stack.add(a); try{ v=evalNode(parse(tokenize(raw.slice(1))), stack); }catch(e){ v={err:e.message==="名前"?"名前":"式"}; } stack.delete(a); }
     else if(typeof raw==="string" && raw.trim()!=="" && !isNaN(+raw)) v=+raw; else v=raw;
@@ -1341,7 +1348,7 @@ WIDGETS.sheet = function(el){
   const list=h("div",{class:"stack"});
   function check(s){ list.innerHTML=""; let n=0; tasks.forEach((t,i)=>{ const ok=t.ok(s); if(ok) n++; list.append(h("div",{class:"pill "+(ok?"ok":""), style:"display:block;white-space:normal"}, `${ok?"✅":"⬜"} 課題 ${i+1}：${t.d}`)); }); if(n===tasks.length) list.append(h("div",{class:"status ok"},"🎉 全課題クリア！")); }
   const s=makeSheet(el, {cols:5, rows:7, data, onChange:check});
-  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}), "数式を表示")), h("p",{class:"small muted"},"セルをクリックして入力し、Enter で確定。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。選んだセルが参照しているセルは黄色で表示されます。"), h("b",{},"課題"), list); check(s);
+  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}), "数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), h("p",{class:"small muted"},"セルをクリックして入力し、Enter で確定。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。選んだセルが参照しているセルは黄色で表示されます。"), h("b",{},"課題"), list); check(s);
 };
 
 /* ---------- 5-3 相対参照と絶対参照 ---------- */
@@ -1355,7 +1362,7 @@ WIDGETS.refcopy = function(el){
     if(f4 && /B1/.test(f4) && !/\$B\$1|B\$1/.test(f4)) verdict=`<span class="hl">B1 が相対参照なので、下にコピーすると B2、B3… とずれてしまいます（税率の入っていないセルを参照 → 結果が税抜のまま）。</span>`;
     else if(/\$B\$1|B\$1/.test(f4)) verdict=`<span style="color:#7fe3bb">$ で行を固定したので、コピーしても税率 B1 を参照し続けます。これが絶対参照。</span>`;
     log.innerHTML=rows+"<br>"+verdict; }
-  el.append(msg, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:()=>{ ["C5","C6","C7"].forEach(a=>s.copy("C4",a)); }},"C4 を C5〜C7 に下にコピー"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+B1)"); }},"C4 に相対参照の式を入れる"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+$B$1)"); }},"C4 に絶対参照の式を入れる"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}),"数式を表示")), log); report(s);
+  el.append(msg, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:()=>{ ["C5","C6","C7"].forEach(a=>s.copy("C4",a)); }},"C4 を C5〜C7 に下にコピー"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+B1)"); }},"C4 に相対参照の式を入れる"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+$B$1)"); }},"C4 に絶対参照の式を入れる"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}),"数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), log); report(s);
 };
 
 /* ---------- 5-4 グラフ ---------- */
@@ -1377,7 +1384,7 @@ WIDGETS.charts = function(el){
     g+=`<line x1="${L}" y1="10" x2="${L}" y2="${H-B}" stroke="#c4cde0"/><line x1="${L}" y1="${H-B}" x2="${W-5}" y2="${H-B}" stroke="#c4cde0"/></svg>`; area.innerHTML=g; }
   function show(){ const s=SC[si]; q.innerHTML=`<b>目的 ${si+1}/${SC.length}</b><span>${s.q}。どのグラフにする？</span>`; area.innerHTML=""; status.textContent=""; sel.querySelectorAll(".chip").forEach(c=>c.classList.remove("ok","ng","on")); }
   TYPES.forEach(([t,n])=>sel.append(h("button",{class:"chip", onclick:(e)=>{ draw(t); const s=SC[si]; sel.querySelectorAll(".chip").forEach(c=>c.classList.remove("ok","ng","on")); const ok=t===s.best; e.currentTarget.classList.add(ok?"ok":"ng"); status.className="status "+(ok?"ok":"ng"); const why={bar:"棒グラフは項目どうしの量を比べるのに向いています。",line:"折れ線グラフは時間による変化（推移）を見るのに向いています。",pie:"円グラフは全体に対する割合（構成比）を見るのに向いています。",scatter:"散布図は 2 つの量の関係（相関）を見るのに向いています。"}; status.innerHTML=(ok?"⭕ 適切！ ":"❌ この目的には「"+TYPES.find(x=>x[0]===s.best)[1]+"」が向いています。 ")+why[s.best]; }}, n)));
-  el.append(q, sel, area, status, h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ si=(si+1)%SC.length; show(); }},"次の目的 →"))); show();
+  el.append(q, sel, area, status, h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ si=(si+1)%SC.length; show(); }},"次の目的 →"), h("button",{class:"btn sm", onclick:()=>{ si=0; show(); }},"↻ 最初の目的に戻る"))); show();
 };
 })();
 
@@ -1396,7 +1403,7 @@ WIDGETS.keys = function(el){
   const verdict={ 学生番号:["ok","⭕ 主キーにできます。すべて異なり、空もありません。"], 氏名:["ng","❌ 「佐藤 太郎」が 2 人います（重複）。1 行に特定できません。"], 学科:["ng","❌ 同じ学科の学生が何人もいるので、重複します。"], 生年月日:["ng","❌ 同じ誕生日の学生（S002 と S004）がいて重複します。"], メールアドレス:["ng","❌ 値は重複していませんが、S003 が空（NULL）です。主キーは NULL を許しません。"] };
   function render(c){ if(box) box.remove(); box=table("学生表（列名をクリック）", cols, rows, {onHead:pick, dimCols:c?cols.filter(x=>x!==c):[], mark:(r,col)=>c===col && ((c==="氏名"&&r.氏名==="佐藤 太郎")||(c==="生年月日"&&r.生年月日==="2006-11-03")||(c==="メールアドレス"&&!r.メールアドレス))}); el.prepend(box); }
   function pick(c){ render(c); const v=verdict[c]; status.className="status "+v[0]; status.textContent=v[1]; }
-  el.append(status, h("p",{class:"small muted"},"どの列なら「1 行をただ 1 つに特定」できるかを考えて、列名をクリックしてください。赤くなるのは、その列が主キーになれない理由の行です。")); render(null);
+  el.append(status, h("p",{class:"small muted"},"どの列なら「1 行をただ 1 つに特定」できるかを考えて、列名をクリックしてください。赤くなるのは、その列が主キーになれない理由の行です。"), h("button",{class:"btn sm", onclick:()=>{ render(null); status.textContent=""; status.className="status"; }},"↻ 選び直す")); render(null);
 };
 
 /* ---------- 6-3 正規化 ---------- */
