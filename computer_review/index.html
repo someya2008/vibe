@@ -72,14 +72,14 @@ mark{background:#fff2a8;color:#1c2333;border-radius:4px;padding:0 3px}
 
 /* ---------- layout ---------- */
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.topbar .in{max-width:1080px;margin-inline:auto;padding:10px clamp(16px,4vw,32px);display:flex;align-items:center;gap:12px}
+.topbar .in{max-width:1480px;margin-inline:auto;padding:10px clamp(16px,4vw,32px);display:flex;align-items:center;gap:12px}
 .brand{font-family:var(--display);font-weight:900;font-size:17px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--c1),var(--c2));display:grid;place-items:center;color:#fff;font-size:16px}
 .topbar .spacer{flex:1}
 .progress-pill{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);white-space:nowrap}
 .progress-pill .bar{width:110px;height:8px;background:var(--bg2);border-radius:999px;overflow:hidden}
 .progress-pill .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c1),var(--c4));border-radius:999px;transition:width .5s}
-.page{max-width:1080px;margin-inline:auto;padding:clamp(18px,3vw,36px) clamp(16px,4vw,32px) 80px}
+.page{max-width:1480px;margin-inline:auto;padding:clamp(18px,3vw,36px) clamp(16px,4vw,32px) 80px}
 .view{animation:fadeup .35s ease both}
 @keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .grid{display:grid;gap:16px}
@@ -118,7 +118,7 @@ textarea{font-family:var(--mono);line-height:1.6}
 
 /* ---------- home ---------- */
 .hero{display:grid;gap:18px;grid-template-columns:1.2fr .8fr;align-items:center;margin-bottom:28px}
-.hero .lead{font-size:17px;color:var(--muted);max-width:40em}
+.hero .lead{font-size:17px;color:var(--muted)}
 .hero .art{justify-self:center;width:min(100%,360px)}
 @media (max-width:760px){.hero{grid-template-columns:1fr}.hero .art{width:min(100%,260px)}}
 .chapters{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
@@ -129,7 +129,7 @@ textarea{font-family:var(--mono);line-height:1.6}
 .topbar{background:color-mix(in srgb,var(--paper) 86%,transparent)}
 .chnav{background:color-mix(in srgb,var(--bg) 92%,transparent)}
 .chcard .icon svg{width:34px;height:34px}
-.chcard h3{font-size:19px}
+.chcard .chtitle{display:block;font-family:var(--display);font-weight:900;font-size:19px;line-height:1.3;text-wrap:balance}
 .chcard .no{font-family:var(--display);font-weight:900;color:var(--accent);font-size:13px;letter-spacing:.1em}
 .chcard .meta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted)}
 .chcard .pbar{height:6px;background:var(--bg2);border-radius:999px;overflow:hidden}
@@ -158,10 +158,12 @@ textarea{font-family:var(--mono);line-height:1.6}
 .sec .card{display:grid;gap:14px}
 .sec h2{display:flex;gap:10px;align-items:baseline}
 .sec h2 .n{font-size:14px;color:var(--accent);letter-spacing:.1em}
-.prose{max-width:46em;display:grid;gap:.75em}
+.prose{display:grid;gap:.75em}
 .prose ul,.prose ol{margin:0;padding-left:1.4em}
 .prose li{margin-block:.15em}
-.prose table{border-collapse:collapse;width:100%;font-size:14.5px}
+.prose table{border-collapse:collapse;width:100%;font-size:15px}
+.prose th,.prose td:first-child{white-space:nowrap}
+.tblwrap{overflow-x:auto;max-width:100%}
 .prose th,.prose td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
 .prose th{background:var(--paper2);font-weight:700}
 .point{border-left:5px solid var(--accent);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:12px 16px;display:grid;gap:4px}
@@ -171,7 +173,7 @@ textarea{font-family:var(--mono);line-height:1.6}
 .lab{border:2px solid var(--accent-soft);background:linear-gradient(180deg,var(--paper),var(--paper2));border-radius:16px;padding:16px;display:grid;gap:12px}
 .lab .lab-title{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:900;color:var(--accent);font-size:15px}
 .lab .lab-title::before{content:"🔬"}
-.fig{display:block;width:100%;height:auto;background:#fff;border-radius:12px}
+.fig{display:block;width:100%;max-width:860px;height:auto;background:#fff;border-radius:12px}
 .two{display:grid;gap:16px;grid-template-columns:1fr 1fr;align-items:start}
 @media (max-width:700px){.two{grid-template-columns:1fr}}
 .secfoot{display:flex;justify-content:flex-end}
@@ -187,7 +189,7 @@ textarea{font-family:var(--mono);line-height:1.6}
 .pill.warn{background:var(--warnbg);color:var(--warntx)}
 
 /* ---------- quiz ---------- */
-.quiz{max-width:760px;margin-inline:auto;display:grid;gap:16px}
+.quiz{max-width:880px;margin-inline:auto;display:grid;gap:16px}
 .qhead{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
 .qhead .bar{flex:1;height:8px;background:var(--bg2);border-radius:999px;overflow:hidden}
 .qhead .bar i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
@@ -252,6 +254,10 @@ textarea{font-family:var(--mono);line-height:1.6}
 .sheet td input{width:100%;height:34px;border:0;background:transparent;font:inherit;padding:0 8px;color:var(--text);outline:none}
 .sheet td.sel{outline:2px solid var(--accent);outline-offset:-2px;background:var(--accent-soft)}
 .sheet td.ref{background:var(--warnbg)}
+.sheet td.rng{background:var(--accent-soft)}
+.sheet.showf td input{color:var(--accent);font-weight:700;text-align:left}
+.sheet:focus{outline:2px solid var(--accent);outline-offset:2px}
+.sheet td input::selection{background:var(--accent);color:#fff}
 .sheet td.err input{color:var(--ng)}
 .sheet td.num input{text-align:right}
 .fbar{display:flex;gap:8px;align-items:center;font-family:var(--mono);font-size:14px}
@@ -301,9 +307,9 @@ footer{margin-top:40px;text-align:center;font-size:12.5px;color:var(--faint)}
 
 /* ---------- スマホ幅で横にはみ出さないための保険 ---------- */
 .sec .card>*,.prose>*,.two>*,.grid>*,.lab,.lab-body,.lab-body>*,.stack>*,.quiz>*{min-width:0}
-.prose,.prose li,.prose p,.point,.why,.expl,.review .item{overflow-wrap:anywhere}
-.prose table{display:block;overflow-x:auto;max-width:100%}
-code{white-space:normal;overflow-wrap:anywhere}
+.prose,.prose li,.prose p,.point,.why,.expl,.review .item{overflow-wrap:break-word;line-break:strict}
+
+code{white-space:nowrap}
 .readout{max-width:100%}
 
 </style>
@@ -393,7 +399,7 @@ const FIG_PYRAMID = `<svg class="fig" viewBox="0 0 640 260" xmlns="http://www.w3
   <g font-size="13" fill="#5b6579" font-weight="400">
     <text x="30" y="40">↑ 速い</text><text x="30" y="60">↑ 高価（容量あたり）</text><text x="30" y="80">↑ 容量が小さい</text>
     <text x="30" y="200">↓ 遅い</text><text x="30" y="220">↓ 安価（容量あたり）</text><text x="30" y="240">↓ 容量が大きい</text>
-    <text x="530" y="60">CPU の中</text><text x="530" y="160">電源を切ると</text><text x="530" y="178">消える（揮発性）</text><text x="530" y="222">電源を切っても</text><text x="530" y="240">残る（不揮発性）</text>
+    <text x="530" y="78">CPU の中</text><text x="530" y="96" font-size="11">（レジスタ・キャッシュ）</text><text x="530" y="160">電源を切ると</text><text x="530" y="178">消える（揮発性）</text><text x="530" y="222">電源を切っても</text><text x="530" y="240">残る（不揮発性）</text>
   </g>
 </svg>`;
 
@@ -449,7 +455,7 @@ const CHAPTERS = [
         <li><b>クロック周波数</b>：CPU が動作のタイミングを合わせる信号（クロック）が1秒間に何回打たれるか。単位は <b>Hz（ヘルツ）</b>。3 GHz なら 1秒間に 30億回。<mark>同じ設計の CPU なら、クロック周波数が高いほど処理が速い</mark>。</li>
         <li><b>コア数</b>：CPU の中にある「処理を行う部分」の数。マルチコアなら複数の処理を同時に進められる。</li>
         <li><b>ビット数（32ビット／64ビット）</b>：CPU が一度に扱えるデータの幅。64ビット CPU は扱えるメモリの量も大きい。</li>
-        <li><b>キャッシュメモリ</b>：CPU と主記憶の速度差を埋めるため、CPU の近くに置く小さくて速いメモリ。</li>
+        <li><b>キャッシュメモリ</b>：CPU と主記憶の速度差を埋めるため、CPU の中や近くに置く小さくて速いメモリ。</li>
       </ul>
       <details class="why"><summary>クロック周波数が同じなら性能も同じ？</summary><p>いいえ。1クロックで進められる仕事の量は CPU の設計（アーキテクチャ）によって違います。またコア数やキャッシュの量も性能に大きく影響します。クロック周波数は「同じ設計どうしを比べるときの目安」と覚えておきましょう。</p></details>
     </div>` },
@@ -538,7 +544,7 @@ const CHAPTERS = [
       <p>文字も、1文字ずつ番号（<b>文字コード</b>）を決めて数で表します。どの番号がどの文字かを決めた表が「文字コード体系」です。</p>
       <table><tr><th>文字コード</th><th>特徴</th></tr>
       <tr><td><b>ASCII</b></td><td>7ビットで 128 文字。英数字と記号。「A」＝ 65（16進で 41）。世界中の文字コードの基礎。</td></tr>
-      <tr><td><b>JIS／Shift_JIS／EUC-JP</b></td><td>日本語（ひらがな・カタカナ・漢字）を <b>2バイト</b>で表す、日本独自の体系。</td></tr>
+      <tr><td><b>JIS コード／Shift_JIS／EUC-JP</b></td><td>全角のひらがな・カタカナ・漢字を <b>2バイト</b>で表す、日本独自の体系（半角カタカナは 1 バイト）。</td></tr>
       <tr><td><b>Unicode</b>（UTF-8、UTF-16）</td><td>世界中の文字を1つの表に集めたもの。<b>UTF-8</b> は Web の標準で、英数字は1バイト、日本語はふつう3バイト、絵文字は4バイト。</td></tr></table>
       <details class="why"><summary>「文字化け」はなぜ起こる？</summary><p>書いた側と読む側で<b>ちがう文字コード表</b>を使うと、同じ数がちがう文字に対応づけられてしまうからです。たとえば Shift_JIS で保存した「あ」（82 A0）を UTF-8 として読むと、対応する文字がなく意味不明な記号になります。</p></details>
     </div>` },
@@ -546,7 +552,7 @@ const CHAPTERS = [
     html:`<div class="prose">
       <p>画像は小さな点（<b>画素、ピクセル</b>）の集まりで、各画素の色を数で表します。</p>
       <ul>
-        <li><b>解像度</b>：画素の数（例：1920×1080）。多いほど細かい表現ができるがデータ量も増える。</li>
+        <li><b>解像度（画素数）</b>：縦横にいくつ画素を並べるか（例：1920×1080）。多いほど細かい表現ができるがデータ量も増える。※印刷では 1 インチあたりの画素数（dpi）を解像度ということもある。</li>
         <li><b>色の表し方</b>：光の三原色 <b>R（赤）G（緑）B（青）</b> の強さを組み合わせる（<b>加法混色</b>。全部最大で白）。各色を 8ビット（0〜255）で表すと 8×3 ＝ <b>24ビット</b>、2<sup>24</sup> ＝ <b>約1677万色</b>（フルカラー）。</li>
         <li><b>データ量</b>＝ 画素数 × 1画素あたりのビット数。例：1920×1080 画素 × 24ビット ＝ 49,766,400 ビット ≒ <b>6.2 MB</b>（圧縮しない場合）。</li>
         <li><b>ファイル形式</b>：JPEG（写真向き・非可逆圧縮）、PNG（可逆圧縮・透明あり）、GIF（256色・アニメ）。</li>
@@ -562,7 +568,7 @@ const CHAPTERS = [
         <li><b>符号化</b>：その値を 2進数で表す。</li>
       </ol>
       <p><b>データ量</b>＝ サンプリング周波数 × 量子化ビット数 × チャネル数 × 秒数。CD 音質（44.1 kHz、16 ビット、ステレオ 2ch）の1秒 ＝ 44,100×16×2 ＝ 1,411,200 ビット ≒ <b>176 kB</b>。</p>
-      <details class="why"><summary>サンプリング周波数はなぜ 44.1 kHz？</summary><p>人が聞こえる音は最高で約 20 kHz。「元の波を再現するには、最高周波数の<b>2倍以上</b>の周波数で標本化する必要がある」という<b>標本化定理</b>から、20 kHz の 2 倍＝40 kHz より少し余裕をもたせて 44.1 kHz が選ばれました。</p></details>
+      <details class="why"><summary>サンプリング周波数はなぜ 44.1 kHz？</summary><p>人が聞こえる音は最高で約 20 kHz。「元の波を再現するには、最高周波数の<b>2倍より高い</b>周波数で標本化する必要がある」という<b>標本化定理</b>から、20 kHz の 2 倍＝40 kHz より少し余裕をもたせて 44.1 kHz が選ばれました。</p></details>
     </div>` },
   ]},
 
@@ -597,7 +603,7 @@ const CHAPTERS = [
     </div>` },
   { title:"拡張子とファイル形式", short:"拡張子", widget:"ext", labTitle:"拡張子マッチング",
     html:`<div class="prose">
-      <p>ファイル名の末尾の「.」以降を <b>拡張子</b> といい、ファイルの種類（形式）を表します。OS は拡張子を見て、開くアプリを決めます。</p>
+      <p>ファイル名の末尾の「.」以降を <b>拡張子</b> といい、ファイルの種類（形式）を表します。Windows などの OS は拡張子を見て、開くアプリを決めます。</p>
       <table><tr><th>種類</th><th>拡張子</th></tr>
       <tr><td>テキスト</td><td>.txt（文字だけ）、.csv（カンマ区切りの表データ）、.html（Web ページ）</td></tr>
       <tr><td>文書・表・発表</td><td>.docx（Word）、.xlsx（Excel）、.pptx（PowerPoint）、.pdf（配布用文書）</td></tr>
@@ -642,7 +648,7 @@ const CHAPTERS = [
       <tr><td><b>ファイル管理</b></td><td>ディレクトリ構造、アクセス権、読み書き（第3章）。</td></tr>
       <tr><td><b>ユーザ管理</b></td><td>ユーザ名とパスワードによるログイン、権限の管理。</td></tr>
       <tr><td><b>ユーザインタフェースの提供</b></td><td>GUI や CUI（次のセクション）。</td></tr></table>
-      <details class="why"><summary>マルチタスクの根拠：本当に「同時」に動いているの？</summary><p>1つのコアは、ある瞬間には1つの命令しか実行できません。OS は、たとえば数ミリ秒ごとにプログラムを切りかえます（<b>タイムスライス</b>）。切りかえが人間には速すぎるので、同時に動いているように見えるのです。マルチコア CPU なら、コアの数だけ本当に同時に実行できます。</p></details>
+      <details class="why"><summary>マルチタスクの根拠：本当に「同時」に動いているの？</summary><p>1つのコアは、基本的にある瞬間には1つのプログラム（プロセス）しか実行できません。OS は、たとえば数ミリ秒ごとにプログラムを切りかえます（<b>タイムスライス</b>）。切りかえが人間には速すぎるので、同時に動いているように見えるのです。マルチコア CPU なら、コアの数だけ本当に同時に実行できます。</p></details>
     </div>` },
   { title:"いろいろな OS とユーザインタフェース", short:"OSとUI", widget:"osmatch", labTitle:"OS の名前と説明を結ぼう",
     html:`<div class="prose">
@@ -665,7 +671,7 @@ const CHAPTERS = [
       <tr><td><b>フリーウェア</b></td><td>無料で使えるが、ソースコードは公開されていないことが多い。</td></tr>
       <tr><td><b>シェアウェア</b></td><td>試用は無料、継続して使うなら料金を払う。</td></tr>
       <tr><td><b>パッケージ／サブスクリプション</b></td><td>買い切りで使う／月額・年額で使う権利を借りる（Microsoft 365 など）。</td></tr>
-      <tr><td><b>サイトライセンス</b></td><td>学校や企業など、組織の中で人数を限定せず使える契約。</td></tr></table>
+      <tr><td><b>サイトライセンス</b></td><td>学校や企業など、特定の組織（施設）内であれば複数のコンピュータで使える契約。</td></tr></table>
       <div class="point"><b>注意</b><span>「無料＝何をしてもよい」ではありません。OSS にもライセンス（GPL、MIT など）があり、改変して配るときの条件が決められています。</span></div>
     </div>` },
   ]},
@@ -679,7 +685,7 @@ const CHAPTERS = [
       <ul>
         <li>表のマス目を <b>セル</b>、横の並びを <b>行</b>（1, 2, 3…）、縦の並びを <b>列</b>（A, B, C…）という。</li>
         <li>セルの位置は「列＋行」で <b>A1</b>、<b>C5</b> のように表す（<b>セル番地</b>）。範囲は <b>A1:C3</b> のように「:」でつなぐ。</li>
-        <li>数式は <b>=（イコール）</b> で始める。<code>=A1+B1</code>、<code>=B2*C2</code>。演算子は + − * /、べき乗は ^。</li>
+        <li>数式は <b>=（イコール）</b> で始める。<code>=A1+B1</code>、<code>=B2*C2</code>。演算子は + - * /（半角）、べき乗は ^。</li>
         <li>数式にセル番地を書くことを <b>参照</b> という。参照先の値が変わると、数式の結果も自動で変わる。</li>
       </ul>
       <div class="point"><b>値を直接書かず、参照を使う理由</b><span>「単価×数量」を <code>=120*3</code> と書くと、単価が変わるたびに数式を書き直すことになります。<code>=B2*C2</code> と書いておけば、B2 を直すだけで済み、ミスも減ります。</span></div>
@@ -804,7 +810,7 @@ hw:[
  { q:"SSD が HDD より高速である主な理由として適切なものはどれか。",
    a:["機械的に動く部品がなく、電気的にデータの場所へアクセスできるから","磁気ディスクの回転が速いから","容量が HDD より大きいから","電源を切ると内容が消えるから"],
    e:"HDD はヘッドの移動とディスクの回転待ちに数ミリ秒かかります。SSD はフラッシュメモリに電気的にアクセスするので、その待ち時間がありません。SSD も不揮発性なので、電源を切っても内容は残ります。" },
- { q:"映像と音声をデジタルのまま1本のケーブルで送るインタフェースはどれか。",
+ { q:"ディスプレイやテレビとの接続に使われ、映像と音声をデジタルのまま1本のケーブルで送るインタフェースはどれか。",
    a:["HDMI","USB","Bluetooth","Wi-Fi"],
    e:"HDMI はディスプレイやプロジェクタとの接続に使う、映像＋音声のデジタルインタフェースです。USB は汎用の接続、Bluetooth と Wi-Fi は無線です。" },
 ],
@@ -817,7 +823,7 @@ data:[
    e:"右から 1, 2, 4, 8 の重みを掛けて足します。8＋4＋0＋1＝13。" },
  { q:"10進数 45 を 2進数で表すとどれか。",
    a:["101101","101011","110101","100111"],
-   e:"45 を 2 で割っていくと余りは下から 1,0,1,1,0,1。よって 101101。検算：32＋8＋4＋1＝45。" },
+   e:"45 を 2 で割っていくと余りは順に 1,0,1,1,0,1。これを下（最後）から上へ読むと 101101。検算：32＋8＋4＋1＝45。" },
  { q:"16進数 2F を 10進数にするといくつか。",
    a:["47","32","215","41"],
    e:"16進数の 2F は 2×16＋F(15)＝32＋15＝47。16進数は 1 けたで 0〜15 を表します。" },
@@ -856,8 +862,8 @@ file:[
 ],
 os:[
  { q:"ソフトウェアのうち、ハードウェアを直接管理し、アプリケーションに共通の機能を提供するものはどれか。",
-   a:["基本ソフトウェア（OS）","応用ソフトウェア","デバイス","ファームウェアを除くすべてのソフトウェア"],
-   e:"OS（オペレーティングシステム）は基本ソフトウェアです。アプリ（応用ソフト）は OS の機能を API を通して利用します。" },
+   a:["基本ソフトウェア（OS）","応用ソフトウェア（アプリケーション）","ミドルウェア","ファームウェア"],
+   e:"OS（オペレーティングシステム）は基本ソフトウェアです。アプリ（応用ソフト）は OS の機能を API を通して利用します。ミドルウェアは OS とアプリの中間層、ファームウェアは機器に組み込まれたソフトです。" },
  { q:"DBMS や Web サーバのように、OS とアプリケーションの中間で共通機能を提供するソフトウェアを何というか。",
    a:["ミドルウェア","ファームウェア","デバイスドライバ","シェアウェア"],
    e:"ミドルウェア（middle＝中間）は OS とアプリの間の層です。デバイスドライバは周辺機器を制御するプログラム、ファームウェアは機器に組み込まれたソフトです。" },
@@ -934,24 +940,29 @@ const sleep = ms=>new Promise(r=>setTimeout(r,ms));
 
 /* ---------- 汎用：マッチングゲーム ---------- */
 function matching(el, pairs, labels){
-  const left = shuffle(pairs.map((p,i)=>({t:p[0], i}))), right = shuffle(pairs.map((p,i)=>({t:p[1], i})));
   let selL=null, selR=null, done=0;
-  const status = h("div",{class:"status"});
-  const mk = (list, side)=> h("div",{class:"col"}, ...list.map(o=>h("button",{class:"mbtn", "data-i":o.i, onclick:(e)=>pick(side, e.currentTarget)}, o.t)));
-  const L = mk(left,"L"), R = mk(right,"R");
+  const status=h("div",{class:"status"}), grid=h("div",{class:"matchgrid"}), answers=h("div",{class:"stack", hidden:""});
+  function build(){
+    const left=shuffle(pairs.map((p,i)=>({t:p[0], i}))), right=shuffle(pairs.map((p,i)=>({t:p[1], i})));
+    grid.innerHTML=""; selL=selR=null; done=0; status.textContent=""; status.className="status";
+    const mk=(list, side)=>h("div",{class:"col"}, ...list.map(o=>h("button",{class:"mbtn", "data-i":o.i, onclick:(e)=>pick(side, e.currentTarget)}, o.t)));
+    grid.append(mk(left,"L"), mk(right,"R"));
+  }
   function pick(side, btn){
     if(btn.classList.contains("done")) return;
-    if(side==="L"){ L.querySelectorAll(".mbtn").forEach(b=>b.classList.remove("on")); btn.classList.add("on"); selL=btn; }
-    else { R.querySelectorAll(".mbtn").forEach(b=>b.classList.remove("on")); btn.classList.add("on"); selR=btn; }
+    const col=btn.parentElement; col.querySelectorAll(".mbtn").forEach(b=>b.classList.remove("on")); btn.classList.add("on");
+    if(side==="L") selL=btn; else selR=btn;
     if(selL && selR){
-      if(selL.dataset.i===selR.dataset.i){ selL.classList.add("done"); selR.classList.add("done"); selL.classList.remove("on"); selR.classList.remove("on"); done++; status.textContent = done===pairs.length ? "🎉 全部そろいました！" : `✓ 正解（${done}/${pairs.length}）`; status.className="status ok"; }
-      else { selL.classList.add("shake"); selR.classList.add("shake"); setTimeout(()=>{selL.classList.remove("shake","on"); selR.classList.remove("shake","on");},350); status.textContent="✗ ちがう組み合わせです"; status.className="status ng"; }
-      selL=selR=null;
+      const a=selL, b=selR; selL=selR=null;
+      if(a.dataset.i===b.dataset.i){ a.classList.add("done"); b.classList.add("done"); a.classList.remove("on"); b.classList.remove("on"); done++; status.textContent = done===pairs.length ? "🎉 全部そろいました！" : `✓ 正解（${done}/${pairs.length}）`; status.className="status ok"; }
+      else { a.classList.add("shake"); b.classList.add("shake"); setTimeout(()=>{ a.classList.remove("shake","on"); b.classList.remove("shake","on"); },350); status.textContent=`✗ 「${a.textContent}」と「${b.textContent}」は組み合わせがちがいます`; status.className="status ng"; }
     }
   }
-  el.append(h("p",{class:"small muted"}, labels||"左と右から1つずつ選んで、正しい組み合わせを作ろう。"), h("div",{class:"matchgrid"}, L, R), status);
+  answers.append(h("b",{},"正解の組み合わせ"), ...pairs.map(p=>h("div",{class:"small"}, h("b",{},p[0]), " ── ", p[1])));
+  el.append(h("p",{class:"small muted"}, labels||"左と右から1つずつ選んで、正しい組み合わせを作ろう。"), grid, status,
+    h("div",{class:"row"}, h("button",{class:"btn sm", onclick:build},"↻ やり直す（並びかえ）"), h("button",{class:"btn sm", onclick:()=>{ answers.hidden=!answers.hidden; }},"正解の組み合わせを見る／隠す")), answers);
+  build();
 }
-
 WIDGETS._matching = matching;
 
 /* ============================================================ 1-1 五大装置 */
@@ -967,7 +978,7 @@ WIDGETS.fiveUnits = function(el){
     {t:"④ 計算結果 8 を主記憶装置に書き戻す。", hl:["u-alu","u-mem"], move:[P.aluB2,P.memT2], label:"8"},
     {t:"⑤ 制御装置の指示で、主記憶の結果をディスプレイ（出力装置）に表示する。", hl:["u-out","u-mem","u-ctrl"], move:[P.memR,P.outC], label:"8"},
   ];
-  let i=-1, playing=false;
+  let i=-1, playing=false, autoPlaying=false, gen=0;
   const msg = h("div",{class:"point", html:"<b>▶ を押すと、「3＋5」の計算がどう流れるかを1ステップずつ見られます。</b>"});
   const label = document.createElementNS("http://www.w3.org/2000/svg","text"); label.setAttribute("font-size","13"); label.setAttribute("fill","#1c2333"); label.setAttribute("text-anchor","middle"); label.setAttribute("font-weight","700"); svg.append(label);
   function hl(ids){ units.forEach(u=>{ const r=svg.querySelector("#"+u+" rect"); r.style.strokeWidth = ids.includes(u)?"4":"2"; r.style.filter = ids.includes(u)?"drop-shadow(0 0 6px rgba(59,123,233,.6))":""; }); }
@@ -976,14 +987,14 @@ WIDGETS.fiveUnits = function(el){
     await new Promise(res=>{ (function f(now){ const k=Math.min(1,(now-t0)/dur), e=k<.5?2*k*k:-1+(4-2*k)*k; const x=a[0]+(b[0]-a[0])*e, y=a[1]+(b[1]-a[1])*e; dot.setAttribute("cx",x); dot.setAttribute("cy",y); label.setAttribute("x", lp==="left"?x-13:x); label.setAttribute("y", lp==="left"?y+5:y-14); if(k<1) requestAnimationFrame(f); else res(); })(t0); });
   }
   async function step(){
-    if(playing) return; playing=true;
+    if(playing) return; playing=true; const g=gen;
     i=(i+1)%steps.length; const s=steps[i];
     hl(s.hl); msg.innerHTML=`<b>ステップ ${i+1} / ${steps.length}</b><span>${s.t}</span>`;
     await moveDot(s.move[0], s.move[1], s.label, s.lp);
-    playing=false; if(i===steps.length-1){ msg.innerHTML+=`<span class="small muted">ここまでが「入力→記憶→演算→記憶→出力」の1サイクル。制御装置（赤い点線）が全体に指示を出していることに注目。</span>`; }
+    playing=false; if(g!==gen) return; if(i===steps.length-1){ msg.innerHTML+=`<span class="small muted">ここまでが「入力→記憶→演算→記憶→出力」の1サイクル。制御装置（赤い点線）が全体に指示を出していることに注目。</span>`; }
   }
-  async function auto(){ if(playing) return; for(let k=0;k<steps.length;k++){ await step(); await sleep(700); } }
-  el.append(h("div",{class:"row"}, h("button",{class:"btn primary", onclick:step},"▶ 次のステップ"), h("button",{class:"btn", onclick:auto},"⏩ 自動で最後まで"), h("button",{class:"btn sm", onclick:()=>{i=-1; hl([]); dot.setAttribute("opacity","0"); label.textContent=""; msg.innerHTML="<b>▶ を押すと、「3＋5」の計算がどう流れるかを1ステップずつ見られます。</b>";}},"リセット")), msg);
+  async function auto(){ if(playing||autoPlaying) return; autoPlaying=true; const g=gen; try{ for(let k=0;k<steps.length && g===gen && svg.isConnected;k++){ await step(); await sleep(700); } } finally { autoPlaying=false; } }
+  el.append(h("div",{class:"row"}, h("button",{class:"btn primary", onclick:step},"▶ 次のステップ"), h("button",{class:"btn", onclick:auto},"⏩ 自動で最後まで"), h("button",{class:"btn sm", onclick:()=>{gen++; i=-1; hl([]); dot.setAttribute("opacity","0"); label.textContent=""; msg.innerHTML="<b>▶ を押すと、「3＋5」の計算がどう流れるかを1ステップずつ見られます。</b>";}},"リセット")), msg);
 };
 
 /* ============================================================ 1-2 クロック */
@@ -1008,7 +1019,7 @@ WIDGETS.clock = function(el){
 
 /* ============================================================ 1-3 記憶階層 */
 WIDGETS.memHier = function(el){
-  const items = [ {n:"レジスタ", t:0.3e-9, note:"CPU の中。ほぼ 1 クロック"}, {n:"キャッシュ（SRAM）", t:3e-9, note:"CPU のすぐそば"}, {n:"主記憶（DRAM）", t:80e-9, note:"メインメモリ"}, {n:"SSD", t:100e-6, note:"フラッシュメモリ"}, {n:"HDD", t:10e-3, note:"ヘッド移動＋回転待ち"} ];
+  const items = [ {n:"レジスタ", t:0.3e-9, note:"CPU の中。ほぼ 1 クロック"}, {n:"キャッシュ（SRAM）", t:3e-9, note:"CPU の中（レジスタの次に近い）"}, {n:"主記憶（DRAM）", t:80e-9, note:"メインメモリ"}, {n:"SSD", t:100e-6, note:"フラッシュメモリ"}, {n:"HDD", t:10e-3, note:"ヘッド移動＋回転待ち"} ];
   const mode = h("div",{class:"seg"});
   const box = h("div",{class:"cmp"});
   const note = h("p",{class:"small muted"},"※ 値はおよその目安（機種によって大きく異なります）。桁のちがいを感じるための図です。");
@@ -1031,9 +1042,10 @@ WIDGETS.sorter = function(el){
   const items = shuffle([ ["キーボード","in"],["マウス","in"],["スキャナ","in"],["マイク","in"],["Web カメラ","in"],["タッチパネル","in","指の位置を読み取るセンサなので入力装置。表示部分（ディスプレイ）は出力装置"],["ディスプレイ","out"],["プリンタ","out"],["スピーカ","out"],["プロジェクタ","out"],["SSD","mem"],["HDD","mem"],["メインメモリ（DRAM）","mem","主記憶装置。記憶装置の仲間"],["USB メモリ","mem"],["CPU","cpu","演算装置と制御装置を合わせたもの"] ]);
   let i=0, ok=0; const card=h("div",{class:"item"}), status=h("div",{class:"status"}), score=h("div",{class:"scoreline"});
   const binBox=h("div",{class:"bins"}, ...bins.map(b=>h("button",{class:"btn", onclick:()=>answer(b[0])}, b[1])));
-  function show(){ if(i>=items.length){ card.textContent=`おわり！ ${ok} / ${items.length} 問正解`; binBox.style.display="none"; el.append(h("button",{class:"btn primary", onclick:()=>{ i=0; ok=0; binBox.style.display=""; el.lastChild.remove(); items.splice(0,items.length,...shuffle(items)); status.textContent=""; show(); }},"もう一度")); return; } card.textContent=items[i][0]; score.textContent=`${i+1} / ${items.length}　正解 ${ok}`; }
+  function show(){ if(i>=items.length){ card.textContent=`おわり！ ${ok} / ${items.length} 問正解`; binBox.style.display="none"; el.append(h("button",{class:"btn primary again", onclick:restart},"もう一度")); return; } card.textContent=items[i][0]; score.textContent=`${i+1} / ${items.length}　正解 ${ok}`; }
   function answer(b){ if(i>=items.length) return; const it=items[i]; const right=it[1]===b; if(right) ok++; status.className="status "+(right?"ok":"ng"); status.textContent=(right?"⭕ 正解":"❌ 正解は「"+bins.find(x=>x[0]===it[1])[1]+"」")+(it[2]?"：" + it[2]:""); i++; show(); }
-  el.append(h("div",{class:"sorter"}, score, card, binBox, status)); show();
+  function restart(){ i=0; ok=0; binBox.style.display=""; const again=el.querySelector(".again"); if(again) again.remove(); items.splice(0,items.length,...shuffle(items)); status.textContent=""; status.className="status"; show(); }
+  el.append(h("div",{class:"sorter"}, score, card, binBox, status), h("button",{class:"btn sm", onclick:restart},"↻ 最初からやり直す")); show();
 };
 
 /* ============================================================ 2-1 ビットスイッチ */
@@ -1059,15 +1071,19 @@ WIDGETS.bits = function(el){
 WIDGETS.radix = function(el){
   const inp=h("input",{type:"number", min:"0", max:"4095", value:"45", style:"width:120px"});
   const steps=h("div",{class:"steps"}), res=h("div",{class:"readout"});
+  let seq=0;
   async function go(){
-    let n=Math.max(0, Math.min(4095, Math.floor(+inp.value||0))); inp.value=n; steps.innerHTML=""; res.innerHTML="";
+    const my=++seq; const rawv=inp.value.trim(); const nv=+rawv;
+    if(rawv===""||!isFinite(nv)||nv<0||nv>4095||!Number.isInteger(nv)){ steps.innerHTML=""; res.innerHTML="0〜4095 の整数を入力してください（小数・負の数はここでは扱いません）"; return; }
+    let n=nv; steps.innerHTML=""; res.innerHTML="";
     if(n===0){ res.innerHTML="0 は 2進数でも 0、16進数でも 0"; return; }
     const rem=[]; let q=n, k=0;
     while(q>0){ const r=q%2, nq=Math.floor(q/2); const d=h("div",{style:`animation-delay:${k*.25}s`, html:`${q} ÷ 2 ＝ ${nq} … 余り <b style="color:var(--accent)">${r}</b>`}); steps.append(d); rem.push(r); q=nq; k++; }
-    await sleep(k*250+200);
+    await sleep(k*250+200); if(my!==seq) return;
     const bin=rem.slice().reverse().join(""); const pad=bin.padStart(Math.ceil(bin.length/4)*4,"0"); const groups=pad.match(/.{4}/g); const hex=groups.map(g=>parseInt(g,2).toString(16).toUpperCase());
     res.innerHTML=`余りを<b>下から順に</b>読む → 2進数 <b>${bin}</b><br>検算：${rem.map((r,i)=>r?String(1<<i):null).filter(Boolean).reverse().join(" + ")} ＝ ${n} ✓<br>4 けたずつ区切る：${groups.map((g,i)=>`<span class="hl">${g}</span>`).join(" ")} → ${groups.map((g,i)=>`<span class="hl">${hex[i]}</span>`).join(" ")} → 16進数 <b>${hex.join("")}</b>`;
   }
+  inp.addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.isComposing && e.keyCode!==229) go(); });
   el.append(h("div",{class:"row"}, h("label",{},"10進数："), inp, h("button",{class:"btn primary", onclick:go},"変換する")), steps, res); go();
 };
 
@@ -1076,9 +1092,9 @@ WIDGETS.units = function(el){
   const val=h("input",{type:"number", value:"32", min:"0", style:"width:120px"}); const unit=h("select",{}, ...["B","kB","MB","GB","TB"].map(u=>h("option",{value:u, ...(u==="GB"?{selected:""}:{})},u)));
   const out=h("div",{class:"readout"});
   const ex=h("div",{class:"row"});
-  function go(){ const m={B:1,kB:1e3,MB:1e6,GB:1e9,TB:1e12}; const bytes=(+val.value||0)*m[unit.value]; const si=["B","kB","MB","GB","TB"].map((u,i)=>`${u}: <b>${fmt(+(bytes/Math.pow(1000,i)).toPrecision(6))}</b>`).join("　"); const bi=["B","KiB","MiB","GiB","TiB"].map((u,i)=>`${u}: <b>${fmt(+(bytes/Math.pow(1024,i)).toPrecision(6))}</b>`).join("　");
+  function go(){ const m={B:1,kB:1e3,MB:1e6,GB:1e9,TB:1e12}; const raw=+val.value; if(val.value.trim()===""||!isFinite(raw)||raw<0){ out.innerHTML="0 以上の数を入力してください"; return; } if(raw>1e12){ out.innerHTML="大きすぎます（1兆までの数で試してください）"; return; } const bytes=raw*m[unit.value]; const si=["B","kB","MB","GB","TB"].map((u,i)=>`${u}: <b>${fmt(+(bytes/Math.pow(1000,i)).toPrecision(6))}</b>`).join("　"); const bi=["B","KiB","MiB","GiB","TiB"].map((u,i)=>`${u}: <b>${fmt(+(bytes/Math.pow(1024,i)).toPrecision(6))}</b>`).join("　");
     out.innerHTML=`${fmt(bytes)} バイト<br><span class="hl">1000 倍ずつ（SI）</span>　${si}<br><span class="hl">1024 倍ずつ（2進接頭辞）</span>　${bi}<br>これは… 写真（3 MB）なら約 <b>${fmt(Math.floor(bytes/3e6))}</b> 枚、音楽（5 MB）なら約 <b>${fmt(Math.floor(bytes/5e6))}</b> 曲、映画（4 GB）なら約 <b>${fmt(Math.floor(bytes/4e9))}</b> 本、ビット数にすると <b>${fmt(bytes*8)}</b> ビット`; }
-  [["USB メモリ 32 GB",32,"GB"],["写真 1 枚 3 MB",3,"MB"],["CD 700 MB",700,"MB"],["HDD 2 TB",2,"TB"],["メモリ 16 GB",16,"GB"]].forEach(e=>ex.append(h("button",{class:"chip", onclick:()=>{val.value=e[1]; unit.value=e[2]; go();}}, e[0])));
+  [["USB メモリ 32 GB",32,"GB"],["写真 1 枚 3 MB",3,"MB"],["CD 700 MB",700,"MB"],["HDD 2 TB",2,"TB"],["動画 1 本 4 GB",4,"GB"]].forEach(e=>ex.append(h("button",{class:"chip", onclick:()=>{val.value=e[1]; unit.value=e[2]; go();}}, e[0])));
   val.addEventListener("input",go); unit.addEventListener("change",go); go();
   el.append(h("div",{class:"row"}, val, unit, h("span",{class:"small muted"},"を換算する")), ex, out);
 };
@@ -1088,9 +1104,11 @@ WIDGETS.charcode = function(el){
   const inp=h("input",{type:"text", value:"A あ 😀", style:"width:min(100%,320px)"}); const out=h("div",{class:"stack"});
   const enc=new TextEncoder();
   function go(){ out.innerHTML=""; const s=[...inp.value].slice(0,12); let total=0;
-    s.forEach(ch=>{ const cp=ch.codePointAt(0); const bytes=[...enc.encode(ch)]; total+=bytes.length; const kind= cp<128?"ASCII（1 バイト）": cp<0x800?"2 バイト": cp<0x10000?"3 バイト（日本語はここ）":"4 バイト（絵文字など）";
+    s.forEach(ch=>{ const cp=ch.codePointAt(0); const bytes=[...enc.encode(ch)]; total+=bytes.length; const comb = cp===0x200D ? "結合子 ZWJ（前後の絵文字をつなぐ）" : cp===0xFE0F ? "異体字セレクタ（絵文字表示の指定）" : (cp>=0x1F3FB&&cp<=0x1F3FF) ? "肌の色の修飾子" : (cp>=0x1F1E6&&cp<=0x1F1FF) ? "国旗の部品（2 つで 1 つの旗）" : (cp>=0x300&&cp<=0x36F)||(cp>=0x3099&&cp<=0x309A) ? "結合文字（前の文字に付く濁点など）" : "";
+      const kind= comb ? comb : cp<128?"ASCII（1 バイト）": cp<0x800?"2 バイト": cp<0x10000?"3 バイト（日本語はここ）":"4 バイト（絵文字など）";
       out.append(h("div",{class:"tokenline"}, h("span",{style:"font-size:26px;width:44px;text-align:center"}, ch===" "?"␣":ch), h("span",{class:"byte"},`U+${cp.toString(16).toUpperCase().padStart(4,"0")}`), h("span",{class:"small muted"},`（10進 ${cp}）→ UTF-8：`), ...bytes.map(b=>h("span",{class:"byte u"}, b.toString(16).toUpperCase().padStart(2,"0"))), h("span",{class:"pill"}, kind))); });
-    out.append(h("div",{class:"readout"},`合計 ${total} バイト（${s.length} 文字）。同じ「1 文字」でも、英字は 1 バイト、日本語は 3 バイト（UTF-8 の場合）。`)); }
+    const all=[...inp.value]; let gr=""; try{ if(window.Intl && Intl.Segmenter){ const n=[...new Intl.Segmenter("ja",{granularity:"grapheme"}).segment(inp.value)].length; if(n!==all.length) gr=`見た目の文字数は ${n}（複数のコードポイントで 1 文字に見えるものがあります）。`; } }catch(e){}
+    out.append(h("div",{class:"readout"},`合計 ${total} バイト（${s.length} コードポイント）。${gr}${all.length>12?"※ 先頭の 12 文字だけ表示しています。":""} 同じ「1 文字」でも、英字は 1 バイト、日本語は 3 バイト（UTF-8 の場合）。`)); }
   inp.addEventListener("input",go); go();
   el.append(h("div",{class:"row"}, h("label",{},"文字を入力："), inp), h("div",{class:"row"}, ...["Hello","こんにちは","A","😀","漢字"].map(t=>h("button",{class:"chip", onclick:()=>{inp.value=t; go();}},t))), out, h("p",{class:"small muted"},"U+ の後ろの数が Unicode の番号（コードポイント）、紫のバイトがファイルに実際に保存される UTF-8 のバイト列（16進数）。ASCII の「A」は 65＝16進 41。"));
 };
@@ -1131,12 +1149,21 @@ WIDGETS.sound = function(el){
     stair+=`L${W} ${prevY}`; s+=`<path d="${stair}" stroke="#3b7be9" stroke-width="2.5" fill="none"/>`+pts;
     svg.innerHTML=s; lab1.textContent=`${fmt(F)} Hz（1 秒に ${fmt(F)} 回）`; lab2.textContent=`${B} ビット（${fmt(L)} 段階）`;
     const bps=F*B; info.innerHTML=`灰色：元のアナログ波（440 Hz）　紫の点：<b>標本化</b>した点　青の階段：<b>量子化</b>した結果<br>符号化：最初の数点 → ${bitsStr.map(x=>`<span class="hl">${x}</span>`).join(" ")} …<br>データ量（モノラル 1 秒）＝ ${fmt(F)} × ${B} ＝ <b>${fmt(bps)} ビット</b> ＝ ${fmt(Math.round(bps/8))} バイト　${F===44100&&B===16?"← CD 音質（ステレオならこの 2 倍）":""}`; }
-  let ctx=null;
-  function play(){ try{ ctx=ctx||new (window.AudioContext||window.webkitAudioContext)(); const F=FS[+fs.value], B=BITS[+bt.value], L=1<<B; const sr=ctx.sampleRate, dur=1.2; const buf=ctx.createBuffer(1, sr*dur, sr); const d=buf.getChannelData(0); let hold=0;
-      for(let i=0;i<d.length;i++){ const t=i/sr; const k=Math.floor(t*F); const ts=k/F; if(i===0||Math.floor((i-1)/sr*F)!==k){ const v=Math.sin(2*Math.PI*f0*ts)*Math.exp(-ts*1.2); hold=(Math.round((v+1)/2*(L-1))/(L-1))*2-1; } d[i]=hold*.3; }
-      const srcN=ctx.createBufferSource(); srcN.buffer=buf; srcN.connect(ctx.destination); srcN.start(); }catch(e){} }
+  const recon=h("input",{type:"checkbox", id:"snd-recon", checked:""}); const sndStatus=h("div",{class:"status"});
+  function play(){ try{ const AC=window.AudioContext||window.webkitAudioContext; if(!AC) throw new Error("no audio"); const ctx = WIDGETS._audioCtx = WIDGETS._audioCtx || new AC(); if(ctx.state==="suspended") ctx.resume(); sndStatus.textContent="";
+      const F=FS[+fs.value], B=BITS[+bt.value], L=1<<B; const sr=ctx.sampleRate, dur=1.2;
+      // ① 標本化＋量子化：F Hz ごとに波の高さを測り、L 段階に丸める（ここまでがデジタルデータ）
+      const N=Math.ceil(dur*F)+1; const x=new Float32Array(N);
+      for(let k=0;k<N;k++){ const t=k/F; const v=Math.sin(2*Math.PI*f0*t)*Math.exp(-t*1.2); x[k]=(Math.round((v+1)/2*(L-1))/(L-1))*2-1; }
+      // ② 再生（D/A 変換）：再構成フィルタあり＝窓付き sinc 補間でなめらかに復元、なし＝階段のまま出力
+      const buf=ctx.createBuffer(1, Math.floor(sr*dur), sr); const d=buf.getChannelData(0); const A=24;
+      for(let i=0;i<d.length;i++){ const c=i/sr*F; let y;
+        if(recon.checked){ const k0=Math.floor(c); y=0; for(let k=k0-A+1;k<=k0+A;k++){ if(k<0||k>=N) continue; const u=c-k; const w=u===0?1:Math.sin(Math.PI*u)/(Math.PI*u); y+=x[k]*w*0.5*(1+Math.cos(Math.PI*u/A)); } }
+        else y=x[Math.min(N-1,Math.floor(c))];
+        const t=i/sr; const fade=Math.min(1, t/0.005, (dur-t)/0.03); d[i]=y*0.3*Math.max(0,fade); }
+      const srcN=ctx.createBufferSource(); srcN.buffer=buf; srcN.connect(ctx.destination); srcN.start(); }catch(e){ sndStatus.className="status ng"; sndStatus.textContent="この環境では音を再生できません（ブラウザの設定や端末の消音を確認してください）"; } }
   fs.addEventListener("input",draw); bt.addEventListener("input",draw); draw();
-  el.append(h("label",{},"サンプリング周波数：",lab1,fs), h("label",{},"量子化ビット数：",lab2,bt), svg, info, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:play},"🔊 この設定の音を聞く（440 Hz）"), h("span",{class:"small muted"},"粗い設定ほどザラザラした音になります")));
+  el.append(h("label",{},"サンプリング周波数：",lab1,fs), h("label",{},"量子化ビット数：",lab2,bt), svg, info, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:play},"🔊 この設定の音を聞く（440 Hz）"), h("label",{class:"check"}, recon, "再生装置の再構成フィルタをかける（実際の再生と同じ）")), sndStatus, h("p",{class:"small muted"},"440 Hz の音を 1.2 秒かけて減衰させて鳴らします。ビット数が少ないと波が階段状（矩形波に近い形）になるため、鳴り始めの大きい音ほど「ジーッ」というひずみが目立ち、小さくなると 1 段階に満たなくなって音が消えます（1 ビットでは正負しか区別できないので、最大音量の矩形波が鳴り続けます）。これが量子化誤差の正体です。 チェックを外すと、標本化した階段をフィルタなしでそのまま出力します。実際の再生装置は低域通過フィルタで階段をなめらかに戻す（標本化定理）ので、サンプリング周波数が 440 Hz の 2 倍より高ければ、ビット数が十分なら元の音がほぼ完全に復元されます。"));
 };
 })();
 
@@ -1159,19 +1186,21 @@ WIDGETS.path = function(el){
   let cur="/home/taro", target="/home/hanako/memo.txt", mode="rel";
   const treeEl=h("div",{class:"tree"}), q=h("div",{class:"point"}), inp=h("input",{type:"text", placeholder:"パスを入力", style:"width:min(100%,320px);font-family:var(--mono)"}), status=h("div",{class:"status"});
   function relPath(from, to){ const a=from.split("/").filter(Boolean), b=to.split("/").filter(Boolean); let i=0; while(i<a.length&&i<b.length&&a[i]===b[i]) i++; const up=a.length-i; const parts=[...Array(up).fill(".."), ...b.slice(i)]; return parts.length?parts.join("/"):"."; }
-  function norm(p){ p=p.trim().replace(/\\/g,"/").replace(/\/+/g,"/"); if(p.length>1) p=p.replace(/\/$/,""); return p; }
+  function norm(p){ p=p.replace(/[\uFF01-\uFF5E]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0)).replace(/\u3000/g," ").trim().replace(/\\/g,"/").replace(/\/+/g,"/"); if(p.length>1) p=p.replace(/\/$/,""); return p; }
+  const esc=t=>String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const caseHint=v=>{ const all=[...dirs,...files]; const hit=all.find(x=>x.toLowerCase()===v.toLowerCase()); return hit && hit!==v ? "　※ 大文字・小文字は区別されます（正しくは "+esc(hit.split("/").pop())+"）" : ""; };
   function resolve(base, p){ if(p.startsWith("/")) return norm(p); const parts=base.split("/").filter(Boolean); for(const s of p.split("/")){ if(s===""||s===".") continue; if(s==="..") parts.pop(); else parts.push(s); } return "/"+parts.join("/"); }
   function render(){
     treeEl.innerHTML="";
     (function walk(n, path, depth){ const full = n.name==="/" ? "/" : (path==="/"?"":path)+"/"+n.name; const isDir=!!n.kids; const node=h("div",{class:"node"+(isDir&&full===cur?" cur":"")+(full===target?" target":""), style:`margin-left:${depth*22}px`, onclick:()=>{ if(isDir){ cur=full; render(); status.textContent=""; } }}, (isDir?"📁 ":"📄 ")+n.name+(isDir&&full===cur?"　← カレント":"")+(full===target?"　← このファイル":"")); treeEl.append(node); if(n.kids) n.kids.forEach(k=>walk(k, full, depth+1)); })(TREE,"",0);
     q.innerHTML=`<b>問題</b><span>カレントディレクトリは <code>${cur}</code>。赤いファイル <code>${target.split("/").pop()}</code> を <b>${mode==="rel"?"相対パス":"絶対パス"}</b> で書くと？</span><span class="small muted">📁 をクリックするとカレントディレクトリを移動できます。</span>`;
   }
-  function check(){ const v=norm(inp.value); if(!v){ return; } if(mode==="abs"){ const ok = v===target && v.startsWith("/"); status.className="status "+(ok?"ok":"ng"); status.innerHTML = ok?"⭕ 正解！ ルートから順にたどった絶対パスです。":(v.startsWith("/")?`❌ 指しているのは <code>${v}</code>。木をもう一度たどってみよう。`:"❌ 絶対パスは「/」から始めます。"); }
-    else { const ok = !v.startsWith("/") && resolve(cur, v)===target; const canon=relPath(cur,target); status.className="status "+(ok?"ok":"ng"); status.innerHTML = ok? (v.replace(/^\.\//,"")===canon?"⭕ 正解！":"⭕ 正解（同じ場所を指しています）。いちばん短い書き方は <code>"+canon+"</code>。") : (v.startsWith("/")?"❌ 相対パスは「/」で始めません（それは絶対パス）。":`❌ <code>${v}</code> は <code>${resolve(cur,v)}</code> を指します。「..」で親に上がれます。`); } }
+  function check(){ const v=norm(inp.value); if(!v){ status.className="status ng"; status.textContent="パスを入力してから「答え合わせ」を押してください。"; return; } if(mode==="abs"){ const ok = v===target && v.startsWith("/"); status.className="status "+(ok?"ok":"ng"); status.innerHTML = ok?"⭕ 正解！ ルートから順にたどった絶対パスです。":(v.startsWith("/")?`❌ 指しているのは <code>${esc(v)}</code>。木をもう一度たどってみよう。${caseHint(v)}`:"❌ 絶対パスは「/」から始めます。"); }
+    else { const ok = !v.startsWith("/") && resolve(cur, v)===target; const canon=relPath(cur,target); status.className="status "+(ok?"ok":"ng"); status.innerHTML = ok? (v.replace(/^\.\//,"")===canon?"⭕ 正解！":"⭕ 正解（同じ場所を指しています）。いちばん短い書き方は <code>"+canon+"</code>。") : (v.startsWith("/")?"❌ 相対パスは「/」で始めません（それは絶対パス）。":`❌ <code>${esc(v)}</code> は <code>${esc(resolve(cur,v))}</code> を指します。「..」で親に上がれます。${caseHint(resolve(cur,v))}`); } }
   function show(){ const ans = mode==="abs"?target:relPath(cur,target); status.className="status"; status.innerHTML=`答え：<code>${ans}</code>`; }
   function next(){ target=files[Math.floor(Math.random()*files.length)]; do{ cur=dirs[Math.floor(Math.random()*dirs.length)]; }while(cur===target); mode=Math.random()<.6?"rel":"abs"; inp.value=""; status.textContent=""; render(); }
   el.append(treeEl, q, h("div",{class:"row"}, inp, h("button",{class:"btn primary", onclick:check},"答え合わせ"), h("button",{class:"btn sm", onclick:show},"答えを見る"), h("button",{class:"btn sm", onclick:next},"次の問題")), status);
-  inp.addEventListener("keydown", e=>{ if(e.key==="Enter") check(); });
+  inp.addEventListener("keydown", e=>{ if(e.key==="Enter" && !e.isComposing && e.keyCode!==229) check(); });
   render();
 };
 
@@ -1200,16 +1229,16 @@ WIDGETS.multitask = function(el){
   const b1=h("button",{class:"on", onclick:()=>{cores=1; sel();}},"1 コア"), b2=h("button",{onclick:()=>{cores=2; sel();}},"2 コア"); seg.append(b1,b2);
   function sel(){ b1.classList.toggle("on",cores===1); b2.classList.toggle("on",cores===2); }
   const sp=h("input",{type:"range",min:100,max:800,step:100,value:400}); sp.addEventListener("input",()=>slice=+sp.value);
-  let state; function reset(){ clearInterval(timer); running=false; state=tasks.map(t=>({done:0, blocks:[]})); draw(); status.textContent=""; }
+  let state; function reset(){ clearTimeout(timer); running=false; state=tasks.map(t=>({done:0, blocks:[]})); draw(); status.textContent=""; }
   function draw(){ tl.innerHTML=""; const total=30; tasks.forEach((t,i)=>{ const track=h("div",{class:"track"}); state[i].blocks.forEach(b=>track.append(h("i",{style:`left:${b/total*100}%;width:${100/total}%;background:${t.c}`}))); tl.append(h("div",{class:"lane"}, h("span",{}, t.n), track), h("div",{class:"lane"}, h("span",{class:"small muted"},"進み"), h("span",{style:"height:6px;background:var(--bg2);border-radius:4px;overflow:hidden;display:block"}, h("i",{style:`display:block;height:100%;width:${Math.min(100,100*state[i].done/t.need)}%;background:${t.c}`})))); }); }
   function start(){ if(running) return; reset(); running=true; let tick=0, rr=0;
-    timer=setInterval(()=>{ let assigned=0, tries=0; while(assigned<cores && tries<tasks.length){ const i=(rr+tries)%tasks.length; if(state[i].done<tasks[i].need){ state[i].done++; state[i].blocks.push(tick); assigned++; } tries++; }
+    const tickFn=()=>{ if(!el.isConnected){ running=false; return; } let assigned=0, tries=0; while(assigned<cores && tries<tasks.length){ const i=(rr+tries)%tasks.length; if(state[i].done<tasks[i].need){ state[i].done++; state[i].blocks.push(tick); assigned++; } tries++; }
       rr=(rr+1)%tasks.length; tick++; draw();
       const fin=state.every((s,i)=>s.done>=tasks[i].need);
       status.className="status"; status.innerHTML=`時間 ${tick} スライス目　CPU は <b>${cores} コア</b>で、${cores===1?"1 つずつ順番に":"2 つ同時に"}実行中。${fin?"　✅ すべて終了":""}`;
-      if(fin||tick>=30){ clearInterval(timer); running=false; } }, slice); }
+      if(fin||tick>=30){ running=false; } else timer=setTimeout(tickFn, slice); }; timer=setTimeout(tickFn, slice); }
   reset();
-  el.append(h("div",{class:"row"}, seg, h("label",{style:"flex:1;min-width:200px"},"タイムスライスの長さ（表示のゆっくりさ）",sp)), tl, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:start},"▶ 3 つのアプリを同時に動かす"), h("button",{class:"btn sm", onclick:reset},"リセット")), status, h("p",{class:"small muted"},"色のついたブロックが「その時間に CPU を使っていたアプリ」。1 コアではどの瞬間も 1 つのアプリしか動いていないのに、切りかえが速いので同時に動いているように見えます。実際のタイムスライスは数ミリ秒です。"));
+  el.append(h("div",{class:"row"}, seg, h("label",{style:"flex:1;min-width:200px"},"タイムスライスの長さ（表示のゆっくりさ）",sp)), tl, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:start},"▶ 3 つのアプリを同時に動かす"), h("button",{class:"btn sm", onclick:reset},"リセット")), status, h("p",{class:"small muted"},"色のついたブロックが「その時間に CPU を使っていたアプリ」。1 コアではどの瞬間も 1 つのアプリしか動いていないのに、切りかえが速いので同時に動いているように見えます。実際のタイムスライスは数ミリ秒〜数十ミリ秒程度です。"));
 };
 
 /* ---------- 4-3 OS マッチング ---------- */
@@ -1231,7 +1260,8 @@ function tokenize(src){
   while(i<src.length){ const c=src[i];
     if(/\s/.test(c)){ i++; continue; }
     if(c==='"'){ let j=i+1, s=""; while(j<src.length && src[j]!=='"'){ s+=src[j]; j++; } t.push({k:"str", v:s}); i=j+1; continue; }
-    if(/[0-9.]/.test(c)){ let j=i; while(j<src.length && /[0-9.]/.test(src[j])) j++; t.push({k:"num", v:parseFloat(src.slice(i,j))}); i=j; continue; }
+    if(/[0-9.]/.test(c)){ const m=/^(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?/.exec(src.slice(i)); if(!m||m[0]==="."||/^[0-9.]/.test(src[i+m[0].length]||"")) throw new Error("数値"); t.push({k:"num", v:parseFloat(m[0])}); i+=m[0].length; continue; }
+    if(src.startsWith("#REF!",i)){ throw new Error("REF"); }
     if(/[A-Za-z$]/.test(c)){ let j=i; while(j<src.length && /[A-Za-z0-9$_]/.test(src[j])) j++; const w=src.slice(i,j).toUpperCase(); if(src[j]==="(") t.push({k:"fn", v:w}); else t.push({k:"id", v:w}); i=j; continue; }
     if(src.startsWith("<=",i)||src.startsWith(">=",i)||src.startsWith("<>",i)){ t.push({k:"op", v:src.substr(i,2)}); i+=2; continue; }
     if("+-*/^(),:=<>&".includes(c)){ t.push({k:"op", v:c}); i++; continue; }
@@ -1249,12 +1279,13 @@ function parse(tokens){
   function prim(){ const t=eat(); if(!t) throw new Error("構文");
     if(t.k==="num") return {t:"num", v:t.v}; if(t.k==="str") return {t:"str", v:t.v};
     if(t.k==="fn"){ eat("("); const args=[]; if(peek()&&peek().v!==")"){ args.push(cmp()); while(peek()&&peek().v===","){ eat(); args.push(cmp()); } } eat(")"); return {t:"fn", n:t.v, args}; }
-    if(t.k==="id"){ if(!REF.test(t.v)) throw new Error("名前"); if(peek()&&peek().v===":"){ eat(); const r=eat(); if(!r||!REF.test(r.v)) throw new Error("範囲"); return {t:"range", a:t.v, b:r.v}; } return {t:"ref", a:t.v}; }
+    if(t.k==="id"){ if(t.v==="TRUE") return {t:"num", v:true}; if(t.v==="FALSE") return {t:"num", v:false}; if(!REF.test(t.v)) throw new Error("名前"); if(peek()&&peek().v===":"){ eat(); const r=eat(); if(!r||!REF.test(r.v)) throw new Error("範囲"); return {t:"range", a:t.v, b:r.v}; } return {t:"ref", a:t.v}; }
     if(t.v==="("){ const e=cmp(); eat(")"); return e; }
     throw new Error("構文"); }
   const e=cmp(); if(p<tokens.length) throw new Error("構文"); return e;
 }
-function refsOf(node, out=[]){ if(!node) return out; if(node.t==="ref") out.push(node.a.replace(/\$/g,"")); else if(node.t==="range"){ const [c1,r1]=addr(node.a),[c2,r2]=addr(node.b); for(let c=Math.min(c1,c2);c<=Math.max(c1,c2);c++) for(let r=Math.min(r1,r2);r<=Math.max(r1,r2);r++) out.push(colName(c)+r); } else if(node.t==="bin"){ refsOf(node.l,out); refsOf(node.r,out); } else if(node.t==="neg") refsOf(node.v,out); else if(node.t==="fn") node.args.forEach(a=>refsOf(a,out)); return out; }
+const MAX_ROWS=200;
+function refsOf(node, out=[]){ if(!node) return out; if(node.t==="ref") out.push(node.a.replace(/\$/g,"")); else if(node.t==="range"){ const [c1,r1]=addr(node.a),[c2,r2]=addr(node.b); for(let c=Math.min(c1,c2);c<=Math.max(c1,c2);c++) for(let r=Math.min(r1,r2);r<=Math.min(MAX_ROWS,Math.max(r1,r2));r++) out.push(colName(c)+r); } else if(node.t==="bin"){ refsOf(node.l,out); refsOf(node.r,out); } else if(node.t==="neg") refsOf(node.v,out); else if(node.t==="fn") node.args.forEach(a=>refsOf(a,out)); return out; }
 function addr(a){ const m=REF.exec(a); return [colIdx(m[2]), +m[4]]; }
 function shiftFormula(f, dc, dr){ // 相対参照だけをずらす
   return f.replace(/"[^"]*"|(\$?)([A-Z])(\$?)(\d+)/g, (m, dc$, col, dr$, row)=>{ if(m.startsWith('"')) return m; const c = dc$ ? col : colName(colIdx(col)+dc); const r = dr$ ? row : String(+row+dr); if(colIdx(c)<0||colIdx(c)>25||+r<1) return "#REF!"; return dc$+c+dr$+r; });
@@ -1262,22 +1293,32 @@ function shiftFormula(f, dc, dr){ // 相対参照だけをずらす
 
 function makeSheet(root, opts){
   const cols=opts.cols||5, rows=opts.rows||7; const cells={}; Object.assign(cells, opts.data||{});
-  let sel="A1", showF=false; const cache={};
-  const fbar=h("div",{class:"fbar"}), addrEl=h("span",{class:"addr"},"A1"), finp=h("input",{type:"text", placeholder:"= で始めると数式", spellcheck:"false"});
+  const initial=JSON.stringify(opts.data||{});
+  let sel="A1", range=null, showF=false, editor=null, editAddr=null, insertSpan=null, dragging=null, clip=null; const cache={};
+  const fbar=h("div",{class:"fbar"}), addrEl=h("span",{class:"addr"},"A1"), finp=h("input",{type:"text", placeholder:"= で始めると数式", spellcheck:"false", autocomplete:"off"});
   fbar.append(addrEl, finp);
-  const tbl=h("table"), wrap=h("div",{class:"sheet"}, tbl), status=h("div",{class:"status"});
-  const api={ get:a=>value(a), formula:a=>cells[a]||"", set:(a,v)=>{ cells[a]=v; recalc(); }, copy:(from,to)=>{ const f=cells[from]||""; const [c1,r1]=addr(from),[c2,r2]=addr(to); cells[to]= f.startsWith("=") ? shiftFormula(f, c2-c1, r2-r1) : f; recalc(); }, showFormulas:(b)=>{ showF=b; render(); }, cells, select:(a)=>{ sel=a; render(); }, status };
+  const tbl=h("table"), wrap=h("div",{class:"sheet", tabindex:"-1"}, tbl), status=h("div",{class:"status"}), info=h("div",{class:"small muted"});
+  const inputs={}, tds={};
+  const addrOf=(c,r)=>colName(c)+r, clampC=c=>Math.max(0,Math.min(cols-1,c)), clampR=r=>Math.max(1,Math.min(rows,r));
+  const normRange=rg=>{ const c1=Math.min(rg.a[0],rg.b[0]), c2=Math.max(rg.a[0],rg.b[0]), r1=Math.min(rg.a[1],rg.b[1]), r2=Math.max(rg.a[1],rg.b[1]); return {c1,c2,r1,r2,w:c2-c1+1,h:r2-r1+1}; };
+  const rangeStr=rg=> rg.w===1&&rg.h===1 ? addrOf(rg.c1,rg.r1) : addrOf(rg.c1,rg.r1)+":"+addrOf(rg.c2,rg.r2);
+  const selRange=()=> range ? normRange(range) : (()=>{ const [c,r]=addr(sel); return {c1:c,c2:c,r1:r,r2:r,w:1,h:1}; })();
+  /* 全角で入力された数式・数値を半角に直す（日本語入力のまま打った場合） */
+  function normalizeInput(v){ const n=v.replace(/[！-～]/g, ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0)).replace(/　/g," ").replace(/[“”]/g,'"').replace(/[−–—]/g,"-").replace(/×/g,"*").replace(/÷/g,"/"); const t=n.trim(); if(t.startsWith("=")) return t.replace(/"[^"]*"|[^"]+/g, m=>m.startsWith('"')?m:m.toUpperCase()); if(t!=="" && !isNaN(+t)) return t; return v; }
+  const api={ get:a=>value(a), formula:a=>cells[a]||"", set:(a,v)=>{ commit(a,v); }, reset:()=>{ for(const k in cells) delete cells[k]; Object.assign(cells, JSON.parse(initial)); sel="A1"; range=null; clip=null; status.textContent=""; recalc(); },
+    copy:(from,to)=>{ const f=cells[from]||""; const [c1,r1]=addr(from),[c2,r2]=addr(to); const nv = f.startsWith("=") ? shiftFormula(f, c2-c1, r2-r1) : f; if(nv==="") delete cells[to]; else cells[to]=nv; recalc(); },
+    showFormulas:(b)=>{ if(editor) editor.blur(); showF=!!b; wrap.classList.toggle("showf", showF); refresh(); }, disp:v=>disp(v), cells, select:(a)=>{ sel=a; range=null; refresh(); }, status };
   function value(a, stack=new Set()){ if(a in cache) return cache[a]; const raw=cells[a]; let v;
-    if(raw==null||raw==="") v=""; else if(typeof raw==="string" && raw.startsWith("=")){ if(stack.has(a)) return {err:"循環"}; stack.add(a); try{ v=evalNode(parse(tokenize(raw.slice(1))), stack); }catch(e){ v={err:e.message==="名前"?"名前":"式"}; } stack.delete(a); }
+    if(raw==null||raw==="") v=""; else if(typeof raw==="string" && raw.startsWith("=")){ if(stack.has(a)) return {err:"循環"}; stack.add(a); try{ v=evalNode(parse(tokenize(raw.slice(1))), stack); if(Array.isArray(v)) v = v.length===1 ? v[0] : {err:"値"}; if(typeof v==="number" && !isFinite(v)) v={err:"数値"}; }catch(e){ v={err:(e.message==="名前"||e.message==="REF"||e.message==="数値")?e.message:"式"}; } stack.delete(a); }
     else if(typeof raw==="string" && raw.trim()!=="" && !isNaN(+raw)) v=+raw; else v=raw;
     cache[a]=v; return v; }
   function evalNode(n, stack){
     switch(n.t){
       case "num": return n.v; case "str": return n.v;
-      case "ref": return value(n.a.replace(/\$/g,""), stack);
-      case "range": return refsOf(n).map(a=>value(a, stack));
+      case "ref": { const [rc,rr]=addr(n.a); if(rc>=cols||rr>rows) return {err:"REF"}; return value(n.a.replace(/\$/g,""), stack); }
+      case "range": { const [c1,r1]=addr(n.a),[c2,r2]=addr(n.b); if(Math.max(c1,c2)>=cols||Math.max(r1,r2)>rows) return {err:"REF"}; return refsOf(n).map(a=>value(a, stack)); }
       case "neg": { const v=num(evalNode(n.v,stack)); return isErr(v)?v:-v; }
-      case "bin": { const l=evalNode(n.l,stack), r=evalNode(n.r,stack); if(isErr(l)) return l; if(isErr(r)) return r;
+      case "bin": { let l=evalNode(n.l,stack), r=evalNode(n.r,stack); if(Array.isArray(l)) l={err:"値"}; if(Array.isArray(r)) r={err:"値"}; if(isErr(l)) return l; if(isErr(r)) return r;
         if(n.o==="&") return String(disp(l))+String(disp(r));
         if(["=","<",">","<=",">=","<>"].includes(n.o)){ const a=l===""?0:l, b=r===""?0:r; switch(n.o){ case "=": return a==b; case "<>": return a!=b; case "<": return a<b; case ">": return a>b; case "<=": return a<=b; case ">=": return a>=b; } }
         const a=num(l), b=num(r); if(isErr(a)) return a; if(isErr(b)) return b;
@@ -1288,8 +1329,8 @@ function makeSheet(root, opts){
           case "AVERAGE": return nums.length?nums.reduce((s,x)=>s+x,0)/nums.length:{err:"DIV/0"};
           case "MAX": return nums.length?Math.max(...nums):0; case "MIN": return nums.length?Math.min(...nums):0;
           case "COUNT": return nums.length;
-          case "IF": { const c=args[0]; if(isErr(c)) return c; return (c===true||(typeof c==="number"&&c!==0)) ? (args.length>1?args[1]:true) : (args.length>2?args[2]:false); }
-          case "ROUND": { const v=num(args[0]), d=args.length>1?num(args[1]):0; if(isErr(v)) return v; const m=Math.pow(10,d); return Math.round(v*m+1e-9)/m; }
+          case "IF": { if(args.length<2) return {err:"引数"}; const c=args[0]; if(isErr(c)) return c; return (c===true||(typeof c==="number"&&c!==0)) ? (args.length>1?args[1]:true) : (args.length>2?args[2]:false); }
+          case "ROUND": { const v=num(args[0]), d=args.length>1?num(args[1]):0; if(isErr(v)) return v; const m=Math.pow(10,d); return Math.sign(v)*Math.round(Math.abs(v)*m+1e-9)/m; }
           case "INT": { const v=num(args[0]); return isErr(v)?v:Math.floor(v); }
           case "MOD": { const a=num(args[0]), b=num(args[1]); if(isErr(a)) return a; if(isErr(b)) return b; return b===0?{err:"DIV/0"}:a-b*Math.floor(a/b); }
           case "ABS": { const v=num(args[0]); return isErr(v)?v:Math.abs(v); }
@@ -1298,22 +1339,67 @@ function makeSheet(root, opts){
         } }
     } }
   const isErr=v=>v&&typeof v==="object"&&"err" in v;
-  const num=v=>{ if(isErr(v)) return v; if(v===""||v==null) return 0; if(typeof v==="boolean") return v?1:0; if(typeof v==="number") return v; if(!isNaN(+v)) return +v; return {err:"値"}; };
-  const disp=v=>{ if(isErr(v)) return "#"+v.err; if(typeof v==="number") return Number.isInteger(v)?String(v):String(+v.toFixed(4)); if(typeof v==="boolean") return v?"TRUE":"FALSE"; return v==null?"":String(v); };
-  function recalc(){ for(const k in cache) delete cache[k]; render(); if(opts.onChange) opts.onChange(api); }
-  function render(){
-    let refs=[]; const f=cells[sel]||""; if(f.startsWith("=")){ try{ refs=refsOf(parse(tokenize(f.slice(1)))); }catch(e){} }
-    tbl.innerHTML=""; const head=h("tr",{}, h("th",{},"")); for(let c=0;c<cols;c++) head.append(h("th",{}, colName(c))); tbl.append(head);
-    for(let r=1;r<=rows;r++){ const tr=h("tr",{}, h("th",{}, String(r))); for(let c=0;c<cols;c++){ const a=colName(c)+r; const v=value(a); const raw=cells[a]||""; const td=h("td",{class:(a===sel?"sel ":"")+(refs.includes(a)?"ref ":"")+(isErr(v)?"err ":"")+(typeof v==="number"?"num":"")});
-        const inp=h("input",{type:"text", value: showF ? raw : disp(v), spellcheck:"false", "data-a":a}); inp.addEventListener("focus",()=>{ if(sel!==a){ sel=a; render(); const el2=tbl.querySelector(`input[data-a="${a}"]`); if(el2) el2.focus(); } inp.value=raw; });
-        inp.addEventListener("blur",()=>{ if(inp.value!==raw){ cells[a]=inp.value; recalc(); } else inp.value= showF?raw:disp(value(a)); });
-        inp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); inp.blur(); const nx=tbl.querySelector(`input[data-a="${colName(c)+(r+1)}"]`); if(nx) nx.focus(); } });
-        td.append(inp); tr.append(td); } tbl.append(tr); }
-    addrEl.textContent=sel; finp.value=cells[sel]||"";
+  const num=v=>{ if(isErr(v)) return v; if(Array.isArray(v)) return {err:"値"}; if(v===""||v==null) return 0; if(typeof v==="boolean") return v?1:0; if(typeof v==="number") return v; if(!isNaN(+v)) return +v; return {err:"値"}; };
+  const ERR={ "DIV/0":["#DIV/0!","0 で割っています"], "名前":["#NAME?","関数名かセル番地のつづりがちがいます（この表の列は A〜"+colName(cols-1)+"、行は 1〜"+rows+"）"], "関数名":["#NAME?","この教材で使える関数は SUM・AVERAGE・MAX・MIN・COUNT・IF・ROUND・INT・MOD・ABS・AND・OR です"], "値":["#VALUE!","数値が必要なところに文字が入っています（範囲を単独で使っている場合も含む）"], "REF":["#REF!","表の外のセルを参照しています（コピーで参照が表の外にずれた場合も含む）"], "循環":["#循環!","自分自身を（直接または間接に）参照しています"], "数値":["#NUM!","数値の書き方がちがう、または計算結果が大きすぎます"], "引数":["#N/A","関数の引数が足りません（例：IF(条件, 真のとき, 偽のとき)）"], "式":["#式?","数式の書き方がちがいます（かっこ・演算子・引用符を確認）"] };
+  const errText=e=>(ERR[e.err]||["#"+e.err,""])[0], errWhy=e=>(ERR[e.err]||["",""])[1];
+  const disp=v=>{ if(isErr(v)) return errText(v); if(typeof v==="number") return Number.isInteger(v)?String(v):String(+v.toFixed(4)); if(typeof v==="boolean") return v?"TRUE":"FALSE"; return v==null?"":String(v); };
+  function commit(a, v){ v=normalizeInput(v); const old=cells[a]||""; if(old!==v){ if(v==="") delete cells[a]; else cells[a]=v; recalc(); } else refresh(); }
+  function recalc(){ for(const k in cache) delete cache[k]; refresh(); if(opts.onChange) opts.onChange(api); }
+  function refresh(){
+    if(opts.showBox && opts.showBox.checked!==showF){ showF=opts.showBox.checked; wrap.classList.toggle("showf", showF); }
+    let refs=[]; const src = (editor && editAddr) ? editor.value : (cells[sel]||""); if(src.startsWith("=")){ try{ refs=refsOf(parse(tokenize(src.slice(1)))); }catch(e){} }
+    const rg=selRange(), multi=rg.w>1||rg.h>1;
+    for(let r=1;r<=rows;r++) for(let c=0;c<cols;c++){ const a=addrOf(c,r); const v=value(a), raw=cells[a]||""; const inp=inputs[a];
+      tds[a].className=(a===sel?"sel ":"")+(multi&&c>=rg.c1&&c<=rg.c2&&r>=rg.r1&&r<=rg.r2?"rng ":"")+(refs.includes(a)?"ref ":"")+(isErr(v)?"err ":"")+(typeof v==="number"?"num":"");
+      if(inp!==editor) inp.value = showF ? raw : disp(v); }
+    addrEl.textContent = multi ? rangeStr(rg) : sel; if(finp!==editor) finp.value=cells[sel]||"";
+    const sv=value(sel); if(!multi && isErr(sv)){ info.textContent=`${sel} は ${errText(sv)}：${errWhy(sv)}`; } else
+    if(multi){ const nums=[]; for(let r=rg.r1;r<=rg.r2;r++) for(let c=rg.c1;c<=rg.c2;c++){ const v=value(addrOf(c,r)); if(typeof v==="number") nums.push(v); } const sum=nums.reduce((x,y)=>x+y,0); info.textContent = nums.length ? `選択範囲 ${rangeStr(rg)}：合計 ${disp(sum)}　平均 ${disp(sum/nums.length)}　数値の個数 ${nums.length}` : `選択範囲 ${rangeStr(rg)}`; } else info.textContent="";
   }
-  finp.addEventListener("keydown",e=>{ if(e.key==="Enter"){ cells[sel]=finp.value; recalc(); } });
-  finp.addEventListener("blur",()=>{ if((cells[sel]||"")!==finp.value){ cells[sel]=finp.value; recalc(); } });
-  root.append(fbar, wrap, status); recalc(); return api;
+  /* 数式の入力中に、セルをクリック／ドラッグして番地を差し込む */
+  const isFormulaEdit=()=> editor && editor.value.trimStart().startsWith("=");
+  function canInsert(){ const pos=editor.selectionStart; if(insertSpan && pos===insertSpan[1]) return true; const before=editor.value.slice(0,pos).replace(/\s+$/,""); return /[=+\-*\/^(,:<>&]$/.test(before); }
+  function insertRef(text){ const v=editor.value; let st,en; if(insertSpan){ [st,en]=insertSpan; } else { st=en=editor.selectionStart; } editor.value=v.slice(0,st)+text+v.slice(en); insertSpan=[st,st+text.length]; editor.setSelectionRange(insertSpan[1],insertSpan[1]); refresh(); }
+  function focusCell(a, selectAll=true){ const inp=inputs[a]; inp.focus(); if(selectAll) inp.select(); }
+  /* コピー・貼り付け（相対参照はずらす） */
+  function copySel(){ const rg=selRange(); const data=[]; for(let r=rg.r1;r<=rg.r2;r++){ const row=[]; for(let c=rg.c1;c<=rg.c2;c++) row.push(cells[addrOf(c,r)]||""); data.push(row); } clip={c:rg.c1,r:rg.r1,w:rg.w,h:rg.h,data}; status.className="status"; status.textContent=`${rangeStr(rg)} をコピーしました。貼り付け先のセルを選んで Ctrl+V（または「貼り付け」）`; }
+  function pasteSel(){ if(!clip){ status.className="status ng"; status.textContent="先にコピーしてください（Ctrl+C または「コピー」）"; return; } const rg=selRange(); const W = (rg.w>1||rg.h>1) && rg.w%clip.w===0 ? rg.w : clip.w, H = (rg.w>1||rg.h>1) && rg.h%clip.h===0 ? rg.h : clip.h; const changed=[];
+    for(let j=0;j<H;j++) for(let i=0;i<W;i++){ const c=rg.c1+i, r=rg.r1+j; if(c>=cols||r>rows) continue; const src=clip.data[j%clip.h][i%clip.w]; const dc=c-(clip.c+i%clip.w), dr=r-(clip.r+j%clip.h); const nv=src.startsWith("=")?shiftFormula(src,dc,dr):src; const a=addrOf(c,r); if(nv==="") delete cells[a]; else cells[a]=nv; if(src.startsWith("=")) changed.push(`${a}: ${nv}`); }
+    range = (W>1||H>1) ? {a:[rg.c1,rg.r1], b:[Math.min(cols-1,rg.c1+W-1), Math.min(rows,rg.r1+H-1)]} : null; recalc(); status.className="status ok"; status.textContent=""; if(changed.length){ status.append("貼り付けました。数式の参照はコピー元との位置関係を保ってずれています：", h("span",{class:"mono small"}, changed.join("　"))); } else status.textContent="貼り付けました。"; }
+  function fillDown(){ const rg=selRange(); if(rg.h<2){ status.className="status ng"; status.textContent="コピー元のセルを一番上にして、下方向に範囲をドラッグしてから押してください（例：D2 から D5 まで）"; return; } for(let c=rg.c1;c<=rg.c2;c++) for(let r=rg.r1+1;r<=rg.r2;r++) api.copy(addrOf(c,rg.r1), addrOf(c,r)); status.className="status ok"; status.textContent=`${addrOf(rg.c1,rg.r1)}${rg.w>1?":"+addrOf(rg.c2,rg.r1):""} の内容を下にコピーしました（相対参照は行ごとにずれます）`; }
+  function clearSel(){ const rg=selRange(); for(let r=rg.r1;r<=rg.r2;r++) for(let c=rg.c1;c<=rg.c2;c++) delete cells[addrOf(c,r)]; recalc(); }
+  /* 表を1回だけ組み立て、以後は値とクラスだけ更新する */
+  const head=h("tr",{}, h("th",{},"")); for(let c=0;c<cols;c++) head.append(h("th",{}, colName(c))); tbl.append(head);
+  for(let r=1;r<=rows;r++){ const tr=h("tr",{}, h("th",{}, String(r))); for(let c=0;c<cols;c++){ const a=addrOf(c,r); const td=h("td"); const inp=h("input",{type:"text", spellcheck:"false", autocomplete:"off", "data-a":a, "aria-label":a}); tds[a]=td; inputs[a]=inp; td.append(inp); tr.append(td);
+      td.addEventListener("mousedown", e=>{ if(e.button!==0) return;
+        if(isFormulaEdit() && editAddr!==a && canInsert()){ e.preventDefault(); dragging={mode:"insert", anchor:[c,r]}; insertRef(a); return; }
+        if(e.detail>=2 || (editor===inp)) return;               // ダブルクリック／編集中のセル自身：通常どおりカーソルを置く
+        e.preventDefault(); dragging={mode:"select", anchor:[c,r]}; range=null; sel=a; refresh(); });
+      td.addEventListener("mouseover", ()=>{ if(!dragging) return; const rg=normRange({a:dragging.anchor, b:[c,r]}); if(dragging.mode==="insert") insertRef(rangeStr(rg)); else { range={a:dragging.anchor, b:[c,r]}; refresh(); } });
+      inp.addEventListener("focus", ()=>{ editor=inp; editAddr=a; sel=a; range=null; insertSpan=null; inp.value=cells[a]||""; refresh(); });
+      inp.addEventListener("blur", ()=>{ if(editor===inp){ const v=inp.value; editor=null; editAddr=null; insertSpan=null; commit(a,v); } });
+      inp.addEventListener("input", ()=>{ insertSpan=null; refresh(); });
+      inp.addEventListener("compositionend", ()=>{ inp._ce=performance.now(); });
+      inp.addEventListener("keydown", e=>{ if(e.isComposing||e.keyCode===229||(e.key==="Enter"&&inp._ce&&performance.now()-inp._ce<80)) return; const dirty = inp.value!==(cells[a]||""); const [cc,rr]=[c,r];
+        if(e.key==="Enter"){ e.preventDefault(); focusCell(addrOf(cc, clampR(rr+(e.shiftKey?-1:1)))); return; }
+        if(e.key==="Tab"){ e.preventDefault(); focusCell(addrOf(clampC(cc+(e.shiftKey?-1:1)), rr)); return; }
+        if(e.key==="Escape"){ inp.value=cells[a]||""; insertSpan=null; refresh(); return; }
+        if((e.ctrlKey||e.metaKey) && (e.key==="c"||e.key==="C") && !dirty){ e.preventDefault(); copySel(); return; }
+        if((e.ctrlKey||e.metaKey) && (e.key==="v"||e.key==="V") && !dirty){ e.preventDefault(); inp.blur(); pasteSel(); focusCell(sel); return; }
+        if(!dirty && !isFormulaEdit()){ const mv={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0]}[e.key]; if(mv){ e.preventDefault(); focusCell(addrOf(clampC(cc+mv[0]), clampR(rr+mv[1]))); return; } }
+        if(e.key.length===1||e.key==="Backspace"||e.key==="Delete") insertSpan=null; });
+    } tbl.append(tr); }
+  const ac=new AbortController();
+  document.addEventListener("mouseup", ()=>{ if(!wrap.isConnected){ ac.abort(); return; } if(!dragging) return; const d=dragging; dragging=null;
+    if(d.mode==="select"){ const rg=selRange(); if(rg.w===1&&rg.h===1){ range=null; focusCell(sel); } else { if(editor){ editor.blur(); } wrap.focus(); refresh(); } }
+    else if(editor){ editor.focus(); if(insertSpan) editor.setSelectionRange(insertSpan[1],insertSpan[1]); } }, {signal:ac.signal});
+  wrap.addEventListener("keydown", e=>{ if(e.target!==wrap) return; if((e.ctrlKey||e.metaKey)&&(e.key==="c"||e.key==="C")){ e.preventDefault(); copySel(); } else if((e.ctrlKey||e.metaKey)&&(e.key==="v"||e.key==="V")){ e.preventDefault(); pasteSel(); } else if(e.key==="Delete"||e.key==="Backspace"){ e.preventDefault(); clearSel(); } else if(e.key==="Escape"){ range=null; refresh(); } });
+  finp.addEventListener("focus", ()=>{ editor=finp; editAddr=sel; range=null; insertSpan=null; refresh(); });
+  finp.addEventListener("blur", ()=>{ if(editor===finp){ const v=finp.value, a=editAddr; editor=null; editAddr=null; insertSpan=null; commit(a,v); } });
+  finp.addEventListener("input", ()=>{ insertSpan=null; refresh(); });
+  finp.addEventListener("keydown", e=>{ if(e.isComposing||e.keyCode===229) return; if(e.key==="Enter"){ e.preventDefault(); const a=editAddr; finp.blur(); focusCell(a); } else if(e.key==="Escape"){ finp.value=cells[editAddr]||""; refresh(); } else if(e.key.length===1||e.key==="Backspace"||e.key==="Delete") insertSpan=null; });
+  const tools=h("div",{class:"row"}, h("button",{class:"btn sm", onclick:copySel},"コピー（Ctrl+C）"), h("button",{class:"btn sm", onclick:()=>{ pasteSel(); }},"貼り付け（Ctrl+V）"), h("button",{class:"btn sm", onclick:fillDown},"選択範囲：一番上の行を下へフィル"), h("button",{class:"btn sm", onclick:clearSel},"選択セルを消去"));
+  root.append(fbar, wrap, info, tools, status); recalc(); return api;
 }
 WIDGETS._makeSheet = makeSheet;
 
@@ -1329,8 +1415,11 @@ WIDGETS.sheet = function(el){
   ];
   const list=h("div",{class:"stack"});
   function check(s){ list.innerHTML=""; let n=0; tasks.forEach((t,i)=>{ const ok=t.ok(s); if(ok) n++; list.append(h("div",{class:"pill "+(ok?"ok":""), style:"display:block;white-space:normal"}, `${ok?"✅":"⬜"} 課題 ${i+1}：${t.d}`)); }); if(n===tasks.length) list.append(h("div",{class:"status ok"},"🎉 全課題クリア！")); }
-  const s=makeSheet(el, {cols:5, rows:7, data, onChange:check});
-  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}), "数式を表示")), h("p",{class:"small muted"},"セルをクリックして入力し、Enter で確定。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。選んだセルが参照しているセルは黄色で表示されます。"), h("b",{},"課題"), list); check(s);
+  const showBox=h("input",{type:"checkbox", id:"sheet1-showf"});
+  const s=makeSheet(el, {cols:5, rows:7, data, onChange:check, showBox});
+  ["change","input","click"].forEach(ev=>showBox.addEventListener(ev, ()=>s.showFormulas(showBox.checked)));
+  setTimeout(()=>s.showFormulas(showBox.checked), 300);
+  el.append(h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ ["D3","D4","D5"].forEach(a=>s.copy("D2",a)); }},"D2 を D3〜D5 に下にコピー"), h("label",{class:"check"}, showBox, "数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), h("p",{class:"small muted"},"セルをクリックして数値や文字を入力し、Enter で確定（矢印キーで移動）。数式は = で始めます（例：=B2*C2、=SUM(D2:D5)）。数式を入力中に他のセルをクリックするとその番地が式に入り、ドラッグすると範囲（D2:D5）が入ります。セルをドラッグして範囲を選ぶと合計・平均が下に出ます。Ctrl+C／Ctrl+V でコピーすると相対参照が位置に合わせてずれます。選んだセルが参照しているセルは黄色で表示されます。全角で打っても半角に直します。"), h("b",{},"課題"), list); check(s);
 };
 
 /* ---------- 5-3 相対参照と絶対参照 ---------- */
@@ -1338,13 +1427,16 @@ WIDGETS.refcopy = function(el){
   const data={A1:"税率",B1:"0.1", A3:"商品",B3:"税抜価格",C3:"税込価格", A4:"ノート",B4:"200", A5:"ペン",B5:"150", A6:"消しゴム",B6:"100", A7:"定規",B7:"300"};
   const msg=h("div",{class:"point", html:"<b>やってみよう</b><span>① C4 に <code>=B4*(1+B1)</code> と入れて Enter。② 「C4 を下にコピー」を押す。C5〜C7 はどうなる？　③ 次に C4 を <code>=B4*(1+$B$1)</code> に直して、もう一度コピー。</span>"});
   const log=h("div",{class:"readout"});
-  const s=makeSheet(el, {cols:4, rows:7, data, onChange:report});
-  function report(s){ const rows=["C4","C5","C6","C7"].map(a=>{ const f=s.formula(a); const v=s.get(a); const d = typeof v==="object"&&v ? "#"+v.err : (v===""?"" : typeof v==="number" ? String(+v.toFixed(4)) : v); return `${a}: <b>${f||"（空）"}</b> → ${d}`; }).join("<br>");
+  const showBox=h("input",{type:"checkbox", id:"sheet2-showf"});
+  const s=makeSheet(el, {cols:4, rows:7, data, onChange:report, showBox});
+  ["change","input","click"].forEach(ev=>showBox.addEventListener(ev, ()=>s.showFormulas(showBox.checked)));
+  setTimeout(()=>s.showFormulas(showBox.checked), 300);
+  function report(s){ const rows=["C4","C5","C6","C7"].map(a=>{ const f=s.formula(a); const v=s.get(a); const d = s.disp(v); return `${a}: <b>${f||"（空）"}</b> → ${d}`; }).join("<br>");
     const f4=(s.formula("C4")||"").toUpperCase().replace(/\s/g,""); let verdict="";
-    if(f4 && /B1/.test(f4) && !/\$B\$1|B\$1/.test(f4)) verdict=`<span class="hl">B1 が相対参照なので、下にコピーすると B2、B3… とずれてしまいます（税率の入っていないセルを参照 → 結果が税抜のまま）。</span>`;
-    else if(/\$B\$1|B\$1/.test(f4)) verdict=`<span style="color:#7fe3bb">$ で行を固定したので、コピーしても税率 B1 を参照し続けます。これが絶対参照。</span>`;
+    if(f4 && /B1/.test(f4) && !/\$B\$1|B\$1/.test(f4)) verdict=`<span class="hl">B1 が相対参照なので、下にコピーすると B2、B3… とずれてしまいます（税率でないセルを参照するため、税抜のままになったり、エラーや大きく狂った値になったりします）。</span>`;
+    else if(/\$B\$1|B\$1/.test(f4)) verdict=`<span style="color:#7fe3bb">$ で 1 行目を固定したので、コピーしても税率 B1 を参照し続けます（$B$1 は列も行も固定する絶対参照、B$1 は行だけ固定する複合参照）。</span>`;
     log.innerHTML=rows+"<br>"+verdict; }
-  el.append(msg, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:()=>{ ["C5","C6","C7"].forEach(a=>s.copy("C4",a)); }},"C4 を C5〜C7 に下にコピー"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+B1)"); }},"C4 に相対参照の式を入れる"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+$B$1)"); }},"C4 に絶対参照の式を入れる"), h("label",{class:"check"}, h("input",{type:"checkbox", onchange:e=>s.showFormulas(e.target.checked)}),"数式を表示")), log); report(s);
+  el.append(msg, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:()=>{ ["C5","C6","C7"].forEach(a=>s.copy("C4",a)); }},"C4 を C5〜C7 に下にコピー"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+B1)"); }},"C4 に相対参照の式を入れる"), h("button",{class:"btn sm", onclick:()=>{ s.set("C4","=B4*(1+$B$1)"); }},"C4 に絶対参照の式を入れる"), h("label",{class:"check"}, showBox,"数式を表示"), h("button",{class:"btn sm", onclick:()=>s.reset()},"↻ 最初の状態に戻す")), log); report(s);
 };
 
 /* ---------- 5-4 グラフ ---------- */
@@ -1366,7 +1458,7 @@ WIDGETS.charts = function(el){
     g+=`<line x1="${L}" y1="10" x2="${L}" y2="${H-B}" stroke="#c4cde0"/><line x1="${L}" y1="${H-B}" x2="${W-5}" y2="${H-B}" stroke="#c4cde0"/></svg>`; area.innerHTML=g; }
   function show(){ const s=SC[si]; q.innerHTML=`<b>目的 ${si+1}/${SC.length}</b><span>${s.q}。どのグラフにする？</span>`; area.innerHTML=""; status.textContent=""; sel.querySelectorAll(".chip").forEach(c=>c.classList.remove("ok","ng","on")); }
   TYPES.forEach(([t,n])=>sel.append(h("button",{class:"chip", onclick:(e)=>{ draw(t); const s=SC[si]; sel.querySelectorAll(".chip").forEach(c=>c.classList.remove("ok","ng","on")); const ok=t===s.best; e.currentTarget.classList.add(ok?"ok":"ng"); status.className="status "+(ok?"ok":"ng"); const why={bar:"棒グラフは項目どうしの量を比べるのに向いています。",line:"折れ線グラフは時間による変化（推移）を見るのに向いています。",pie:"円グラフは全体に対する割合（構成比）を見るのに向いています。",scatter:"散布図は 2 つの量の関係（相関）を見るのに向いています。"}; status.innerHTML=(ok?"⭕ 適切！ ":"❌ この目的には「"+TYPES.find(x=>x[0]===s.best)[1]+"」が向いています。 ")+why[s.best]; }}, n)));
-  el.append(q, sel, area, status, h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ si=(si+1)%SC.length; show(); }},"次の目的 →"))); show();
+  el.append(q, sel, area, status, h("div",{class:"row"}, h("button",{class:"btn sm", onclick:()=>{ si=(si+1)%SC.length; show(); }},"次の目的 →"), h("button",{class:"btn sm", onclick:()=>{ si=0; show(); }},"↻ 最初の目的に戻る"))); show();
 };
 })();
 
@@ -1385,7 +1477,7 @@ WIDGETS.keys = function(el){
   const verdict={ 学生番号:["ok","⭕ 主キーにできます。すべて異なり、空もありません。"], 氏名:["ng","❌ 「佐藤 太郎」が 2 人います（重複）。1 行に特定できません。"], 学科:["ng","❌ 同じ学科の学生が何人もいるので、重複します。"], 生年月日:["ng","❌ 同じ誕生日の学生（S002 と S004）がいて重複します。"], メールアドレス:["ng","❌ 値は重複していませんが、S003 が空（NULL）です。主キーは NULL を許しません。"] };
   function render(c){ if(box) box.remove(); box=table("学生表（列名をクリック）", cols, rows, {onHead:pick, dimCols:c?cols.filter(x=>x!==c):[], mark:(r,col)=>c===col && ((c==="氏名"&&r.氏名==="佐藤 太郎")||(c==="生年月日"&&r.生年月日==="2006-11-03")||(c==="メールアドレス"&&!r.メールアドレス))}); el.prepend(box); }
   function pick(c){ render(c); const v=verdict[c]; status.className="status "+v[0]; status.textContent=v[1]; }
-  el.append(status, h("p",{class:"small muted"},"どの列なら「1 行をただ 1 つに特定」できるかを考えて、列名をクリックしてください。赤くなるのは、その列が主キーになれない理由の行です。")); render(null);
+  el.append(status, h("p",{class:"small muted"},"どの列なら「1 行をただ 1 つに特定」できるかを考えて、列名をクリックしてください。赤くなるのは、その列が主キーになれない理由の行です。"), h("button",{class:"btn sm", onclick:()=>{ render(null); status.textContent=""; status.className="status"; }},"↻ 選び直す")); render(null);
 };
 
 /* ---------- 6-3 正規化 ---------- */
@@ -1417,23 +1509,28 @@ WIDGETS.sql = function(el){
     catch(e){ status.className="status ng"; status.textContent="エラー："+e.message; out.innerHTML=""; ops.innerHTML=""; }
   }
   function exec(sql){
-    sql=sql.trim().replace(/;$/,"").replace(/\s+/g," ");
+    sql=sql.normalize("NFKC").trim().replace(/;$/,"").replace(/\s+/g," ");
+    const unsup=/\b(DISTINCT|COUNT|SUM|AVG|MIN|MAX|GROUP|LIMIT|LIKE|IN|BETWEEN|NOT|HAVING|UNION)\b/i.exec(sql); if(unsup) throw new Error(`この教材の SQL は ${unsup[1].toUpperCase()} に対応していません（SELECT・FROM・JOIN ON・WHERE・AND・OR・ORDER BY だけ使えます）`);
+    if(/\b(AND|OR|WHERE|ORDER|BY|JOIN|ON)\s*$/i.test(sql)) throw new Error("文の最後が途中で終わっています（AND / OR / WHERE / ORDER BY の後ろに条件や列名を書いてください）");
     const m=/^SELECT\s+(.+?)\s+FROM\s+(\S+)(?:\s+JOIN\s+(\S+)\s+ON\s+(\S+)\s*=\s*(\S+))?(?:\s+WHERE\s+(.+?))?(?:\s+ORDER\s+BY\s+(\S+)(?:\s+(ASC|DESC))?)?$/i.exec(sql);
-    if(!m) throw new Error("SELECT 列 FROM 表 [JOIN 表 ON 列=列] [WHERE 条件] [ORDER BY 列 [DESC]] の形で書いてください");
+    if(!m){ if(/^\s*(INSERT|UPDATE|DELETE|CREATE|DROP)\b/i.test(sql)) throw new Error("この教材では SELECT（取り出し）だけを体験できます"); throw new Error("SELECT 列 FROM 表 [JOIN 表 ON 列=列] [WHERE 条件] [ORDER BY 列 [DESC]] の形で書いてください（WHERE や ORDER BY の後ろが空になっていませんか）"); }
     const [,colsS,t1,t2,j1,j2,whereS,ordCol,ordDir]=m;
     if(!TABLES[t1]) throw new Error(`表「${t1}」はありません（学生・学科）`);
+    const dup = t2 ? Object.keys(TABLES[t1][0]).filter(k=>k in TABLES[t2][0]) : [];
     let rows=TABLES[t1].map(r=>{ const o={}; for(const k in r){ o[k]=r[k]; o[t1+"."+k]=r[k]; } return o; });
     if(t2){ if(!TABLES[t2]) throw new Error(`表「${t2}」はありません`); const res=[]; rows.forEach(a=>TABLES[t2].forEach(b=>{ const o=Object.assign({},a); for(const k in b){ if(!(k in o)) o[k]=b[k]; o[t2+"."+k]=b[k]; } if(get(o,j1)==get(o,j2)) res.push(o); })); rows=res; }
-    function get(o,name){ if(name in o) return o[name]; throw new Error(`列「${name}」はありません`); }
+    function get(o,name){ if(dup.includes(name)) throw new Error(`列「${name}」は両方の表にあるので、学生.${name} のように表名をつけてください`); if(name in o) return o[name]; throw new Error(`列「${name}」はありません`); }
     function cond(o, s){ // AND / OR（左から順に、AND 優先）
-      const ors=s.split(/\s+OR\s+/i); return ors.some(part=>part.split(/\s+AND\s+/i).every(c=>{ const cm=/^(\S+)\s*(<>|!=|>=|<=|=|<|>)\s*(.+)$/.exec(c.trim()); if(!cm) throw new Error(`条件「${c}」が読めません`); let [,col,op,val]=cm; val=val.trim().replace(/^['"](.*)['"]$/,"$1"); const a=get(o,col); const b=isNaN(+val)||val===""?val:+val; switch(op){ case "=":return a==b; case "<>": case "!=":return a!=b; case ">":return a>b; case "<":return a<b; case ">=":return a>=b; case "<=":return a<=b; } })); }
+      const ors=s.split(/\s+OR\s+/i); return ors.some(part=>part.split(/\s+AND\s+/i).every(c=>{ const cm=/^([^\s<>=!]+)\s*(<>|!=|>=|<=|<|>|=)\s*(.+)$/.exec(c.trim()); if(!cm) throw new Error(`条件「${c}」が読めません（使えるのは = <> < > <= >= と AND / OR。IN・LIKE・BETWEEN は未対応）`); let [,col,op,val]=cm; val=val.trim(); const quoted=/^(['"]).*\1$/.test(val); if(quoted) val=val.slice(1,-1); else if(val===""||isNaN(+val)) throw new Error(`「${val}」が読めません。文字は '情報' のように引用符で囲み、数値はそのまま書きます（末尾に AND / OR だけが残っていないかも確認）`); const a=get(o,col); const b=quoted?val:+val; if(typeof a==="number" && quoted && isNaN(+val)) throw new Error(`列「${col}」は数値なので、'${val}' のような文字とは比べられません`); switch(op){ case "=":return a==b; case "<>": case "!=":return a!=b; case ">":return a>b; case "<":return a<b; case ">=":return a>=b; case "<=":return a<=b; } })); }
     if(whereS) rows=rows.filter(o=>cond(o,whereS));
     if(ordCol){ rows=rows.slice().sort((x,y)=>{ const a=get(x,ordCol), b=get(y,ordCol); return (a>b?1:a<b?-1:0)*(/DESC/i.test(ordDir||"")?-1:1); }); }
     let cols; const base1=Object.keys(TABLES[t1][0]), base2=t2?Object.keys(TABLES[t2][0]).filter(k=>!base1.includes(k)):[];
-    if(colsS.trim()==="*") cols=base1.concat(base2); else { cols=colsS.split(",").map(s=>s.trim()); cols.forEach(c=>{ if(rows.length && !(c in rows[0])) { if(!(c in (TABLES[t1][0]))&&!(t2&&c in TABLES[t2][0])) throw new Error(`列「${c}」はありません`); } }); }
+    const avail=new Set([...base1, ...base1.map(k=>t1+"."+k), ...(t2?Object.keys(TABLES[t2][0]).flatMap(k=>[k, t2+"."+k]):[])]);
+    if(/\(/.test(colsS)) throw new Error("COUNT() や SUM() などの集計関数はこの教材では未対応です（列名だけを書いてください）");
+    if(colsS.trim()==="*") cols=base1.concat(base2); else { cols=colsS.split(",").map(s=>s.trim()); cols.forEach(c=>{ if(dup.includes(c)) throw new Error(`列「${c}」は両方の表にあるので、学生.${c} のように表名をつけてください`); }); cols.forEach(c=>{ if(!avail.has(c)) throw new Error(`列「${c}」はありません（使える列：${[...avail].filter(x=>!x.includes(".")).join("・")}）`); }); }
     return {cols, rows:rows.map(o=>{ const r={}; cols.forEach(c=>r[c]=o[c]); return r; }), where:!!whereS, proj:colsS.trim()!=="*", join:!!t2, order:!!ordCol};
   }
-  const ex=[["全部","SELECT * FROM 学生"],["2年生の氏名（選択＋射影）","SELECT 氏名, 点数 FROM 学生 WHERE 学年 = 2"],["80点以上を高い順","SELECT 氏名, 点数 FROM 学生 WHERE 点数 >= 80 ORDER BY 点数 DESC"],["AND","SELECT 氏名 FROM 学生 WHERE 学年 = 2 AND 点数 >= 60"],["結合","SELECT 氏名, 学科名, 校舎 FROM 学生 JOIN 学科 ON 学生.学科コード = 学科.学科コード"]];
+  const ex=[["全部","SELECT * FROM 学生"],["2年生の氏名と点数（選択＋射影）","SELECT 氏名, 点数 FROM 学生 WHERE 学年 = 2"],["80点以上を高い順","SELECT 氏名, 点数 FROM 学生 WHERE 点数 >= 80 ORDER BY 点数 DESC"],["AND","SELECT 氏名 FROM 学生 WHERE 学年 = 2 AND 点数 >= 60"],["結合","SELECT 氏名, 学科名, 校舎 FROM 学生 JOIN 学科 ON 学生.学科コード = 学科.学科コード"]];
   el.append(h("div",{class:"two"}, table("学生表",["学生番号","氏名","学年","学科コード","点数"],学生,{pk:["学生番号"],fk:["学科コード"]}), table("学科表",["学科コード","学科名","校舎"],学科,{pk:["学科コード"]})), h("div",{class:"row"}, ...ex.map(e=>h("button",{class:"chip", onclick:()=>{ta.value=e[1]; run();}}, e[0]))), ta, h("div",{class:"row"}, h("button",{class:"btn primary", onclick:run},"▶ 実行"), ops), status, out, h("p",{class:"small muted"},"この教材の SQL は SELECT・FROM・JOIN ON・WHERE（AND / OR）・ORDER BY に対応した簡易版です。文字は '情報' のように引用符で囲みます。")); run();
 };
 
@@ -1477,8 +1574,14 @@ const KEY = "gairon1review.v1";
 /* ---------- 進捗（localStorage） ---------- */
 const P = load();
 function load(){
-  try{ const j = JSON.parse(localStorage.getItem(KEY)||"{}"); return Object.assign({visited:{}, best:{}, finalBest:null, finals:0}, j); }
-  catch(e){ return {visited:{}, best:{}, finalBest:null, finals:0}; }
+  const d = {visited:{}, best:{}, finalBest:null, finals:0};
+  try{ const j = JSON.parse(localStorage.getItem(KEY)||"{}") || {};
+    if(j.visited && typeof j.visited==="object") for(const k in j.visited){ if(Array.isArray(j.visited[k])) d.visited[k]=j.visited[k].filter(x=>Number.isInteger(x)); }
+    if(j.best && typeof j.best==="object") for(const k in j.best){ const b=j.best[k]; if(b && typeof b.pct==="number") d.best[k]={pct:b.pct, score:+b.score||0, n:+b.n||0}; }
+    if(j.finalBest && typeof j.finalBest.pct==="number") d.finalBest={pct:j.finalBest.pct, score:+j.finalBest.score||0, n:+j.finalBest.n||0};
+    if(typeof j.finals==="number") d.finals=j.finals;
+  }catch(e){ try{ localStorage.removeItem(KEY); }catch(e2){} }
+  return d;
 }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(P)); }catch(e){} updateTopProgress(); }
 function visitedSet(ch){ return new Set(P.visited[ch]||[]); }
@@ -1517,10 +1620,11 @@ function setAccent(c){
 function route(){
   const h = (location.hash||"#home").slice(1);
   const [name, arg] = h.split("-");
-  window.scrollTo({top:0, behavior:"instant"});
+  window.scrollTo({top:0, behavior:"instant"}); document.onkeydown=null;
   if(name==="ch"){ const c = CHAPTERS.find(x=>x.id===arg); if(c) return renderChapter(c); }
   if(name==="quiz"){ const c = CHAPTERS.find(x=>x.id===arg); if(c) return renderQuiz(c); }
   if(name==="final") return renderFinal();
+  if(h!=="home") { try{ history.replaceState(null,"","#home"); }catch(e){} }
   renderHome();
 }
 window.addEventListener("hashchange", route);
@@ -1536,7 +1640,7 @@ function renderHome(){
       <span class="badge">${badge}</span>
       <span class="icon">${ICONS[c.icon]}</span>
       <span class="no">CHAPTER ${c.no}</span>
-      <h3>${c.title}</h3>
+      <span class="chtitle">${c.title}</span>
       <span class="muted small">${c.lead}</span>
       <span class="pbar"><i style="width:${pr.pct}%"></i></span>
       <span class="meta"><span>読んだ ${pr.read}/${pr.total}</span><span>${pr.quizDone ? "クイズ最高 "+pr.best.pct+"%" : "クイズ 未挑戦"}</span></span>
@@ -1601,7 +1705,7 @@ function renderChapter(c){
       <span class="icon">${ICONS[c.icon]}</span>
       <div><span class="eyebrow">CHAPTER ${c.no}</span><h1>${c.title}</h1></div>
     </div>
-    <p class="muted" style="max-width:46em">${c.intro}</p>
+    <p class="muted">${c.intro}</p>
     <nav class="chnav" aria-label="この章の目次">${nav}</nav>
     ${secs}
     <div class="chend card">
@@ -1624,6 +1728,8 @@ function renderChapter(c){
     const i = +cb.dataset.sec; if(cb.checked) markVisited(c.id,i); else unmarkVisited(c.id,i);
     const a = app.querySelector(`.chnav a[data-i="${i}"]`); a.classList.toggle("done", cb.checked);
   }));
+  // 表を横スクロール可能な枠で包む（狭い画面でページ全体が横に広がらないように）
+  app.querySelectorAll(".prose table").forEach(t=>{ const w=document.createElement("div"); w.className="tblwrap"; t.replaceWith(w); w.append(t); });
   // 体験コーナーを初期化
   app.querySelectorAll("[data-widget]").forEach(el=>{
     const fn = WIDGETS[el.dataset.widget];
@@ -1644,7 +1750,7 @@ function renderFinal(){
   const per = Math.floor(FINAL_N/CHAPTERS.length); let qs=[];
   CHAPTERS.forEach(c=>{ qs = qs.concat(shuffle(c.quiz).slice(0,per).map(q=>Object.assign({ch:c}, q))); });
   const rest = FINAL_N - qs.length;
-  if(rest>0){ const pool = shuffle(CHAPTERS.flatMap(c=>c.quiz.map(q=>Object.assign({ch:c},q)))).filter(q=>!qs.includes(q)); qs = qs.concat(pool.slice(0,rest)); }
+  if(rest>0){ const used=new Set(qs.map(q=>q.q)); const pool = shuffle(CHAPTERS.flatMap(c=>c.quiz.map(q=>Object.assign({ch:c},q)))).filter(q=>!used.has(q.q)); qs = qs.concat(pool.slice(0,rest)); }
   runQuiz({title:"総合テスト", qs: shuffle(qs), back:"#home", backLabel:"ホームへ", showChapter:true, onDone:(score,n)=>{
     const pct = Math.round(100*score/n); P.finals++;
     if(!P.finalBest || pct>P.finalBest.pct) P.finalBest = {pct, score, n}; save();
@@ -1652,6 +1758,7 @@ function renderFinal(){
 }
 function runQuiz(o){
   const qs = o.qs; let i=0, score=0; const log=[];
+  if(!qs.length){ app.innerHTML = `<div class="view card"><p>出題できる問題がありません。</p><a class="btn" href="${o.back}">${o.backLabel}</a></div>`; return; }
   const shell = document.createElement("div"); shell.className="view quiz"; app.innerHTML=""; app.appendChild(shell);
   function showQ(){
     const q = qs[i];
@@ -1678,7 +1785,7 @@ function runQuiz(o){
       $("#next", shell).addEventListener("click", next); $("#next", shell).focus();
     }
     shell._key = (e)=>{
-      if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
+      if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"||e.ctrlKey||e.metaKey||e.altKey) return;
       const k = e.key.toUpperCase();
       if(!btns[0].disabled){ const idx = "ABCD".indexOf(k)>=0 ? "ABCD".indexOf(k) : "1234".indexOf(k); if(idx>=0 && btns[idx]) answer(btns[idx]); }
       else if(e.key==="Enter"){ e.preventDefault(); next(); }
