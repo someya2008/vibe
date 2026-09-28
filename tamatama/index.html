@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>確率実験室『たまたま？』</title>
+<meta name="description" content="予想と実験結果の違いを手掛かりに確率を考える教材アプリ。公平なコイン投げ（10回・100回・1000回）と、サイコロ2個の合計（36通りの組合せ表）を、その場で何度も実験して比べられる。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* ============================================================
+   確率実験室『たまたま？』
+   単一 HTML。外部ライブラリなし。フォントのみ Google Fonts（無くても動く）
+   ============================================================ */
+:root{
+  color-scheme:light;
+  --bg:#f6f7fb; --bg2:#eceef5; --paper:#ffffff; --paper2:#f8f9fd;
+  --line:#e1e5ef; --line2:#c9d0e0;
+  --text:#141a2b; --muted:#5c667b; --faint:#8d96aa;
+  --ink:#1d2f6f;
+  --accent:#2a5bd7; --accent-soft:#e6edff; --accent-deep:#1b3fa3;
+  --coin:#e0a63a; --coin-deep:#b7801a; --coin-soft:#fff3d6;
+  --dice:#d94a6a; --dice-soft:#ffe6ec;
+  --ok:#1f9d61; --okbg:#e6f7ee; --oktx:#166a41;
+  --ng:#d9484f; --ngbg:#fdecec; --ngtx:#9b2c31;
+  --warn:#e08a00; --warnbg:#fff3dc; --warntx:#8a5200;
+  /* データ可視化（検証済みパレット：slot1 blue / slot2 orange / slot3 aqua / slot4 yellow） */
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --viz-surface:#ffffff; --viz-grid:#e6e6e2; --viz-axis:#c3c2b7; --viz-muted:#898781; --viz-ink:#0b0b0b; --viz-ink2:#52514e;
+  --display:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic","Noto Sans JP",sans-serif;
+  --body:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+  --r:20px; --r2:13px;
+  --shadow:0 12px 34px rgba(25,40,90,.08), 0 1px 2px rgba(25,40,90,.06);
+  --shadow2:0 24px 60px rgba(25,40,90,.14);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){color-scheme:dark;
+    --bg:#0d111c; --bg2:#171d2c; --paper:#141a29; --paper2:#1a2133; --line:#283147; --line2:#3a4560;
+    --text:#e7ecf7; --muted:#a7b0c4; --faint:#7e889c; --ink:#c9d5ff;
+    --accent:#5b86ff; --accent-soft:#1d2a4f; --accent-deep:#8fb0ff;
+    --coin:#e7b24a; --coin-deep:#f2cf7a; --coin-soft:#3d2e14;
+    --dice:#ff6f8f; --dice-soft:#3f1c28;
+    --okbg:#143224; --oktx:#8fe0b4; --ngbg:#3f1c22; --ngtx:#ffb3b8; --warnbg:#3d2e14; --warntx:#ffd08a;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+    --viz-surface:#141a29; --viz-grid:#2c2c2a; --viz-axis:#383835; --viz-muted:#898781; --viz-ink:#ffffff; --viz-ink2:#c3c2b7;
+    --shadow:0 12px 34px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.4); --shadow2:0 24px 60px rgba(0,0,0,.5);}
+}
+:root[data-theme="dark"]{color-scheme:dark;
+  --bg:#0d111c; --bg2:#171d2c; --paper:#141a29; --paper2:#1a2133; --line:#283147; --line2:#3a4560;
+  --text:#e7ecf7; --muted:#a7b0c4; --faint:#7e889c; --ink:#c9d5ff;
+  --accent:#5b86ff; --accent-soft:#1d2a4f; --accent-deep:#8fb0ff;
+  --coin:#e7b24a; --coin-deep:#f2cf7a; --coin-soft:#3d2e14;
+  --dice:#ff6f8f; --dice-soft:#3f1c28;
+  --okbg:#143224; --oktx:#8fe0b4; --ngbg:#3f1c22; --ngtx:#ffb3b8; --warnbg:#3d2e14; --warntx:#ffd08a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --viz-surface:#141a29; --viz-grid:#2c2c2a; --viz-axis:#383835; --viz-muted:#898781; --viz-ink:#ffffff; --viz-ink2:#c3c2b7;
+  --shadow:0 12px 34px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.4); --shadow2:0 24px 60px rgba(0,0,0,.5);}
+
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.8;-webkit-text-size-adjust:100%;overflow-x:hidden;min-height:100vh}
+h1,h2,h3,h4{font-family:var(--display);font-weight:900;margin:0;line-height:1.3;letter-spacing:.01em;text-wrap:balance}
+h1{font-size:clamp(30px,5vw,54px)}
+h2{font-size:clamp(22px,3vw,32px)}
+h3{font-size:clamp(17px,2.2vw,21px);font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+button{font-family:inherit}
+:focus-visible{outline:3px solid #ffbf47;outline-offset:2px}
+.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13.5px;line-height:1.7}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+code{font-family:var(--mono);font-size:.92em;background:var(--paper2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;white-space:nowrap}
+mark{background:#fff2a8;color:#1c2333;border-radius:4px;padding:0 3px}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.1;font-family:var(--mono);font-size:.9em;margin:0 3px}
+.frac span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+.frac span:last-child{padding:0 3px}
+
+/* ---------- 背景装飾 ---------- */
+.bgart{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bgart i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55}
+.bgart i:nth-child(1){width:52vw;height:52vw;left:-14vw;top:-22vw;background:radial-gradient(circle,#8fb0ff,transparent 65%)}
+.bgart i:nth-child(2){width:44vw;height:44vw;right:-12vw;top:12vh;background:radial-gradient(circle,#ffd48a,transparent 65%)}
+.bgart i:nth-child(3){width:40vw;height:40vw;left:30vw;bottom:-22vw;background:radial-gradient(circle,#ffb3c6,transparent 65%)}
+:root[data-theme="dark"] .bgart i{opacity:.22}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .bgart i{opacity:.22}}
+.bgart .grid{position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse at 50% 0%,#000 10%,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 10%,transparent 70%);opacity:.5}
+
+/* ---------- レイアウト ---------- */
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border-bottom:1px solid var(--line)}
+.topbar .in{max-width:1240px;margin-inline:auto;padding:10px clamp(16px,4vw,32px);display:flex;align-items:center;gap:10px}
+.brand{font-family:var(--display);font-weight:900;font-size:17px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:9px;white-space:nowrap;background:none;border:0;cursor:pointer;padding:4px 6px;border-radius:10px}
+.brand .logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7a4dff);display:grid;place-items:center;color:#fff;font-size:16px;box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 40%,transparent)}
+.topbar .spacer{flex:1}
+.nav{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:12px}
+.nav button{font:inherit;font-size:14px;font-weight:700;background:transparent;color:var(--muted);border:0;border-radius:9px;padding:6px 13px;cursor:pointer;transition:.15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.nav button:hover{color:var(--text)}
+.nav button.on{background:var(--paper);color:var(--accent);box-shadow:0 2px 8px rgba(30,45,90,.12)}
+.nav button .ic{font-size:15px}
+.iconbtn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line2);background:var(--paper);cursor:pointer;font-size:17px;display:grid;place-items:center;color:var(--text);transition:.15s}
+.iconbtn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.teacher-toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);border:1px solid var(--line2);background:var(--paper);border-radius:999px;padding:5px 12px 5px 8px;cursor:pointer;transition:.15s;white-space:nowrap}
+.teacher-toggle .sw{width:30px;height:18px;border-radius:999px;background:var(--line2);position:relative;transition:.2s}
+.teacher-toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.teacher-toggle.on{color:var(--accent);border-color:var(--accent)}
+.teacher-toggle.on .sw{background:var(--accent)}
+.teacher-toggle.on .sw::after{left:14px}
+.page{max-width:1240px;margin-inline:auto;padding:clamp(18px,3vw,36px) clamp(16px,4vw,32px) 90px}
+.view{display:none;animation:fadeup .4s ease both}
+.view.on{display:block}
+@keyframes fadeup{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:clamp(18px,2.6vw,28px);box-shadow:var(--shadow)}
+.card.soft{background:var(--paper2);box-shadow:none}
+.eyebrow{font-family:var(--display);font-weight:700;font-size:12.5px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent);letter-spacing:.04em}
+.tag.coin{background:var(--coin-soft);color:var(--coin-deep)}
+.tag.dice{background:var(--dice-soft);color:var(--dice)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.stack{display:grid;gap:12px}
+.divider{height:1px;background:var(--line);margin:18px 0}
+
+/* ---------- ボタン ---------- */
+.btn{font:inherit;font-size:15px;font-weight:700;background:var(--paper);color:var(--text);border:1px solid var(--line2);border-radius:12px;padding:10px 18px;cursor:pointer;line-height:1.3;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .08s,background .15s,border-color .15s,box-shadow .2s;text-decoration:none;position:relative}
+.btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.primary{background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 10px 26px color-mix(in srgb,var(--accent) 35%,transparent)}
+.btn.primary:hover{filter:brightness(1.07);background:var(--accent)}
+.btn.coin{background:linear-gradient(135deg,#f2c14e,#d9922a);color:#3d2a05;border-color:transparent;box-shadow:0 10px 26px rgba(217,146,42,.35)}
+.btn.coin:hover{filter:brightness(1.05)}
+.btn.dice{background:linear-gradient(135deg,#ff6f8f,#d94a6a);color:#fff;border-color:transparent;box-shadow:0 10px 26px rgba(217,74,106,.35)}
+.btn.dice:hover{filter:brightness(1.05)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--accent-soft)}
+.btn.sm{font-size:13.5px;padding:7px 13px;border-radius:10px}
+.btn.lg{font-size:17px;padding:14px 26px;border-radius:14px}
+.btn .kb{font-family:var(--mono);font-size:11px;opacity:.7;border:1px solid currentColor;border-radius:5px;padding:0 5px}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px;background:var(--bg2);padding:4px;border-radius:12px}
+.seg button{font:inherit;font-size:14px;font-weight:700;background:transparent;color:var(--muted);border:0;border-radius:9px;padding:6px 14px;cursor:pointer;transition:.15s}
+.seg button.on{background:var(--paper);color:var(--accent);box-shadow:0 2px 8px rgba(30,45,90,.12)}
+.chip{font:inherit;font-size:15px;font-weight:700;background:var(--paper);border:2px solid var(--line2);border-radius:999px;padding:8px 16px;cursor:pointer;transition:.15s;color:var(--text)}
+.chip:hover{border-color:var(--accent);transform:translateY(-1px)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 35%,transparent)}
+.chip.ok{background:var(--okbg);border-color:var(--ok);color:var(--oktx)}
+.chip.ng{background:var(--ngbg);border-color:var(--ng);color:var(--ngtx)}
+.choice{display:grid;gap:10px}
+.choice button{font:inherit;text-align:left;font-size:15px;font-weight:600;background:var(--paper);border:2px solid var(--line2);border-radius:14px;padding:12px 16px;cursor:pointer;color:var(--text);transition:.15s;display:flex;align-items:center;gap:12px}
+.choice button:hover{border-color:var(--accent);background:var(--accent-soft)}
+.choice button.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 20%,transparent)}
+.choice button .radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--line2);flex:none;display:grid;place-items:center}
+.choice button.on .radio{border-color:var(--accent)}
+.choice button.on .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--accent)}
+textarea{font:inherit;font-size:15px;padding:10px 13px;border:1.5px solid var(--line2);border-radius:12px;background:var(--paper);color:var(--text);min-width:0;width:100%;resize:vertical;line-height:1.7}
+textarea:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+label.lbl{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer;user-select:none}
+.switch input{appearance:none;width:38px;height:22px;border-radius:999px;background:var(--line2);position:relative;cursor:pointer;transition:.2s;margin:0}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{left:19px}
+
+/* ---------- ホーム ---------- */
+.hero{display:grid;gap:24px;grid-template-columns:1.15fr .85fr;align-items:center;margin:10px 0 34px;min-height:52vh}
+.hero .lead{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:56ch}
+.hero h1 .q{display:inline-block;color:var(--accent);position:relative}
+.hero h1 .q::after{content:"";position:absolute;left:0;right:0;bottom:4px;height:.28em;background:var(--accent-soft);z-index:-1;border-radius:6px}
+.hero-art{position:relative;height:340px;display:grid;place-items:center}
+.hero-art .stage{position:relative;width:100%;height:100%}
+.hero-art .disc{position:absolute;inset:8%;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.7),transparent 45%),conic-gradient(from 180deg,var(--accent-soft),var(--coin-soft),var(--dice-soft),var(--accent-soft));filter:blur(2px);opacity:.9}
+.coin3d{position:absolute;width:150px;height:150px;left:14%;top:12%;perspective:900px;animation:float 5s ease-in-out infinite}
+.coin3d .face{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:60px;color:#5a3d06;transform-style:preserve-3d;animation:spin 6s cubic-bezier(.6,.05,.2,1) infinite;background:radial-gradient(circle at 35% 30%,#ffe6a0,#e6b03a 60%,#b7801a);box-shadow:inset 0 0 0 8px rgba(255,255,255,.25),inset 0 0 0 10px #c8912a,0 26px 50px rgba(183,128,26,.35)}
+@keyframes spin{0%{transform:rotateY(0)}45%{transform:rotateY(720deg)}100%{transform:rotateY(720deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.dice3d{position:absolute;right:12%;bottom:12%;width:118px;height:118px;animation:float 6s ease-in-out infinite reverse}
+.dice3d svg{width:100%;height:100%;filter:drop-shadow(0 22px 34px rgba(217,74,106,.3))}
+.dice3d.two{right:28%;bottom:38%;width:86px;height:86px;animation-duration:7s}
+.hero-stat{position:absolute;left:8%;bottom:8%;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:10px 14px;box-shadow:var(--shadow);font-size:13px;color:var(--muted)}
+.hero-stat b{display:block;font-family:var(--display);font-size:22px;color:var(--text);font-weight:900}
+.flow{counter-reset:step}
+.flow .step{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+.flow .step:first-child{border-top:0}
+.flow .step .n{counter-increment:step;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-family:var(--display);font-weight:900;color:#fff;background:linear-gradient(135deg,var(--accent),#7a4dff)}
+.flow .step .n::before{content:counter(step)}
+.flow .step b{display:block;font-family:var(--display);font-size:16px}
+.flow .step .t{font-size:12px;color:var(--faint);font-family:var(--mono)}
+.modecard{cursor:pointer;transition:transform .15s,box-shadow .2s;position:relative;overflow:hidden}
+.modecard:hover{transform:translateY(-3px);box-shadow:var(--shadow2)}
+.modecard .big{font-size:42px;line-height:1;margin-bottom:8px}
+.modecard .go{position:absolute;right:18px;bottom:16px;font-weight:700;color:var(--accent);font-size:14px}
+.kp{display:grid;gap:8px;padding:14px 16px;border-radius:14px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.kp b{font-family:var(--display);color:var(--accent-deep)}
+
+/* ---------- ステップ表示 ---------- */
+.section-head{display:flex;flex-wrap:wrap;gap:12px;align-items:end;justify-content:space-between;margin-bottom:16px}
+.stepper{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:22px}
+.stepper.s3{grid-template-columns:repeat(3,1fr)}
+.stepper button{font:inherit;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 10px;cursor:pointer;text-align:left;color:var(--muted);transition:.15s;display:grid;gap:2px;position:relative}
+.stepper button .k{font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+.stepper button .t{font-family:var(--display);font-weight:700;font-size:13.5px;color:var(--text);line-height:1.3}
+.stepper button.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.stepper button.on .k{color:var(--accent)}
+.stepper button.done .k::after{content:" ✓";color:var(--ok)}
+.stepper button.lock{opacity:.55;cursor:not-allowed}
+.stepper button.lock .t::after{content:" 🔒";font-size:11px}
+.stepper button:not(.lock):hover{border-color:var(--accent)}
+.panel{display:none}
+.panel.on{display:block;animation:fadeup .35s ease both}
+.task{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;background:var(--paper2);border:1px dashed var(--line2);margin-bottom:16px}
+.task .ico{font-size:22px;line-height:1.2}
+.task b{font-family:var(--display)}
+.stepnav{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
+.hint{font-size:13.5px;color:var(--muted);position:relative;padding-left:1.7em}
+.hint::before{content:"💡";position:absolute;left:0;top:0}
+
+/* ---------- コイン ---------- */
+.guess-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:6px}
+.guess-grid button{font:inherit;font-family:var(--mono);font-weight:700;font-size:18px;aspect-ratio:1;border-radius:12px;border:2px solid var(--line2);background:var(--paper);cursor:pointer;color:var(--text);transition:.15s}
+.guess-grid button:hover{border-color:var(--coin);transform:translateY(-2px)}
+.guess-grid button.on{background:linear-gradient(135deg,#f2c14e,#d9922a);border-color:transparent;color:#3d2a05;box-shadow:0 8px 20px rgba(217,146,42,.4)}
+@media (max-width:560px){.guess-grid{grid-template-columns:repeat(6,1fr)}}
+.coins{display:grid;grid-template-columns:repeat(10,1fr);gap:8px;margin:14px 0}
+@media (max-width:560px){.coins{grid-template-columns:repeat(5,1fr)}}
+.cflip{aspect-ratio:1;perspective:600px}
+.cflip .in{width:100%;height:100%;border-radius:50%;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.05,.2,1);}
+.cflip .f,.cflip .b{position:absolute;inset:0;border-radius:50%;backface-visibility:hidden;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:clamp(14px,2vw,22px)}
+.cflip .f{background:radial-gradient(circle at 35% 30%,#ffe6a0,#e6b03a 60%,#b7801a);color:#5a3d06;box-shadow:inset 0 0 0 3px rgba(255,255,255,.3),inset 0 0 0 4px #c8912a,0 8px 18px rgba(183,128,26,.3)}
+.cflip .b{background:radial-gradient(circle at 35% 30%,#e9edf6,#aab4c8 60%,#6f7a92);color:#1c2333;transform:rotateY(180deg);box-shadow:inset 0 0 0 3px rgba(255,255,255,.35),inset 0 0 0 4px #8d97ad,0 8px 18px rgba(80,90,120,.3)}
+.cflip.empty .in{opacity:.25}
+.cflip.h .in{transform:rotateY(1080deg)}
+.cflip.t .in{transform:rotateY(900deg)}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:start}
+.stat{background:var(--paper2);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
+.stat .l{font-size:12.5px;color:var(--muted);font-weight:700}
+.stat .v{font-family:var(--display);font-weight:900;font-size:30px;line-height:1.2;overflow-wrap:anywhere}
+.stat .v small{font-size:15px;color:var(--muted);font-weight:700}
+.stat.coin{border-color:color-mix(in srgb,var(--coin) 50%,transparent);background:var(--coin-soft)}
+.stat.dice{border-color:color-mix(in srgb,var(--dice) 50%,transparent);background:var(--dice-soft)}
+.msg{margin-top:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--paper2);display:none;line-height:1.75}
+.msg.on{display:block;animation:fadeup .3s ease both}
+.msg.ok{background:var(--okbg);border-color:var(--ok);color:var(--oktx)}
+.msg.warn{background:var(--warnbg);border-color:var(--warn);color:var(--warntx)}
+.msg.info{background:var(--accent-soft);border-color:var(--accent)}
+.runs{display:grid;gap:6px;max-height:260px;overflow:auto;padding-right:4px}
+.run{display:grid;grid-template-columns:52px 1fr 88px;gap:10px;align-items:center;font-size:14px;padding:6px 10px;border-radius:10px;background:var(--paper2)}
+.run .dots{display:flex;gap:4px;flex-wrap:wrap}
+.run .dots i{width:14px;height:14px;border-radius:50%;background:#aab4c8;display:inline-block}
+.run .dots i.h,.dots i.h{background:linear-gradient(135deg,#f2c14e,#d9922a)}
+.dots i{width:22px;height:22px;border-radius:50%;display:inline-block;background:#aab4c8}
+.dots i.next{background:transparent;border:2px dashed var(--faint)}
+.run .cnt{font-family:var(--mono);font-weight:700;text-align:right}
+.run.latest{outline:2px solid var(--coin)}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.cmp .c{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--paper)}
+.cmp .c .l{font-size:12.5px;color:var(--muted);font-weight:700}
+.cmp .c .v{font-family:var(--display);font-weight:900;font-size:26px}
+
+/* ---------- チャート ---------- */
+.chart{position:relative;background:var(--viz-surface);border:1px solid var(--line);border-radius:14px;padding:10px 8px 6px}
+.chart svg{display:block;width:100%;height:auto;font-family:var(--body)}
+.chart .tip{position:absolute;pointer-events:none;background:var(--paper);color:var(--text);border:1px solid var(--line2);border-radius:10px;padding:6px 10px;font-size:12.5px;line-height:1.5;box-shadow:var(--shadow);white-space:nowrap;opacity:0;transition:opacity .12s;z-index:5;transform:translate(-50%,calc(-100% - 10px))}
+.chart .tip.on{opacity:1}
+.chart .tip b{font-family:var(--mono)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);padding:6px 8px 2px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.legend i.line{height:3px;width:18px;border-radius:2px}
+.legend i.mark{width:12px;height:3px;border-radius:2px;background:var(--viz-muted);position:relative}
+.legend i.mark::after{content:"";position:absolute;left:3px;top:-3px;width:6px;height:6px;border-radius:50%;border:2px solid var(--viz-muted);background:var(--viz-surface)}
+.chart-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:8px 0 6px}
+.tablewrap{overflow:auto;margin-top:10px;display:none}
+.tablewrap.on{display:block}
+table.data{border-collapse:collapse;width:100%;font-size:13.5px}
+table.data th,table.data td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+table.data th:first-child,table.data td:first-child{text-align:left}
+table.data th{color:var(--muted);font-weight:700;font-size:12.5px}
+.vbar{display:grid;grid-template-columns:1fr;gap:8px}
+.vbar .b{display:grid;grid-template-columns:70px 1fr 90px;align-items:center;gap:10px;font-size:14px}
+.vbar .b .bar{height:22px;border-radius:0 4px 4px 0;background:var(--s1);transition:width .5s;min-width:2px}
+.vbar .b.t .bar{background:#aab4c8}
+.vbar .b .n{font-family:var(--mono);font-weight:700;text-align:right}
+
+/* ---------- サイコロ ---------- */
+.dicebox{display:flex;gap:18px;justify-content:center;align-items:center;padding:14px;min-height:130px}
+.die{width:96px;height:96px}
+.die svg{width:100%;height:100%;filter:drop-shadow(0 12px 22px rgba(217,74,106,.25))}
+.die.roll svg{animation:shake .5s ease}
+@keyframes shake{0%{transform:rotate(0) translateY(0)}25%{transform:rotate(-18deg) translateY(-10px)}50%{transform:rotate(14deg) translateY(-16px)}75%{transform:rotate(-8deg) translateY(-6px)}100%{transform:rotate(0)}}
+.dicesum{font-family:var(--display);font-weight:900;font-size:34px;min-width:120px;text-align:center}
+.dicesum small{display:block;font-size:12px;color:var(--muted);font-weight:700}
+.t36{display:grid;grid-template-columns:auto repeat(6,1fr);gap:4px;font-family:var(--mono);font-weight:700;text-align:center;user-select:none}
+.t36 .hd{font-size:12px;color:var(--muted);display:grid;place-items:center;padding:4px 0}
+.t36 .hd.pipx{font-size:12px}
+.t36 .c{aspect-ratio:1;display:grid;place-items:center;border-radius:9px;background:var(--paper2);border:1px solid var(--line);font-size:clamp(13px,1.6vw,18px);cursor:pointer;transition:.15s;position:relative}
+.t36 .c:hover{border-color:var(--accent);transform:scale(1.06);z-index:2}
+.t36 .c.hl{background:var(--dice);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(217,74,106,.35)}
+.t36 .c.dim{opacity:.35}
+.sumpick{display:grid;grid-template-columns:repeat(11,1fr);gap:5px;margin-top:12px}
+.sumpick button{font:inherit;font-family:var(--mono);font-weight:700;font-size:15px;border-radius:9px;border:2px solid var(--line2);background:var(--paper);cursor:pointer;padding:6px 0;color:var(--text);transition:.15s}
+.sumpick button.on{background:var(--dice);border-color:transparent;color:#fff}
+.sumpick button:hover{border-color:var(--dice)}
+@media (max-width:560px){.sumpick{grid-template-columns:repeat(6,1fr)}}
+
+/* ---------- 主張チェック ---------- */
+.claim{position:relative}
+.claim .q{font-family:var(--display);font-weight:700;font-size:clamp(16px,2vw,19px);padding:14px 16px;border-radius:14px;background:var(--paper2);border-left:5px solid var(--accent);margin-bottom:12px}
+.claim .verdict{display:flex;gap:8px;flex-wrap:wrap}
+.claim .ans{display:none;margin-top:12px;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:var(--paper2)}
+.claim .ans.on{display:block;animation:fadeup .3s ease both}
+.claim .ans.ok{background:var(--okbg);border-color:var(--ok)}
+.claim .ans.ng{background:var(--ngbg);border-color:var(--ng)}
+.claim .ans h4{margin-bottom:6px}
+.claim .badge{position:absolute;top:14px;right:16px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--bg2);color:var(--muted)}
+.claim .badge.ok{background:var(--okbg);color:var(--oktx)}
+.claim .badge.ng{background:var(--ngbg);color:var(--ngtx)}
+.score{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.score .ring{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:900;font-size:20px;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--bg2) 0);position:relative}
+.score .ring::after{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--paper)}
+.score .ring span{position:relative}
+
+/* ---------- 理論メモ ---------- */
+.formula{font-family:var(--mono);font-size:15px;background:var(--paper2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;overflow:auto;white-space:nowrap}
+.pill-ok{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--okbg);color:var(--oktx);font-weight:700;font-size:13px}
+.pill-ng{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--ngbg);color:var(--ngtx);font-weight:700;font-size:13px}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;transition:.25s;z-index:100;pointer-events:none;box-shadow:var(--shadow2)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+footer{margin-top:40px;color:var(--faint);font-size:12.5px;text-align:center;line-height:1.7}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;min-height:auto}
+  .hero-art{height:260px}
+  .stepper{grid-template-columns:repeat(2,1fr)}
+  .stepper.s3{grid-template-columns:repeat(3,1fr)}
+  .nav button span.tx{display:none}
+  .nav button{padding:6px 10px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}
+}
+@media print{
+  .topbar,.bgart,.stepnav,.toast{display:none!important}
+  .view{display:block!important;page-break-after:always}
+  .panel{display:block!important}
+  .card{box-shadow:none}
+}
+</style>
+</head>
+<body>
+<div class="bgart" aria-hidden="true"><div class="grid"></div><i></i><i></i><i></i></div>
+
+<header class="topbar">
+  <div class="in">
+    <button class="brand" data-go="home" aria-label="ホームへ"><span class="logo">?</span><span>確率実験室『たまたま？』</span></button>
+    <span class="spacer"></span>
+    <nav class="nav" aria-label="メニュー">
+      <button data-go="home" class="on"><span class="ic">🏠</span><span class="tx">ホーム</span></button>
+      <button data-go="coin"><span class="ic">🪙</span><span class="tx">コイン</span></button>
+      <button data-go="dice"><span class="ic">🎲</span><span class="tx">サイコロ</span></button>
+      <button data-go="check"><span class="ic">⚖️</span><span class="tx">主張チェック</span></button>
+      <button data-go="theory"><span class="ic">📐</span><span class="tx">理論メモ</span></button>
+    </nav>
+    <button class="teacher-toggle" id="teacherBtn" title="先生モード：理論値の表示と全ステップの解放"><span class="sw"></span>先生</button>
+    <button class="iconbtn" id="themeBtn" title="テーマ切替" aria-label="テーマ切替">🌙</button>
+  </div>
+</header>
+
+<main class="page">
+<!-- ================= ホーム ================= -->
+<section class="view on" id="view-home">
+  <div class="hero">
+    <div class="stack" style="gap:18px">
+      <span class="eyebrow">Probability Lab</span>
+      <h1>その結果、<span class="q">たまたま？</span><br>それとも必然？</h1>
+      <p class="lead">予想して、投げて、比べる。確率が <span class="frac"><span>1</span><span>2</span></span> でも「10回中ちょうど5回」とは限らない。
+      何度も実験して、「たまたま起きた結果」と「場合の数にもとづく説明」を行き来する実験室です。</p>
+      <div class="row">
+        <button class="btn primary lg" data-go="coin">🪙 コインの実験をはじめる</button>
+        <button class="btn lg" data-go="dice">🎲 サイコロ2個の実験</button>
+      </div>
+      <p class="hint">使い方はかんたん。画面の <b>「やること」</b> を読んで、大きなボタンを押すだけ。ステップは順番に開きます。</p>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="stage">
+        <div class="disc"></div>
+        <div class="coin3d"><div class="face">表</div></div>
+        <div class="dice3d two"><svg viewBox="0 0 100 100"><rect x="4" y="4" width="92" height="92" rx="20" fill="#fff" stroke="#e5567a" stroke-width="3"/><g fill="#d94a6a"><circle cx="30" cy="30" r="9"/><circle cx="70" cy="70" r="9"/></g></svg></div>
+        <div class="dice3d"><svg viewBox="0 0 100 100"><rect x="4" y="4" width="92" height="92" rx="20" fill="#fff" stroke="#e5567a" stroke-width="3"/><g fill="#d94a6a"><circle cx="28" cy="28" r="9"/><circle cx="72" cy="28" r="9"/><circle cx="50" cy="50" r="9"/><circle cx="28" cy="72" r="9"/><circle cx="72" cy="72" r="9"/></g></svg></div>
+        <div class="hero-stat"><b>24.6%</b>10回投げて「ちょうど5回表」になる確率</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:16px">
+    <div class="card modecard" data-go="coin">
+      <div class="big">🪙</div>
+      <span class="tag coin">ステージ1</span>
+      <h2 style="margin:8px 0 6px">公平なコインを投げる</h2>
+      <p class="muted">10回投げたら表は何回？ 予想 → 実験 → もう一度 → 100回・1000回 → 「表が続いたら次は裏？」の5ステップ。</p>
+      <div class="go">はじめる →</div>
+    </div>
+    <div class="card modecard" data-go="dice">
+      <div class="big">🎲</div>
+      <span class="tag dice">ステージ2</span>
+      <h2 style="margin:8px 0 6px">サイコロ2個の合計</h2>
+      <p class="muted">「合計2」と「合計7」は同じくらい出る？ 実験結果を36通りの組合せ表と対応させて、理由を見つける。</p>
+      <div class="go">はじめる →</div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <span class="eyebrow">この教材でわかること</span>
+      <div class="stack" style="margin-top:10px">
+        <div class="kp"><b>確率 1/2 でも、10回中ちょうど5回とは限らない</b><span class="small">ちょうど5回になる確率は 252/1024 ≈ 24.6%。4回に3回は「5回以外」になる。</span></div>
+        <div class="kp"><b>回数を増やすと割合は 1/2 の近くに集まりやすい</b><span class="small">ただし毎回なめらかに近づくわけではない。複数の実験を重ねて見ると、ゆれながら近づく。</span></div>
+        <div class="kp"><b>「たまたま」の説明には、場合の数が使える</b><span class="small">サイコロ2個の合計2は1通り、合計7は6通り。だから7の方が出やすい（6倍）。</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <span class="eyebrow">授業の流れ（目安 45分）</span>
+      <div class="flow" style="margin-top:8px">
+        <div class="step"><div class="n"></div><div><b>予想する</b><span class="small muted">「10回投げたら表は何回？」を各自で決める</span><div class="t">3 min</div></div></div>
+        <div class="step"><div class="n"></div><div><b>10回の実験 → もう一度</b><span class="small muted">回数と割合を見て、2回の実験を比べる</span><div class="t">10 min</div></div></div>
+        <div class="step"><div class="n"></div><div><b>100回・1000回</b><span class="small muted">割合の変化のグラフを重ねて見る</span><div class="t">10 min</div></div></div>
+        <div class="step"><div class="n"></div><div><b>表が続いたら次は裏？</b><span class="small muted">理由を書いてから、実験で確かめる</span><div class="t">7 min</div></div></div>
+        <div class="step"><div class="n"></div><div><b>サイコロ2個 → 主張チェック</b><span class="small muted">36通りの表で説明し、次回は主張の妥当性を説明させる</span><div class="t">15 min</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= コイン ================= -->
+<section class="view" id="view-coin">
+  <div class="section-head">
+    <div><span class="tag coin">ステージ1</span><h2 style="margin-top:6px">🪙 公平なコインを投げる</h2><p class="muted small">毎回独立に投げる公平なコイン（表が出る確率 1/2）を、コンピュータの乱数でシミュレーションします。</p></div>
+    <div class="row"><button class="btn sm ghost" id="coinReset">🔄 コインの記録をリセット</button></div>
+  </div>
+  <div class="stepper" id="coinStepper">
+    <button data-step="1"><span class="k">STEP 1</span><span class="t">予想する</span></button>
+    <button data-step="2"><span class="k">STEP 2</span><span class="t">10回投げる</span></button>
+    <button data-step="3"><span class="k">STEP 3</span><span class="t">もう10回、比べる</span></button>
+    <button data-step="4"><span class="k">STEP 4</span><span class="t">100回・1000回</span></button>
+    <button data-step="5"><span class="k">STEP 5</span><span class="t">表が続いたら？</span></button>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="panel" id="coin-1">
+    <div class="card">
+      <div class="task"><span class="ico">✍️</span><div><b>やること</b><br>公平なコインを <b>10回</b> 投げます。表は <b>何回</b> 出ると思いますか？ 数字を1つ選んでください。</div></div>
+      <div class="guess-grid" id="guessGrid" role="radiogroup" aria-label="表の回数の予想"></div>
+      <div class="msg info" id="guessMsg"></div>
+      <div class="divider"></div>
+      <label class="lbl" for="guessWhy">なぜそう思いましたか？（ひとこと）</label>
+      <textarea id="guessWhy" rows="2" placeholder="例：表と裏は半々だから5回。／ 5回ぴったりにはならない気がするので…"></textarea>
+      <div class="stepnav"><span></span><button class="btn primary" id="toStep2" disabled>予想を決めて次へ →</button></div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="panel" id="coin-2">
+    <div class="card">
+      <div class="task"><span class="ico">🪙</span><div><b>やること</b><br>ボタンを押して <b>10回</b> 投げます。表の <b>回数</b> と <b>割合</b> を見て、予想と比べましょう。</div></div>
+      <div class="row" style="justify-content:space-between">
+        <div class="row"><span class="tag coin">あなたの予想</span><b class="num" id="guessEcho" style="font-size:22px">-</b><span class="muted">回</span></div>
+        <button class="btn coin lg" id="flip10"><span>10回投げる</span></button>
+      </div>
+      <div class="coins" id="coins10"></div>
+      <div class="readout">
+        <div class="stat coin"><div class="l">表の回数</div><div class="v"><span id="r2heads">-</span><small> / 10 回</small></div></div>
+        <div class="stat"><div class="l">表の割合</div><div class="v"><span id="r2ratio">-</span></div></div>
+        <div class="stat"><div class="l">予想との差</div><div class="v"><span id="r2diff">-</span></div></div>
+      </div>
+      <div class="msg" id="r2msg"></div>
+      <div class="stepnav"><button class="btn" data-cstep="1">← 予想にもどる</button><button class="btn primary" id="toStep3" disabled>次へ：もう一度10回 →</button></div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="panel" id="coin-3">
+    <div class="card">
+      <div class="task"><span class="ico">🔁</span><div><b>やること</b><br>同じコインで <b>別の10回</b> を投げて、1回目と比べます。何度も繰り返すと、「表の回数」はどう散らばるでしょう？</div></div>
+      <div class="row">
+        <button class="btn coin lg" id="flipAgain">もう10回投げる</button>
+        <button class="btn" id="flipClass" title="40人がそれぞれ10回投げたとして、40回分の実験をまとめて行います">👥 クラス全員分（40人×10回）をまとめて</button>
+        <span class="muted small">実験の回数：<b class="num" id="runCount">0</b> 回</span>
+      </div>
+      <div class="grid g2" style="margin-top:16px;align-items:start">
+        <div>
+          <h3 style="margin-bottom:8px">実験の記録</h3>
+          <div class="cmp" id="cmp2"></div>
+          <div class="runs" id="runList" style="margin-top:10px"></div>
+        </div>
+        <div>
+          <h3 style="margin-bottom:8px">「10回中の表の回数」の分布</h3>
+          <div class="chart" id="histChart"></div>
+          <div class="legend"><span><i style="background:var(--s1)"></i>実験の回数</span><span><i style="background:var(--s2)"></i>ちょうど5回</span><span id="histLegendTheory" style="display:none"><i class="mark"></i>理論の期待回数</span></div>
+          <div class="chart-tools">
+            <label class="switch"><input type="checkbox" id="histTheory"> 理論の期待回数を重ねる</label>
+            <button class="btn sm" data-table="histChart">📋 表で見る</button>
+          </div>
+          <div class="tablewrap" id="histChart-table"></div>
+        </div>
+      </div>
+      <div class="msg" id="r3msg"></div>
+      <div class="stepnav"><button class="btn" data-cstep="2">← もどる</button><button class="btn primary" id="toStep4" disabled>次へ：100回・1000回 →</button></div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="panel" id="coin-4">
+    <div class="card">
+      <div class="task"><span class="ico">📈</span><div><b>やること</b><br>回数を <b>100回、1,000回</b> と増やして、「表の割合」が投げるたびにどう変わるかを見ます。同じ回数で <b>何本か重ねて</b> 比べましょう。</div></div>
+      <div class="row" style="justify-content:space-between">
+        <div class="row"><span class="muted small">投げる回数</span>
+          <div class="seg" id="nSeg"><button data-n="10">10</button><button data-n="100" class="on">100</button><button data-n="1000">1,000</button><button data-n="10000">10,000</button></div>
+        </div>
+        <div class="row"><button class="btn coin lg" id="runBig">投げる</button><button class="btn sm" id="clearBig">グラフをクリア</button></div>
+      </div>
+      <div class="chart" id="runChart" style="margin-top:14px"></div>
+      <div class="legend" id="runChart-legend"></div>
+      <div class="chart-tools">
+        <div class="row"><label class="switch"><input type="checkbox" id="bandToggle"> 理論のめやす（±2σ の帯）を表示</label></div>
+        <button class="btn sm" data-table="runChart">📋 表で見る</button>
+      </div>
+      <div class="tablewrap" id="runChart-table"></div>
+      <div class="msg" id="r4msg"></div>
+      <div class="msg info on" id="r4note" style="display:none"></div>
+      <div class="stepnav"><button class="btn" data-cstep="3">← もどる</button><button class="btn primary" id="toStep5" disabled>次へ：表が続いたら？ →</button></div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="panel" id="coin-5">
+    <div class="grid g2" style="align-items:start">
+      <div class="card">
+        <div class="task"><span class="ico">🤔</span><div><b>やること</b><br>公平なコインで <b>表が5回続けて</b> 出ました。<b>次の1回</b> はどうなりやすい？ 理由を書いてから「実験で確かめる」を押します。</div></div>
+        <div class="row" style="margin-bottom:12px;gap:14px"><span class="dots" style="display:inline-flex;gap:6px;align-items:center"><i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i><i class="h"></i><i class="next"></i></span><span class="muted small">表 表 表 表 表 → 次は？</span></div>
+        <div class="choice" id="streakChoice">
+          <button data-v="tails"><span class="radio"></span>裏が出やすい（そろそろ裏の番）</button>
+          <button data-v="heads"><span class="radio"></span>表が出やすい（流れがきている）</button>
+          <button data-v="same"><span class="radio"></span>どちらも同じ（1/2 のまま）</button>
+        </div>
+        <label class="lbl" for="streakWhy" style="margin-top:12px">理由</label>
+        <textarea id="streakWhy" rows="3" placeholder="例：コインは前の結果を覚えていないから…"></textarea>
+        <div class="stepnav"><button class="btn" data-cstep="4">← もどる</button><button class="btn primary" id="runStreak" disabled>実験で確かめる →</button></div>
+      </div>
+      <div class="card">
+        <h3>実験：「表が5回続いた直後」の1回を集める</h3>
+        <p class="muted small" style="margin:6px 0 12px">コンピュータで <b>200,000回</b> 投げ、「直前の5回が全部表」だった場面だけを取り出して、その次の1回が表か裏かを数えます。</p>
+        <div class="readout">
+          <div class="stat"><div class="l">5連続表のあとの場面</div><div class="v"><span id="stN">-</span><small> 回</small></div></div>
+          <div class="stat coin"><div class="l">次が「表」</div><div class="v"><span id="stH">-</span><small> 回</small></div></div>
+          <div class="stat"><div class="l">次が「裏」</div><div class="v"><span id="stT">-</span><small> 回</small></div></div>
+        </div>
+        <div class="vbar" id="stBar" style="margin-top:12px"></div>
+        <div class="msg" id="stMsg"></div>
+        <div class="row" style="margin-top:12px"><button class="btn" id="runStreakAgain" disabled>もう一度 200,000 回</button><button class="btn ghost" data-go="check">→ 主張チェックへ</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= サイコロ ================= -->
+<section class="view" id="view-dice">
+  <div class="section-head">
+    <div><span class="tag dice">ステージ2</span><h2 style="margin-top:6px">🎲 サイコロ2個の合計</h2><p class="muted small">公平なサイコロ2個を毎回独立に振ります。「合計2」と「合計7」は同じくらい出るでしょうか？</p></div>
+    <div class="row"><button class="btn sm ghost" id="diceReset">🔄 サイコロの記録をリセット</button></div>
+  </div>
+  <div class="stepper s3" id="diceStepper">
+    <button data-step="1"><span class="k">STEP 1</span><span class="t">予想する</span></button>
+    <button data-step="2"><span class="k">STEP 2</span><span class="t">振って数える</span></button>
+    <button data-step="3"><span class="k">STEP 3</span><span class="t">36通りの表で説明</span></button>
+  </div>
+
+  <div class="panel" id="dice-1">
+    <div class="card">
+      <div class="task"><span class="ico">✍️</span><div><b>やること</b><br>サイコロ2個の <b>合計2</b>（1と1）と <b>合計7</b> は、同じくらいの回数で出ると思いますか？</div></div>
+      <div class="choice" id="diceChoice">
+        <button data-v="same"><span class="radio"></span>同じくらい出る（どちらも合計の1つだから）</button>
+        <button data-v="seven"><span class="radio"></span>合計7の方がよく出る</button>
+        <button data-v="two"><span class="radio"></span>合計2の方がよく出る</button>
+      </div>
+      <label class="lbl" for="diceWhy" style="margin-top:12px">理由</label>
+      <textarea id="diceWhy" rows="2" placeholder="例：合計は2〜12の11通りだから、どれも同じ…？"></textarea>
+      <div class="stepnav"><span></span><button class="btn primary" id="toDice2" disabled>予想を決めて次へ →</button></div>
+    </div>
+  </div>
+
+  <div class="panel" id="dice-2">
+    <div class="card">
+      <div class="task"><span class="ico">🎲</span><div><b>やること</b><br>まず <b>1回</b> 振って合計を見ます。次に <b>36回・360回・3,600回</b> と増やして、合計2と合計7の回数を比べましょう。</div></div>
+      <div class="row" style="justify-content:space-between">
+        <div class="dicebox"><div class="die" id="die1"></div><div class="die" id="die2"></div><div class="dicesum" id="diceSumBox"><small>合計</small>-</div></div>
+        <div class="row" style="flex-direction:column;align-items:stretch;gap:8px">
+          <button class="btn dice lg" id="roll1">1回振る</button>
+          <div class="row"><button class="btn" data-roll="36">36回</button><button class="btn" data-roll="360">360回</button><button class="btn" data-roll="3600">3,600回</button></div>
+        </div>
+      </div>
+      <div class="readout" style="margin-top:8px">
+        <div class="stat"><div class="l">振った回数（累計）</div><div class="v"><span id="dN">0</span><small> 回</small></div></div>
+        <div class="stat dice"><div class="l">合計2</div><div class="v"><span id="d2">0</span><small> 回（<span id="d2p">-</span>）</small></div></div>
+        <div class="stat dice"><div class="l">合計7</div><div class="v"><span id="d7">0</span><small> 回（<span id="d7p">-</span>）</small></div></div>
+        <div class="stat"><div class="l">7 の回数 ÷ 2 の回数</div><div class="v"><span id="dRatio">-</span><small> 倍</small></div></div>
+      </div>
+      <h3 style="margin:16px 0 8px">合計ごとの回数</h3>
+      <div class="chart" id="diceChart"></div>
+      <div class="legend"><span><i style="background:var(--s1)"></i>出た回数</span><span><i style="background:var(--s2)"></i>注目（合計2と7）</span><span id="diceLegendTheory" style="display:none"><i class="mark"></i>理論の期待回数</span></div>
+      <div class="chart-tools">
+        <label class="switch"><input type="checkbox" id="diceTheory"> 理論の期待回数（36通りから計算）を重ねる</label>
+        <button class="btn sm" data-table="diceChart">📋 表で見る</button>
+      </div>
+      <div class="tablewrap" id="diceChart-table"></div>
+      <div class="msg" id="dMsg"></div>
+      <div class="stepnav"><button class="btn" data-dstep="1">← もどる</button><button class="btn primary" id="toDice3" disabled>次へ：36通りの表で説明 →</button></div>
+    </div>
+  </div>
+
+  <div class="panel" id="dice-3">
+    <div class="grid g2" style="align-items:start">
+      <div class="card">
+        <div class="task"><span class="ico">🔍</span><div><b>やること</b><br>下の <b>合計の数字</b> を押す（またはマスにカーソルを当てる）と、その合計になる <b>組合せ</b> が光ります。合計2と合計7で、光るマスの数を比べましょう。</div></div>
+        <div class="t36" id="t36"></div>
+        <div class="sumpick" id="sumPick"></div>
+      </div>
+      <div class="card">
+        <h3 id="t36Title">合計を選んでください</h3>
+        <div class="readout" style="margin:10px 0">
+          <div class="stat dice"><div class="l">組合せの数</div><div class="v"><span id="t36ways">-</span><small> / 36 通り</small></div></div>
+          <div class="stat"><div class="l">確率（理論）</div><div class="v"><span id="t36prob">-</span></div></div>
+          <div class="stat"><div class="l">実験での割合</div><div class="v"><span id="t36exp">-</span></div></div>
+        </div>
+        <div class="msg on" id="t36msg">
+          サイコロ2個の「出方」は <b>6 × 6 = 36 通り</b> あり、公平なサイコロなら <b>この36通りが同じ確率</b>（各 1/36）で起こります。<br>
+          「合計」は2〜12の11通りですが、合計ごとに <b>組合せの数がちがう</b> ので、同じ確率にはなりません。
+        </div>
+        <div class="chart" id="diceChart2" style="margin-top:12px"></div>
+        <div class="legend"><span><i style="background:var(--s1)"></i>実験の回数</span><span><i style="background:var(--s2)"></i>注目（合計2と7）</span><span><i class="mark"></i>理論の期待回数</span></div>
+        <div class="row" style="margin-top:12px"><button class="btn" data-dstep="2">← 実験にもどる</button><button class="btn primary" data-go="check">→ 主張チェックへ</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 主張チェック ================= -->
+<section class="view" id="view-check">
+  <div class="section-head">
+    <div><span class="tag">定着</span><h2 style="margin-top:6px">⚖️ この主張は妥当？</h2><p class="muted small">よくある主張について、「妥当」か「妥当でない」かを選び、理由を書いてから答え合わせをします。実験で確かめたいときは、リンクから該当ステップへ飛べます。</p></div>
+    <div class="row"><button class="btn sm" id="checkAll">先生用：解説をすべて表示</button><button class="btn sm ghost" id="checkReset">🔄 回答をリセット</button></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="score"><div class="ring" id="scoreRing" style="--p:0"><span id="scoreTxt">0/6</span></div><div><b style="font-family:var(--display)">答え合わせずみ</b><div class="muted small">正しく判断できた主張の数。理由の文章は先生が読んで評価します（保存はこの端末のブラウザ内のみ）。</div></div></div>
+  </div>
+  <div class="stack" id="claims"></div>
+</section>
+
+<!-- ================= 理論メモ ================= -->
+<section class="view" id="view-theory">
+  <div class="section-head">
+    <div><span class="tag">参考</span><h2 style="margin-top:6px">📐 理論メモ</h2><p class="muted small">実験で見えたことを、場合の数と確率のことばで整理します。中学校数学「確率」（第2学年）と高等学校数学A「場合の数と確率」の内容に対応。</p></div>
+  </div>
+  <div class="grid g2" style="align-items:start">
+    <div class="card">
+      <h3>1. 10回投げて表が k 回になる確率</h3>
+      <p class="small muted" style="margin:6px 0 10px">10回の結果は 2<sup>10</sup> = 1,024 通りあり、公平なコインならどれも同じ確率。そのうち表がちょうど k 回になる並べ方の数が <sub>10</sub>C<sub>k</sub>。</p>
+      <div class="formula">P(表が k 回) = ₁₀Cₖ / 1024</div>
+      <div class="tablewrap on"><table class="data" id="binomTable"></table></div>
+      <p class="small muted" style="margin-top:8px">「ちょうど5回」は最も起こりやすいが、それでも約4分の1。4〜6回の範囲に入るのは (210+252+210)/1024 ≈ 65.6%。</p>
+    </div>
+    <div class="card">
+      <h3>2. 回数を増やすと割合はどれくらい 1/2 に近づく？</h3>
+      <p class="small muted" style="margin:6px 0 10px">n 回投げたときの「表の割合」の平均は 1/2、標準偏差 σ は次の式で決まる。n を100倍にすると σ は 1/10 になる（ゆれの幅は「回数の平方根」に反比例）。</p>
+      <div class="formula">σ = √( p(1−p) / n ) = √( 1 / (4n) )　（p = 1/2）</div>
+      <div class="tablewrap on"><table class="data" id="sigmaTable"></table></div>
+      <p class="small muted" style="margin-top:8px">正規近似では、割合はおよそ95%の確率で 1/2 ± 2σ の帯に入る。STEP 4 の「±2σ の帯」はこれを描いたもの。帯は狭くなるが、ゼロにはならない。</p>
+    </div>
+    <div class="card">
+      <h3>3. 独立とは（「表が続いたら次は裏」が誤りな理由）</h3>
+      <p class="small" style="margin-top:6px">「毎回独立に投げる」とは、<b>前の結果が次の結果の確率を変えない</b> ということ。表が5回続いた <b>あと</b> で次が表になる確率は、条件付き確率で書いても</p>
+      <div class="formula" style="margin:8px 0">P(次が表 | 直前5回が表) = P(次が表) = 1/2</div>
+      <p class="small">「そろそろ裏の番」という直感は <b>ギャンブラーの誤謬</b> と呼ばれる。長い目で見て割合が 1/2 に近づくのは、「裏が埋め合わせに出る」からではなく、<b>最初のかたよりが、あとに続く多数回の中で相対的に小さくなる</b> から（差は減らないが、割合としては薄まる）。</p>
+      <p class="small muted" style="margin-top:8px">補足：もしコインが公平かどうか分からない状況なら、長い表の連続は「表が出やすいコインかもしれない」という <b>証拠</b> にはなる。これは「次は裏が有利」とは逆向きの推論であり、公平と分かっているこの実験では当てはまらない。</p>
+    </div>
+    <div class="card">
+      <h3>4. サイコロ2個の合計（36通り）</h3>
+      <p class="small muted" style="margin:6px 0 10px">同じ確率で起こるのは「合計」ではなく「(1個目, 2個目) の組」。合計 s になる組の数は 6 − |s − 7| 通り。</p>
+      <div class="tablewrap on"><table class="data" id="diceTheoryTable"></table></div>
+      <p class="small muted" style="margin-top:8px">合計7 は合計2 の6倍出やすい。3,600回振れば、合計2は約100回、合計7は約600回が「期待回数」（実際は前後にゆれる）。</p>
+    </div>
+    <div class="card">
+      <h3>5. 「たまたま」を疑う目安（発展）</h3>
+      <p class="small" style="margin-top:6px">10回中7回表が出ても、公平なコインで「7回以上」になる確率は (120+45+10+1)/1024 ≈ 17.2%。6回に1回ほど起きるので、コインを疑う根拠にはならない。一方、1,000回中700回なら、平均500回からのずれ200回は σ（≈15.8回）の約12.6倍で、公平なコインではまず起こらない。「たまたま」と言えるかどうかは、<b>ずれの大きさを、その回数でのゆれの幅（σ）と比べる</b> ことで判断できる。</p>
+    </div>
+    <div class="card">
+      <h3>6. このアプリの乱数について</h3>
+      <p class="small" style="margin-top:6px">ブラウザの暗号学的乱数（<code>crypto.getRandomValues</code>）を使い、表／裏、1〜6 の目を毎回独立に等確率で生成しています。物理的なコインではなく、「理想的に公平なコイン」のシミュレーションです。結果はこの端末には保存されず、ページを開き直すと新しい実験になります（予想・理由・主張チェックの回答のみブラウザに保存）。</p>
+    </div>
+  </div>
+</section>
+
+<footer>確率実験室『たまたま？』 — 単一 HTML の教材アプリ。ブラウザで開くだけで動きます。<br>先生モード：全ステップを解放し、理論値を最初から重ねて表示します。</footer>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+/* ============================================================
+   共通ユーティリティ
+   ============================================================ */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+const fmt = n => n.toLocaleString('ja-JP');
+const pct = (x, d=1) => (x*100).toFixed(d) + '%';
+
+/* 乱数：暗号学的乱数をバッファで取得（無ければ Math.random） */
+const rnd = (() => {
+  if (!(window.crypto && crypto.getRandomValues)) return Math.random;
+  const buf = new Uint32Array(1024); let i = buf.length;
+  return () => { if (i >= buf.length) { crypto.getRandomValues(buf); i = 0; } return buf[i++] / 4294967296; };
+})();
+const flip = () => rnd() < 0.5 ? 1 : 0;      // 1 = 表
+const die  = () => Math.floor(rnd() * 6) + 1;
+
+/* 二項係数・理論値 */
+const C10 = [1,10,45,120,210,252,210,120,45,10,1];   // ₁₀Cₖ
+const P10 = C10.map(c => c / 1024);
+const diceWays = s => 6 - Math.abs(s - 7);            // 合計 s の組合せ数
+const sigma = n => Math.sqrt(0.25 / n);
+function binomPoint(n, k) { // ln C(n,k) - n ln2 → 確率（大きな n でも安定）
+  let lc = 0; for (let i = 1; i <= k; i++) lc += Math.log(n - k + i) - Math.log(i);
+  return Math.exp(lc - n * Math.LN2);
+}
+
+/* 状態（一部は localStorage に保存） */
+const KEY = 'tamatama.v1';
+const S = {
+  coinGuess: null, guessWhy: '', runs10: [], bigRuns: [], streakAns: null, streakWhy: '', streakDone: false,
+  diceGuess: null, diceWhy: '', diceCounts: Array(13).fill(0), diceN: 0, dicePicked: null,
+  checks: {}, teacher: false, theme: null, coinStep: 1, diceStep: 1, bigN: 100
+};
+function save() {
+  const o = { coinGuess:S.coinGuess, guessWhy:S.guessWhy, streakAns:S.streakAns, streakWhy:S.streakWhy,
+              diceGuess:S.diceGuess, diceWhy:S.diceWhy, checks:S.checks, teacher:S.teacher, theme:S.theme };
+  try { localStorage.setItem(KEY, JSON.stringify(o)); } catch(e) {}
+}
+function load() {
+  try { const o = JSON.parse(localStorage.getItem(KEY) || '{}'); Object.assign(S, o); } catch(e) {}
+}
+load();
+
+/* テーマ */
+function applyTheme() {
+  if (S.theme) document.documentElement.setAttribute('data-theme', S.theme);
+  else document.documentElement.removeAttribute('data-theme');
+  const dark = S.theme ? S.theme === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  $('#themeBtn').textContent = dark ? '☀️' : '🌙';
+}
+$('#themeBtn').onclick = () => {
+  const dark = S.theme ? S.theme === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  S.theme = dark ? 'light' : 'dark'; save(); applyTheme(); rerenderCharts();
+};
+applyTheme();
+
+/* トースト */
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2200); }
+
+/* 画面切替 */
+function go(id) {
+  $$('.view').forEach(v => v.classList.toggle('on', v.id === 'view-' + id));
+  $$('.nav button').forEach(b => b.classList.toggle('on', b.dataset.go === id));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(rerenderCharts, 30);
+}
+document.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (g) { go(g.dataset.go); return; }
+  const cs = e.target.closest('[data-cstep]'); if (cs) { coinStep(+cs.dataset.cstep); return; }
+  const ds = e.target.closest('[data-dstep]'); if (ds) { diceStep(+ds.dataset.dstep); return; }
+  const tb = e.target.closest('[data-table]'); if (tb) { const w = $('#' + tb.dataset.table + '-table'); w.classList.toggle('on'); tb.textContent = w.classList.contains('on') ? '📊 グラフだけにする' : '📋 表で見る'; return; }
+});
+
+/* 先生モード */
+function applyTeacher() {
+  $('#teacherBtn').classList.toggle('on', S.teacher);
+  if (S.teacher) { $('#histTheory').checked = true; $('#diceTheory').checked = true; $('#bandToggle').checked = true; }
+  renderCoinStepper(); renderDiceStepper(); rerenderCharts();
+}
+$('#teacherBtn').onclick = () => { S.teacher = !S.teacher; save(); applyTeacher(); toast(S.teacher ? '先生モード ON：全ステップを解放し、理論値を表示します' : '先生モード OFF'); };
+
+/* ============================================================
+   チャート（SVG 手描き・レスポンシブ・ホバー付き）
+   ============================================================ */
+const chartRegistry = new Map();
+function rerenderCharts() { chartRegistry.forEach(fn => fn()); }
+addEventListener('resize', (() => { let t; return () => { clearTimeout(t); t = setTimeout(rerenderCharts, 120); }; })());
+function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function svgEl(tag, attrs={}, parent) { const el = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const k in attrs) el.setAttribute(k, attrs[k]); if (parent) parent.appendChild(el); return el; }
+function ensureTip(host) { let tip = host.querySelector('.tip'); if (!tip) { tip = document.createElement('div'); tip.className = 'tip'; host.appendChild(tip); } return tip; }
+function showTip(host, tip, x, y, html) { tip.innerHTML = html; tip.style.left = x + 'px'; tip.style.top = y + 'px'; tip.classList.add('on'); }
+
+/* 棒グラフ：labels[], counts[], theory[] (任意), highlight:Set */
+function drawHist(hostId, { labels, counts, theory, highlight, xTitle, yTitle, empty }) {
+  const host = $('#' + hostId); const render = () => {
+    host.querySelectorAll('svg,.empty').forEach(n => n.remove());
+    const W = Math.max(280, host.clientWidth - 16), H = Math.min(300, Math.max(210, W * 0.45));
+    const pad = { l: 44, r: 12, t: 22, b: 40 };
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': `${xTitle}ごとの${yTitle}` });
+    const c = { grid: cssVar('--viz-grid'), axis: cssVar('--viz-axis'), muted: cssVar('--viz-muted'), ink: cssVar('--viz-ink2'), s1: cssVar('--s1'), s2: cssVar('--s2'), surf: cssVar('--viz-surface') };
+    const maxV = Math.max(1, ...counts, ...(theory || [0]));
+    const nice = niceMax(maxV); const yS = v => pad.t + (H - pad.t - pad.b) * (1 - v / nice);
+    const plotW = W - pad.l - pad.r, band = plotW / labels.length, barW = Math.min(24, band * 0.62);
+    // グリッド
+    const ticks = 4; for (let i = 0; i <= ticks; i++) { const v = nice * i / ticks, y = yS(v);
+      svgEl('line', { x1: pad.l, x2: W - pad.r, y1: y, y2: y, stroke: i === 0 ? c.axis : c.grid, 'stroke-width': 1 }, svg);
+      svgEl('text', { x: pad.l - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 11, fill: c.muted, 'font-family': 'JetBrains Mono, monospace' }, svg).textContent = fmt(Math.round(v)); }
+    const tip = ensureTip(host);
+    labels.forEach((lb, i) => {
+      const x = pad.l + band * i + band / 2, v = counts[i], hl = highlight && highlight.has(i);
+      const y = yS(v), h0 = yS(0);
+      const g = svgEl('g', {}, svg);
+      if (v > 0) { const hh = Math.max(0, h0 - y); const r = Math.min(4, hh);
+        svgEl('path', { d: `M${x - barW/2},${h0} v${-(hh - r)} a${r},${r} 0 0 1 ${r},${-r} h${barW - 2*r} a${r},${r} 0 0 1 ${r},${r} v${hh - r} z`, fill: hl ? c.s2 : c.s1 }, g); }
+      if (theory) { const ty = yS(theory[i]);
+        svgEl('line', { x1: x - barW/2 - 4, x2: x + barW/2 + 4, y1: ty, y2: ty, stroke: c.muted, 'stroke-width': 2 }, g);
+        svgEl('circle', { cx: x, cy: ty, r: 4, fill: c.surf, stroke: c.muted, 'stroke-width': 2 }, g); }
+      svgEl('text', { x, y: H - pad.b + 16, 'text-anchor': 'middle', 'font-size': 12, fill: hl ? c.ink : c.muted, 'font-weight': hl ? 700 : 400, 'font-family': 'JetBrains Mono, monospace' }, svg).textContent = lb;
+      // ヒット領域
+      const hit = svgEl('rect', { x: pad.l + band * i, y: pad.t, width: band, height: H - pad.t - pad.b, fill: 'transparent', style: 'cursor:pointer' }, svg);
+      hit.addEventListener('mouseenter', () => { g.style.opacity = .8; showTip(host, tip, pad.l + band * i + band / 2 + 8, y - 4, `${xTitle} <b>${lb}</b><br>${yTitle} <b>${fmt(v)}</b>${theory ? `<br><span class="muted">期待 ${theory[i].toFixed(1)}</span>` : ''}`); });
+      hit.addEventListener('mouseleave', () => { g.style.opacity = 1; tip.classList.remove('on'); });
+      hit.addEventListener('click', () => host.dispatchEvent(new CustomEvent('barclick', { detail: i })));
+    });
+    svgEl('text', { x: W - pad.r, y: H - 6, 'text-anchor': 'end', 'font-size': 11, fill: c.muted }, svg).textContent = xTitle;
+    svgEl('text', { x: pad.l, y: 12, 'font-size': 11, fill: c.muted }, svg).textContent = yTitle;
+    host.appendChild(svg);
+    if (empty && counts.every(v => v === 0)) { const d = document.createElement('div'); d.className = 'empty muted small'; d.style.cssText = 'position:absolute;inset:0;display:grid;place-items:center;pointer-events:none'; d.textContent = empty; host.appendChild(d); }
+  };
+  chartRegistry.set(hostId, render); render();
+  // 表
+  const tw = $('#' + hostId + '-table'); if (tw) {
+    tw.innerHTML = `<table class="data"><thead><tr><th>${xTitle}</th><th>${yTitle}</th>${theory ? '<th>理論の期待回数</th>' : ''}${counts.some(v=>v>0)?'<th>割合</th>':''}</tr></thead><tbody>${labels.map((lb, i) => { const tot = counts.reduce((a, b) => a + b, 0); return `<tr><td>${lb}</td><td>${fmt(counts[i])}</td>${theory ? `<td>${theory[i].toFixed(1)}</td>` : ''}${tot>0?`<td>${pct(counts[i]/tot)}</td>`:''}</tr>`; }).join('')}</tbody></table>`; }
+}
+function niceMax(v) { if (v <= 4) return 4; const p = Math.pow(10, Math.floor(Math.log10(v))); const m = v / p; const f = m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10; return f * p; }
+
+/* 折れ線：割合の推移（複数本） runs: [{n, props:Float32Array, heads}] */
+const RUN_COLORS = ['--s1', '--s2', '--s3', '--s4'];
+function drawRuns(hostId, runs, n, showBand, revealFrac = 1) {
+  const host = $('#' + hostId); const render = () => {
+    host.querySelectorAll('svg,.empty').forEach(el => el.remove());
+    const W = Math.max(280, host.clientWidth - 16), H = Math.min(320, Math.max(220, W * 0.42));
+    const pad = { l: 46, r: 14, t: 18, b: 38 };
+    const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': '投げた回数と表の割合の推移' });
+    const c = { grid: cssVar('--viz-grid'), axis: cssVar('--viz-axis'), muted: cssVar('--viz-muted'), ink: cssVar('--viz-ink2'), surf: cssVar('--viz-surface') };
+    const xS = k => pad.l + (W - pad.l - pad.r) * (k - 1) / Math.max(1, n - 1);
+    const yS = p => pad.t + (H - pad.t - pad.b) * (1 - p);
+    for (let i = 0; i <= 4; i++) { const p = i / 4, y = yS(p);
+      svgEl('line', { x1: pad.l, x2: W - pad.r, y1: y, y2: y, stroke: i === 0 ? c.axis : c.grid }, svg);
+      svgEl('text', { x: pad.l - 8, y: y + 4, 'text-anchor': 'end', 'font-size': 11, fill: c.muted, 'font-family': 'JetBrains Mono, monospace' }, svg).textContent = p.toFixed(2); }
+    const xt = [1, Math.round(n / 4), Math.round(n / 2), Math.round(n * 3 / 4), n];
+    xt.forEach(k => { svgEl('text', { x: xS(k), y: H - pad.b + 16, 'text-anchor': 'middle', 'font-size': 11, fill: c.muted, 'font-family': 'JetBrains Mono, monospace' }, svg).textContent = fmt(k); });
+    svgEl('text', { x: W - pad.r, y: H - 6, 'text-anchor': 'end', 'font-size': 11, fill: c.muted }, svg).textContent = '投げた回数';
+    svgEl('text', { x: pad.l, y: 10, 'font-size': 11, fill: c.muted }, svg).textContent = '表の割合';
+    if (showBand) { // ±2σ の帯
+      const step = Math.max(1, Math.floor(n / 400)); let up = '', lo = '';
+      for (let k = 1; k <= n; k += step) { const s = 2 * sigma(k); up += `${up ? 'L' : 'M'}${xS(k).toFixed(1)},${yS(Math.min(1, .5 + s)).toFixed(1)} `; lo = `L${xS(k).toFixed(1)},${yS(Math.max(0, .5 - s)).toFixed(1)} ` + lo; }
+      svgEl('path', { d: up + lo + 'Z', fill: c.muted, opacity: .12 }, svg);
+    }
+    svgEl('line', { x1: pad.l, x2: W - pad.r, y1: yS(.5), y2: yS(.5), stroke: c.ink, 'stroke-width': 1.2 }, svg);
+    svgEl('text', { x: pad.l + 6, y: yS(.5) - 5, 'font-size': 11, fill: c.ink, 'font-weight': 700 }, svg).textContent = '1/2';
+    runs.forEach((r, ri) => {
+      const col = cssVar(RUN_COLORS[ri % RUN_COLORS.length]); const upto = ri === runs.length - 1 ? Math.max(1, Math.floor(n * revealFrac)) : n;
+      const step = Math.max(1, Math.floor(n / 1500)); let d = '';
+      for (let k = 1; k <= upto; k += step) d += `${d ? 'L' : 'M'}${xS(k).toFixed(1)},${yS(r.props[k - 1]).toFixed(1)}`;
+      if (upto === n && (n - 1) % step !== 0) d += `L${xS(n).toFixed(1)},${yS(r.props[n - 1]).toFixed(1)}`;
+      svgEl('path', { d, fill: 'none', stroke: col, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', opacity: ri === runs.length - 1 ? 1 : .8 }, svg);
+      const ex = xS(upto), ey = yS(r.props[upto - 1]);
+      svgEl('circle', { cx: ex, cy: ey, r: 4.5, fill: col, stroke: c.surf, 'stroke-width': 2 }, svg);
+    });
+    // ホバー：クロスヘア
+    const tip = ensureTip(host); const cross = svgEl('line', { y1: pad.t, y2: H - pad.b, stroke: c.axis, 'stroke-width': 1, opacity: 0 }, svg);
+    const hit = svgEl('rect', { x: pad.l, y: pad.t, width: W - pad.l - pad.r, height: H - pad.t - pad.b, fill: 'transparent' }, svg);
+    hit.addEventListener('mousemove', e => { if (!runs.length) return; const bb = svg.getBoundingClientRect(); const px = (e.clientX - bb.left) * (W / bb.width);
+      const k = Math.min(n, Math.max(1, Math.round(1 + (px - pad.l) / (W - pad.l - pad.r) * (n - 1))));
+      cross.setAttribute('x1', xS(k)); cross.setAttribute('x2', xS(k)); cross.setAttribute('opacity', 1);
+      showTip(host, tip, xS(k) * (bb.width / W) + 8, pad.t + 10, `${fmt(k)} 回目まで<br>` + runs.map((r, i) => `<span style="color:${cssVar(RUN_COLORS[i % 4])}">●</span> ${i + 1}本目 <b>${r.props[k - 1].toFixed(3)}</b>`).join('<br>')); });
+    hit.addEventListener('mouseleave', () => { cross.setAttribute('opacity', 0); tip.classList.remove('on'); });
+    host.appendChild(svg);
+    if (!runs.length) { const d = document.createElement('div'); d.className = 'empty muted small'; d.style.cssText = 'position:absolute;inset:0;display:grid;place-items:center;pointer-events:none'; d.textContent = '「投げる」を押すと、投げるたびの割合の推移が描かれます'; host.appendChild(d); }
+  };
+  chartRegistry.set(hostId, render); render();
+  const lg = $('#' + hostId + '-legend'); if (lg) lg.innerHTML = runs.map((r, i) => `<span><i class="line" style="background:${cssVar(RUN_COLORS[i % 4])}"></i>${i + 1}本目：表 ${fmt(r.heads)} 回（${r.props[n - 1].toFixed(3)}）</span>`).join('') + `<span><i class="line" style="background:var(--viz-ink2);height:2px"></i>1/2</span>` + (showBand ? `<span><i style="background:var(--viz-muted);opacity:.25"></i>1/2 ± 2σ の帯（約95%が入るめやす）</span>` : '');
+  const tw = $('#' + hostId + '-table'); if (tw) {
+    const ks = [10, 50, 100, 500, 1000, 5000, 10000].filter(k => k <= n); if (ks[ks.length - 1] !== n) ks.push(n);
+    tw.innerHTML = runs.length ? `<table class="data"><thead><tr><th>投げた回数</th>${runs.map((r, i) => `<th>${i + 1}本目の割合</th>`).join('')}</tr></thead><tbody>${ks.map(k => `<tr><td>${fmt(k)}</td>${runs.map(r => `<td>${r.props[k - 1].toFixed(3)}</td>`).join('')}</tr>`).join('')}<tr><td>表の回数（最終）</td>${runs.map(r => `<td>${fmt(r.heads)} / ${fmt(n)}</td>`).join('')}</tr></tbody></table>` : '<p class="muted small">まだ実験がありません。</p>'; }
+}
+
+/* ============================================================
+   コイン：ステップ制御
+   ============================================================ */
+function coinDone(k) {
+  return k === 1 ? S.coinGuess !== null : k === 2 ? S.runs10.length >= 1 : k === 3 ? S.runs10.length >= 2 : k === 4 ? S.bigRuns.length >= 1 : S.streakDone;
+}
+function coinUnlocked(k) { return S.teacher || k === 1 || coinDone(k - 1); }
+function renderCoinStepper() {
+  $$('#coinStepper button').forEach(b => { const k = +b.dataset.step; b.classList.toggle('on', k === S.coinStep); b.classList.toggle('done', coinDone(k)); b.classList.toggle('lock', !coinUnlocked(k)); });
+  $$('#diceStepper button').forEach(b => { const k = +b.dataset.step; b.classList.toggle('on', k === S.diceStep); b.classList.toggle('done', diceDone(k)); b.classList.toggle('lock', !diceUnlocked(k)); });
+  $('#toStep2').disabled = !coinDone(1); $('#toStep3').disabled = !coinDone(2); $('#toStep4').disabled = !coinDone(3); $('#toStep5').disabled = !coinDone(4);
+}
+function coinStep(k) {
+  if (!coinUnlocked(k)) { toast('前のステップを先にやってみよう'); return; }
+  S.coinStep = k; $$('#view-coin .panel').forEach(p => p.classList.toggle('on', p.id === 'coin-' + k)); renderCoinStepper();
+  $('#guessEcho').textContent = S.coinGuess ?? '-';
+  setTimeout(rerenderCharts, 30); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+$('#coinStepper').addEventListener('click', e => { const b = e.target.closest('button'); if (b) coinStep(+b.dataset.step); });
+$('#toStep2').onclick = () => coinStep(2); $('#toStep3').onclick = () => coinStep(3); $('#toStep4').onclick = () => coinStep(4); $('#toStep5').onclick = () => coinStep(5);
+
+/* --- STEP 1 予想 --- */
+const gg = $('#guessGrid');
+for (let k = 0; k <= 10; k++) { const b = document.createElement('button'); b.textContent = k; b.dataset.k = k; b.setAttribute('role', 'radio'); gg.appendChild(b); }
+gg.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.coinGuess = +b.dataset.k; save(); renderGuess(); });
+function renderGuess() {
+  $$('#guessGrid button').forEach(b => { b.classList.toggle('on', +b.dataset.k === S.coinGuess); b.setAttribute('aria-checked', +b.dataset.k === S.coinGuess); });
+  const m = $('#guessMsg'); if (S.coinGuess === null) { m.classList.remove('on'); } else { m.classList.add('on');
+    m.innerHTML = `予想：<b>表は ${S.coinGuess} 回</b>。${S.coinGuess === 5 ? '「半々だから5回」は自然な予想です。では、本当に5回になるでしょうか？' : S.coinGuess >= 4 && S.coinGuess <= 6 ? '5回の近くを選びました。どのくらいの確率でぴったり当たるでしょう？' : '5回からは離れた予想ですね。実験でどうなるか見てみましょう。'}`; }
+  $('#guessWhy').value = S.guessWhy || ''; renderCoinStepper();
+}
+$('#guessWhy').addEventListener('input', e => { S.guessWhy = e.target.value; save(); });
+
+/* --- STEP 2 10回投げる --- */
+const coins10 = $('#coins10');
+for (let i = 0; i < 10; i++) { const d = document.createElement('div'); d.className = 'cflip empty'; d.innerHTML = '<div class="in"><div class="f">表</div><div class="b">裏</div></div>'; coins10.appendChild(d); }
+let flipping = false;
+function animateCoins(seq, hostSel, done) {
+  const cs = $$(hostSel + ' .cflip'); cs.forEach(c => { c.className = 'cflip empty'; });
+  seq.forEach((v, i) => setTimeout(() => { cs[i].className = 'cflip ' + (v ? 'h' : 't'); if (i === seq.length - 1) setTimeout(done, 700); }, 90 * i + 60));
+}
+$('#flip10').onclick = () => {
+  if (flipping) return; flipping = true; $('#flip10').disabled = true;
+  const seq = Array.from({ length: 10 }, flip); S.runs10.push(seq);
+  animateCoins(seq, '#coins10', () => { flipping = false; $('#flip10').disabled = false; $('#flip10').querySelector('span').textContent = 'もう一度 10回投げる'; showRun2(seq); renderCoinStepper(); renderRuns(); });
+};
+function showRun2(seq) {
+  const h = seq.reduce((a, b) => a + b, 0); const g = S.coinGuess; const d = h - g;
+  $('#r2heads').textContent = h; $('#r2ratio').textContent = pct(h / 10, 0); $('#r2diff').textContent = (d > 0 ? '+' : '') + d + ' 回';
+  const m = $('#r2msg'); m.className = 'msg on ' + (d === 0 ? 'ok' : 'info');
+  m.innerHTML = d === 0
+    ? `予想 <b>${g} 回</b> と <b>ぴったり同じ</b>！ でも、これは「当たり前」ではありません。もう一度投げても同じ ${g} 回になるでしょうか？（ちょうど ${g} 回になる確率は ${pct(P10[g])}）`
+    : `予想 <b>${g} 回</b> に対して結果は <b>${h} 回</b>（${Math.abs(d)} 回ちがい）。コインは公平なのに、予想と <b>ずれる</b> ことがあります。<br><span class="small">公平なコインでも「ちょうど5回」になる確率は 252/1024 ≈ <b>24.6%</b>。4回に3回は5回以外になります。</span>`;
+}
+
+/* --- STEP 3 くり返し・分布 --- */
+function renderRuns() {
+  const runs = S.runs10; $('#runCount').textContent = runs.length;
+  const list = $('#runList'); list.innerHTML = runs.slice().reverse().slice(0, 60).map((s, i) => { const idx = runs.length - i; const h = s.reduce((a, b) => a + b, 0);
+    return `<div class="run ${i === 0 ? 'latest' : ''}"><span class="muted">${idx}回目</span><span class="dots">${s.map(v => `<i class="${v ? 'h' : ''}" title="${v ? '表' : '裏'}"></i>`).join('')}</span><span class="cnt">表 ${h} 回</span></div>`; }).join('');
+  if (runs.length > 60) list.innerHTML += `<div class="muted small" style="text-align:center">…ほか ${runs.length - 60} 回分</div>`;
+  const cmp = $('#cmp2'); if (runs.length >= 2) { const a = runs[0].reduce((x, y) => x + y, 0), b = runs[1].reduce((x, y) => x + y, 0);
+    cmp.innerHTML = `<div class="c"><div class="l">1回目の実験</div><div class="v">${a} 回 <small class="muted" style="font-size:14px">(${pct(a/10,0)})</small></div></div><div class="c"><div class="l">2回目の実験</div><div class="v">${b} 回 <small class="muted" style="font-size:14px">(${pct(b/10,0)})</small></div></div>`; }
+  else cmp.innerHTML = runs.length === 1 ? `<div class="c"><div class="l">1回目の実験</div><div class="v">${runs[0].reduce((x, y) => x + y, 0)} 回</div></div><div class="c" style="border-style:dashed"><div class="l">2回目の実験</div><div class="v muted">?</div></div>` : '';
+  const counts = Array(11).fill(0); runs.forEach(s => counts[s.reduce((a, b) => a + b, 0)]++);
+  const theory = $('#histTheory').checked ? P10.map(p => p * runs.length) : null; $('#histLegendTheory').style.display = theory ? '' : 'none';
+  drawHist('histChart', { labels: [...Array(11).keys()].map(String), counts, theory, highlight: new Set([5]), xTitle: '10回中の表の回数', yTitle: '実験の回数', empty: '「もう10回投げる」を押すと、ここに積み上がります' });
+  const m = $('#r3msg'); if (runs.length >= 2) { const a = runs[0].reduce((x, y) => x + y, 0), b = runs[1].reduce((x, y) => x + y, 0); const five = counts[5];
+    m.className = 'msg on info';
+    m.innerHTML = `${a === b ? `1回目も2回目も <b>${a} 回</b>。同じ回数でしたが、これも「たまたま」。` : `1回目は <b>${a} 回</b>、2回目は <b>${b} 回</b>。同じコインでも、実験ごとに結果はちがいます。`}
+      ${runs.length >= 5 ? `<br>これまでの ${runs.length} 回の実験のうち、ちょうど5回だったのは <b>${five} 回</b>（${pct(five / runs.length)}）。理論では約 24.6% です。<span class="small">「理論の期待回数を重ねる」を ON にすると、分布の形（5回を中心に山になる）と比べられます。</span>` : '<br>「もう10回」や「クラス全員分」を押して、分布の形を見てみましょう。'}`;
+  }
+  renderCoinStepper();
+}
+$('#flipAgain').onclick = () => { if (flipping) return; flipping = true; const seq = Array.from({ length: 10 }, flip); S.runs10.push(seq);
+  // 簡易アニメ：記録リストの最新行を点滅させる
+  renderRuns(); flipping = false; toast(`表 ${seq.reduce((a, b) => a + b, 0)} 回`); };
+$('#flipClass').onclick = () => { for (let i = 0; i < 40; i++) S.runs10.push(Array.from({ length: 10 }, flip)); renderRuns(); toast('40人分（400回投げ）を追加しました'); };
+$('#histTheory').onchange = renderRuns;
+
+/* --- STEP 4 100回・1000回 --- */
+$('#nSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.bigN = +b.dataset.n; $$('#nSeg button').forEach(x => x.classList.toggle('on', x === b)); S.bigRuns = []; renderBig(); });
+function renderBig(revealFrac = 1) {
+  drawRuns('runChart', S.bigRuns, S.bigN, $('#bandToggle').checked, revealFrac);
+  const note = $('#r4note'); const s = sigma(S.bigN);
+  note.style.display = 'block'; note.innerHTML = `<b>${fmt(S.bigN)} 回</b> のとき、割合のゆれの目安 σ = √(1/(4n)) = <b>${s.toFixed(4)}</b>。約95%の実験で割合は <b>${(.5 - 2 * s).toFixed(3)} 〜 ${(.5 + 2 * s).toFixed(3)}</b> に入ります（帯の幅は回数を100倍にすると 1/10 に）。`;
+  const m = $('#r4msg'); if (S.bigRuns.length) { const last = S.bigRuns[S.bigRuns.length - 1]; const fin = last.props[S.bigN - 1];
+    const allFin = S.bigRuns.map(r => r.props[S.bigN - 1]); const spread = Math.max(...allFin) - Math.min(...allFin);
+    m.className = 'msg on info';
+    m.innerHTML = `${S.bigRuns.length}本目：表 <b>${fmt(last.heads)} 回 / ${fmt(S.bigN)} 回</b>、割合 <b>${fin.toFixed(3)}</b>（1/2 との差 ${(fin - .5 >= 0 ? '+' : '') + (fin - .5).toFixed(3)}）。${last.heads === S.bigN / 2 ? ' ぴったり半分！ これは珍しいことです（' + fmt(S.bigN) + '回でちょうど半分になる確率は ' + pct(binomPoint(S.bigN, S.bigN / 2)) + '）。' : ''}
+      ${S.bigRuns.length >= 2 ? `<br>${S.bigRuns.length}本の最終の割合のちらばり（最大−最小）は <b>${spread.toFixed(3)}</b>。` : ''}
+      <br><span class="small">序盤は大きくゆれ、回数が増えるほど 1/2 の近くに落ち着く一方、<b>まっすぐ 1/2 に向かうわけではない</b>ことに注目。同じ回数で何本か重ねると、落ち着き方も本ごとにちがいます。</span>`;
+  } else m.classList.remove('on');
+  renderCoinStepper();
+}
+let bigAnim = null;
+$('#runBig').onclick = () => {
+  if (bigAnim) return; const n = S.bigN; const props = new Float32Array(n); let h = 0;
+  for (let k = 0; k < n; k++) { h += flip(); props[k] = h / (k + 1); }
+  if (S.bigRuns.length >= 4) S.bigRuns.shift();
+  S.bigRuns.push({ n, props, heads: h });
+  const t0 = performance.now(), dur = 1100; $('#runBig').disabled = true;
+  const tick = now => { const f = Math.min(1, (now - t0) / dur); const e = 1 - Math.pow(1 - f, 2); renderBig(e); if (f < 1) bigAnim = requestAnimationFrame(tick); else { bigAnim = null; $('#runBig').disabled = false; } };
+  bigAnim = requestAnimationFrame(tick);
+};
+$('#clearBig').onclick = () => { S.bigRuns = []; renderBig(); };
+$('#bandToggle').onchange = () => renderBig();
+
+/* --- STEP 5 表が続いたら？ --- */
+$('#streakChoice').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.streakAns = b.dataset.v; save(); renderStreakChoice(); });
+function renderStreakChoice() { $$('#streakChoice button').forEach(b => b.classList.toggle('on', b.dataset.v === S.streakAns)); $('#runStreak').disabled = !S.streakAns; $('#streakWhy').value = S.streakWhy || ''; }
+$('#streakWhy').addEventListener('input', e => { S.streakWhy = e.target.value; save(); });
+function runStreak() {
+  const N = 200000, seq = new Uint8Array(N); for (let i = 0; i < N; i++) seq[i] = flip();
+  let cases = 0, nextH = 0;
+  for (let i = 5; i < N; i++) { if (seq[i-1] && seq[i-2] && seq[i-3] && seq[i-4] && seq[i-5]) { cases++; nextH += seq[i]; } }
+  const nextT = cases - nextH;
+  $('#stN').textContent = fmt(cases); $('#stH').textContent = fmt(nextH); $('#stT').textContent = fmt(nextT);
+  const mx = Math.max(nextH, nextT, 1);
+  $('#stBar').innerHTML = `<div class="b"><span>次が表</span><div class="bar" style="width:${nextH / mx * 100}%"></div><span class="n">${pct(nextH / cases)}</span></div><div class="b t"><span>次が裏</span><div class="bar" style="width:${nextT / mx * 100}%"></div><span class="n">${pct(nextT / cases)}</span></div>`;
+  const ans = S.streakAns; const m = $('#stMsg'); m.className = 'msg on ' + (ans === 'same' ? 'ok' : 'warn');
+  const dev = nextH / cases - .5, tol = 2 * Math.sqrt(.25 / cases);
+  m.innerHTML = `${fmt(cases)} 回の「5連続表の直後」で、次が表 ${pct(nextH / cases)}、裏 ${pct(nextT / cases)}。<b>ほぼ半々</b> で、裏が有利にも表が有利にもなっていません。<span class="small">（半々からのずれ ${(dev >= 0 ? '+' : '') + pct(dev, 2)} は、この場面数でのゆれの目安 ±${pct(tol, 2)} の${Math.abs(dev) <= tol ? '範囲内' : '外ですが、20回に1回ほどは起こります。もう一度試してみましょう'}）</span><br>
+    ${ans === 'same' ? '<b>あなたの予想どおり。</b>' : ans === 'tails' ? '<b>「そろそろ裏」は誤り</b>（ギャンブラーの誤謬）。' : '<b>「流れがきている」は誤り。</b>'}
+    <span class="small">理由：「毎回独立に投げる」とは、コインが前の結果を <b>覚えていない</b> ということ。5回表が続いたあとでも、次に表が出る確率は 1/2 のまま（P(次が表 | 直前5回が表) = 1/2）。長い目で割合が 1/2 に近づくのは、裏が「埋め合わせ」に出るからではなく、序盤のかたよりが多数回の中で <b>相対的に小さくなる</b> からです。</span>`;
+  S.streakDone = true; $('#runStreakAgain').disabled = false; renderCoinStepper();
+}
+$('#runStreak').onclick = runStreak; $('#runStreakAgain').onclick = runStreak;
+
+$('#coinReset').onclick = () => { if (!confirm('コインの予想と実験の記録をすべて消します。よろしいですか？')) return;
+  S.coinGuess = null; S.guessWhy = ''; S.runs10 = []; S.bigRuns = []; S.streakAns = null; S.streakWhy = ''; S.streakDone = false; save();
+  renderGuess(); $$('#coins10 .cflip').forEach(c => c.className = 'cflip empty'); $('#r2heads').textContent = $('#r2ratio').textContent = $('#r2diff').textContent = '-'; $('#r2msg').classList.remove('on'); $('#flip10').querySelector('span').textContent = '10回投げる';
+  renderRuns(); renderBig(); renderStreakChoice(); $('#stN').textContent = $('#stH').textContent = $('#stT').textContent = '-'; $('#stBar').innerHTML = ''; $('#stMsg').classList.remove('on'); $('#runStreakAgain').disabled = true; coinStep(1); toast('コインの記録をリセットしました'); };
+
+/* ============================================================
+   サイコロ
+   ============================================================ */
+function diceDone(k) { return k === 1 ? S.diceGuess !== null : k === 2 ? S.diceN >= 36 : S.dicePicked !== null; }
+function diceUnlocked(k) { return S.teacher || k === 1 || diceDone(k - 1); }
+function renderDiceStepper() { renderCoinStepper(); $('#toDice2').disabled = !diceDone(1); $('#toDice3').disabled = !diceDone(2); }
+function diceStep(k) { if (!diceUnlocked(k)) { toast('前のステップを先にやってみよう'); return; } S.diceStep = k; $$('#view-dice .panel').forEach(p => p.classList.toggle('on', p.id === 'dice-' + k)); renderDiceStepper(); setTimeout(rerenderCharts, 30); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+$('#diceStepper').addEventListener('click', e => { const b = e.target.closest('button'); if (b) diceStep(+b.dataset.step); });
+$('#toDice2').onclick = () => diceStep(2); $('#toDice3').onclick = () => diceStep(3);
+$('#diceChoice').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.diceGuess = b.dataset.v; save(); renderDiceChoice(); });
+function renderDiceChoice() { $$('#diceChoice button').forEach(b => b.classList.toggle('on', b.dataset.v === S.diceGuess)); $('#diceWhy').value = S.diceWhy || ''; renderDiceStepper(); }
+$('#diceWhy').addEventListener('input', e => { S.diceWhy = e.target.value; save(); });
+
+const PIPS = { 1: [[50,50]], 2: [[28,28],[72,72]], 3: [[28,28],[50,50],[72,72]], 4: [[28,28],[72,28],[28,72],[72,72]], 5: [[28,28],[72,28],[50,50],[28,72],[72,72]], 6: [[28,26],[72,26],[28,50],[72,50],[28,74],[72,74]] };
+function dieSVG(v) { return `<svg viewBox="0 0 100 100" aria-label="サイコロ ${v}"><rect x="4" y="4" width="92" height="92" rx="20" fill="#fff" stroke="#e5567a" stroke-width="3"/><g fill="#d94a6a">${(PIPS[v] || []).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9"/>`).join('')}</g></svg>`; }
+$('#die1').innerHTML = dieSVG(0); $('#die2').innerHTML = dieSVG(0);
+function addRolls(k, animate) {
+  let a, b; for (let i = 0; i < k; i++) { a = die(); b = die(); S.diceCounts[a + b]++; S.diceN++; }
+  if (animate) { $('#die1').classList.remove('roll'); $('#die2').classList.remove('roll'); void $('#die1').offsetWidth; $('#die1').classList.add('roll'); $('#die2').classList.add('roll');
+    setTimeout(() => { $('#die1').innerHTML = dieSVG(a); $('#die2').innerHTML = dieSVG(b); $('#diceSumBox').innerHTML = `<small>${a} + ${b}</small>${a + b}`; }, 260); }
+  else { $('#die1').innerHTML = dieSVG(a); $('#die2').innerHTML = dieSVG(b); $('#diceSumBox').innerHTML = `<small>最後の1回 ${a} + ${b}</small>${a + b}`; }
+  renderDice();
+}
+$('#roll1').onclick = () => addRolls(1, true);
+$$('[data-roll]').forEach(b => b.onclick = () => { addRolls(+b.dataset.roll, false); toast(`${fmt(+b.dataset.roll)} 回振りました（累計 ${fmt(S.diceN)} 回）`); });
+function renderDice() {
+  const n = S.diceN, c = S.diceCounts;
+  $('#dN').textContent = fmt(n); $('#d2').textContent = fmt(c[2]); $('#d7').textContent = fmt(c[7]);
+  $('#d2p').textContent = n ? pct(c[2] / n) : '-'; $('#d7p').textContent = n ? pct(c[7] / n) : '-'; $('#dRatio').textContent = c[2] ? (c[7] / c[2]).toFixed(1) : (c[7] ? '∞' : '-');
+  const labels = [], counts = [], theory = []; for (let s = 2; s <= 12; s++) { labels.push(String(s)); counts.push(c[s]); theory.push(n * diceWays(s) / 36); }
+  const th = $('#diceTheory').checked ? theory : null; $('#diceLegendTheory').style.display = th ? '' : 'none';
+  drawHist('diceChart', { labels, counts, theory: th, highlight: new Set([0, 5]), xTitle: '2個の合計', yTitle: '出た回数', empty: '「1回振る」または「36回」を押すと、ここに積み上がります' });
+  drawHist('diceChart2', { labels, counts, theory, highlight: new Set([0, 5]), xTitle: '2個の合計', yTitle: '出た回数', empty: 'STEP 2 で振ると、ここに実験結果が出ます' });
+  const m = $('#dMsg'); if (n >= 36) { m.className = 'msg on info'; const g = S.diceGuess;
+    m.innerHTML = `${fmt(n)} 回のうち、合計2は <b>${fmt(c[2])} 回</b>、合計7は <b>${fmt(c[7])} 回</b>${c[2] ? `（約 <b>${(c[7] / c[2]).toFixed(1)} 倍</b>）` : ''}。${g === 'seven' ? '予想どおり、<b>7の方がよく出ます</b>。' : g === 'same' ? '<b>「同じくらい」ではなさそう</b> です。' : '<b>2の方が多い、とは言えなさそう</b> です。'}
+      なぜでしょう？ 「たまたま」でしょうか。回数を増やしても差が縮まらないなら、理由があるはずです。次のステップで36通りの表と対応させます。<span class="small">（理論では 7 は 2 の 6 倍。「理論の期待回数」を重ねると比べられます）</span>`; }
+  else m.classList.remove('on');
+  renderT36Info(); renderDiceStepper();
+}
+$('#diceTheory').onchange = renderDice;
+$('#diceChart').addEventListener('barclick', e => { S.dicePicked = e.detail + 2; diceStep(3); renderT36(); });
+$('#diceChart2').addEventListener('barclick', e => { S.dicePicked = e.detail + 2; renderT36(); });
+
+/* 36通りの表 */
+const t36 = $('#t36');
+t36.innerHTML = '<div class="hd" style="font-size:10.5px;line-height:1.3">1個目↓<br>2個目→</div>' + [1,2,3,4,5,6].map(j => `<div class="hd">${j}</div>`).join('') + [1,2,3,4,5,6].map(i => `<div class="hd">${i}</div>` + [1,2,3,4,5,6].map(j => `<div class="c" data-a="${i}" data-b="${j}" data-s="${i + j}" title="(${i}, ${j}) → 合計 ${i + j}">${i + j}</div>`).join('')).join('');
+const sp = $('#sumPick'); for (let s = 2; s <= 12; s++) { const b = document.createElement('button'); b.textContent = s; b.dataset.s = s; sp.appendChild(b); }
+sp.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.dicePicked = +b.dataset.s; renderT36(); });
+t36.addEventListener('click', e => { const c = e.target.closest('.c'); if (!c) return; S.dicePicked = +c.dataset.s; renderT36(); });
+t36.addEventListener('mouseover', e => { const c = e.target.closest('.c'); if (!c) return; hlSum(+c.dataset.s, true); });
+t36.addEventListener('mouseleave', () => renderT36());
+function hlSum(s, hover) { $$('#t36 .c').forEach(c => { const on = +c.dataset.s === s; c.classList.toggle('hl', on); c.classList.toggle('dim', s !== null && !on); }); $$('#sumPick button').forEach(b => b.classList.toggle('on', +b.dataset.s === s)); if (hover) renderT36Info(s); }
+function renderT36() { hlSum(S.dicePicked, false); renderT36Info(); renderDiceStepper(); }
+function renderT36Info(s = S.dicePicked) {
+  if (s === null || s === undefined) { $('#t36Title').textContent = '合計を選んでください'; $('#t36ways').textContent = $('#t36prob').textContent = $('#t36exp').textContent = '-'; return; }
+  const w = diceWays(s); const pairs = []; for (let i = 1; i <= 6; i++) { const j = s - i; if (j >= 1 && j <= 6) pairs.push(`(${i},${j})`); }
+  $('#t36Title').innerHTML = `合計 <span class="num" style="color:var(--dice)">${s}</span> になる組合せ：${pairs.join(' ')}`;
+  $('#t36ways').textContent = w; $('#t36prob').innerHTML = `${w}/36 ≈ ${pct(w / 36)}`; $('#t36exp').innerHTML = S.diceN ? `${pct(S.diceCounts[s] / S.diceN)}<small> ${fmt(S.diceCounts[s])}/${fmt(S.diceN)} 回</small>` : '<small>まだ実験なし</small>';
+}
+$('#diceReset').onclick = () => { if (!confirm('サイコロの予想と実験の記録をすべて消します。よろしいですか？')) return; S.diceGuess = null; S.diceWhy = ''; S.diceCounts = Array(13).fill(0); S.diceN = 0; S.dicePicked = null; save(); renderDiceChoice(); $('#die1').innerHTML = dieSVG(0); $('#die2').innerHTML = dieSVG(0); $('#diceSumBox').innerHTML = '<small>合計</small>-'; renderDice(); renderT36(); diceStep(1); toast('サイコロの記録をリセットしました'); };
+
+/* ============================================================
+   主張チェック
+   ============================================================ */
+const P100_50 = binomPoint(100, 50), P1000_500 = binomPoint(1000, 500);
+const CLAIMS = [
+  { id: 'c1', q: '「公平なコインを100回投げれば、必ず表は50回になる」', ok: false, go: 'coin', step: 4,
+    why: `<b>妥当でない。</b>100回でちょうど50回になる確率は <b>約 ${pct(P100_50)}</b>（₁₀₀C₅₀ / 2¹⁰⁰）で、12〜13回に1回ほどしか起きません。回数を増やすと「割合」は 1/2 に近づきやすくなりますが（100回なら約95%が 40〜60 回の範囲）、「回数がぴったり半分」になるわけではありません。「割合が近づく」と「回数が一致する」を区別しましょう。` },
+  { id: 'c2', q: '「表が5回続いた。だから次は裏が出やすい（そろそろ裏の番）」', ok: false, go: 'coin', step: 5,
+    why: `<b>妥当でない。</b>毎回独立に投げるコインは前の結果を覚えていないので、次に表が出る確率は <b>1/2 のまま</b>。STEP 5 の実験でも「5連続表の直後」は表と裏がほぼ半々でした。この誤った直感は <b>ギャンブラーの誤謬</b> と呼ばれます。割合が長期的に 1/2 に近づくのは、裏が埋め合わせに出るからではなく、序盤のかたよりが多数回の中で相対的に小さくなるからです。` },
+  { id: 'c3', q: '「確率が 1/2 なのだから、10回投げれば表は5回になるのが当たり前だ」', ok: false, go: 'coin', step: 3,
+    why: `<b>妥当でない。</b>10回中ちょうど5回になる確率は 252/1024 ≈ <b>24.6%</b>。最も起こりやすい回数ではあるものの、4回に3回は「5回以外」になります。4〜6回の範囲まで広げても約 65.6%。「確率 1/2」は1回ごとの出やすさを表すもので、少ない回数で回数がぴったり決まることを意味しません。` },
+  { id: 'c4', q: '「10回投げたら表が7回出た。このコインは表が出やすいイカサマだ」', ok: false, go: 'theory', step: null,
+    why: `<b>妥当でない（断定できない）。</b>公平なコインでも10回中「7回以上」表になる確率は (120+45+10+1)/1024 ≈ <b>17.2%</b>。6回に1回ほど起きる、ありふれた結果です。ただし回数が多ければ話は別で、1,000回中700回なら平均500回からのずれ200回は σ≈15.8回の約12.6倍にあたり、公平なコインではまず起こりません。「たまたま」を疑うには、<b>ずれの大きさをその回数でのゆれの幅と比べる</b>必要があります。` },
+  { id: 'c5', q: '「サイコロ2個の合計は2〜12の11通り。だから合計2も合計7も、確率はどちらも 1/11」', ok: false, go: 'dice', step: 3,
+    why: `<b>妥当でない。</b>同じ確率で起こるのは「合計」ではなく <b>(1個目, 2個目) の36通りの組</b> です。合計2になる組は (1,1) の <b>1通り</b>、合計7になる組は (1,6)(2,5)(3,4)(4,3)(5,2)(6,1) の <b>6通り</b>。よって確率は 1/36 と 6/36 = 1/6 で、7 は 2 の6倍出やすい。実験でも 7 の回数は 2 の約6倍になっていたはずです。` },
+  { id: 'c6', q: '「1,000回投げれば表の割合は 1/2 にかなり近づくが、ちょうど500回になるとは限らない」', ok: true, go: 'coin', step: 4,
+    why: `<b>妥当。</b>1,000回のとき割合のゆれの目安は σ = √(1/4000) ≈ 0.016 なので、約95%の実験で割合は 0.468〜0.532 に入ります（かなり 1/2 に近い）。一方、ちょうど500回になる確率は <b>約 ${pct(P1000_500)}</b> にすぎません。「割合は近づく」「回数はぴったりとは限らない」の両方を正しく述べています。` },
+];
+function renderClaims() {
+  const box = $('#claims'); box.innerHTML = CLAIMS.map((c, i) => { const st = S.checks[c.id] || {}; const answered = !!st.revealed; const correct = answered && st.v === c.ok;
+    return `<div class="card claim" data-id="${c.id}">
+      <span class="badge ${answered ? (correct ? 'ok' : 'ng') : ''}">${answered ? (correct ? '正しく判断' : 'もう一度考えよう') : '未回答'}</span>
+      <span class="eyebrow">主張 ${i + 1}</span>
+      <div class="q" style="margin-top:6px">${c.q}</div>
+      <div class="verdict"><button class="chip ${st.v === true ? 'on' : ''}" data-v="1">妥当（正しい）</button><button class="chip ${st.v === false ? 'on' : ''}" data-v="0">妥当でない（まちがい）</button></div>
+      <label class="lbl" style="margin-top:12px">理由（実験で見たこと・場合の数を使って）</label>
+      <textarea rows="2" class="why" placeholder="例：実験では…だった。理論では…通りだから…">${st.why || ''}</textarea>
+      <div class="row" style="margin-top:10px"><button class="btn primary reveal" ${st.v === undefined ? 'disabled' : ''}>答え合わせ</button>${c.go ? `<button class="btn ghost sm" data-go="${c.go}" data-step="${c.step ?? ''}">🔬 実験で確かめる</button>` : ''}</div>
+      <div class="ans ${answered ? 'on ' + (correct ? 'ok' : 'ng') : ''}"><h4>${answered ? (correct ? '✅ あなたの判断は正しい　' : '❌ あなたの判断とはちがう　') : ''}${c.ok ? '<span class="pill-ok">この主張は妥当</span>' : '<span class="pill-ng">この主張は妥当でない</span>'}</h4><p class="small">${c.why}</p></div>
+    </div>`; }).join('');
+  const done = CLAIMS.filter(c => (S.checks[c.id] || {}).revealed && S.checks[c.id].v === c.ok).length;
+  $('#scoreTxt').textContent = `${done}/${CLAIMS.length}`; $('#scoreRing').style.setProperty('--p', done / CLAIMS.length * 100);
+}
+$('#claims').addEventListener('click', e => {
+  const card = e.target.closest('.claim'); if (!card) return; const id = card.dataset.id; const st = S.checks[id] = S.checks[id] || {};
+  const v = e.target.closest('[data-v]'); if (v) { st.v = v.dataset.v === '1'; save(); renderClaims(); return; }
+  if (e.target.closest('.reveal')) { st.revealed = true; save(); renderClaims(); return; }
+  const g = e.target.closest('[data-go]'); if (g) { const step = g.dataset.step; if (step) { if (g.dataset.go === 'coin') { if (coinUnlocked(+step)) coinStep(+step); else toast('コインのステップを順にすすめてから、ここへ来られます'); } else if (g.dataset.go === 'dice') { if (diceUnlocked(+step)) diceStep(+step); else toast('サイコロのステップを順にすすめてください'); } } }
+});
+$('#claims').addEventListener('input', e => { if (!e.target.classList.contains('why')) return; const id = e.target.closest('.claim').dataset.id; (S.checks[id] = S.checks[id] || {}).why = e.target.value; save(); });
+$('#checkAll').onclick = () => { if (!confirm('すべての主張の解説を表示します（先生用）。よろしいですか？')) return; CLAIMS.forEach(c => { const st = S.checks[c.id] = S.checks[c.id] || {}; st.revealed = true; }); save(); renderClaims(); };
+$('#checkReset').onclick = () => { if (!confirm('主張チェックの回答をすべて消します。よろしいですか？')) return; S.checks = {}; save(); renderClaims(); };
+
+/* ============================================================
+   理論メモの表
+   ============================================================ */
+$('#binomTable').innerHTML = `<thead><tr><th>表の回数 k</th><th>並べ方 ₁₀Cₖ</th><th>確率</th><th>百分率</th></tr></thead><tbody>${C10.map((c, k) => `<tr ${k === 5 ? 'style="font-weight:700"' : ''}><td>${k} 回</td><td>${c}</td><td>${c}/1024</td><td>${pct(P10[k])}</td></tr>`).join('')}</tbody>`;
+$('#sigmaTable').innerHTML = `<thead><tr><th>回数 n</th><th>σ（割合）</th><th>1/2 ± 2σ の範囲</th><th>回数にすると</th></tr></thead><tbody>${[10, 100, 1000, 10000].map(n => { const s = sigma(n); return `<tr><td>${fmt(n)}</td><td>${s.toFixed(4)}</td><td>${(.5 - 2 * s).toFixed(3)} 〜 ${(.5 + 2 * s).toFixed(3)}</td><td>${fmt(Math.round(n * (.5 - 2 * s)))} 〜 ${fmt(Math.round(n * (.5 + 2 * s)))} 回</td></tr>`; }).join('')}</tbody>`;
+$('#diceTheoryTable').innerHTML = `<thead><tr><th>合計</th><th>組合せの数</th><th>確率</th><th>百分率</th></tr></thead><tbody>${[2,3,4,5,6,7,8,9,10,11,12].map(s => { const w = diceWays(s); return `<tr ${s === 2 || s === 7 ? 'style="font-weight:700"' : ''}><td>${s}</td><td>${w} 通り</td><td>${w}/36</td><td>${pct(w / 36)}</td></tr>`; }).join('')}</tbody>`;
+
+/* ============================================================
+   初期化
+   ============================================================ */
+renderGuess(); renderRuns(); renderBig(); renderStreakChoice(); renderDiceChoice(); renderDice(); renderT36(); renderClaims();
+applyTeacher(); coinStep(S.teacher ? 1 : 1); diceStep(1); go('home');
+/* キーボード：Space/Enter で現在の主ボタン */
+document.addEventListener('keydown', e => { if (e.key !== ' ' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+  const v = $('.view.on'); if (!v) return; if (v.id === 'view-coin') { const p = $('#view-coin .panel.on'); const b = p && p.querySelector('.btn.coin'); if (b && !b.disabled) { e.preventDefault(); b.click(); } } else if (v.id === 'view-dice' && $('#dice-2').classList.contains('on')) { e.preventDefault(); $('#roll1').click(); } });
+</script>
+</body>
+</html>
