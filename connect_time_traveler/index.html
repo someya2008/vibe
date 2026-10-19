@@ -1034,8 +1034,11 @@ table.t tr:last-child td{border-bottom:0}
 
 @media (max-width:520px){
   .c1-axis>span:nth-child(2),.c1-axis>span:nth-child(4),.c1-axis>span:nth-child(6){display:none}
-  .c1-est th,.c1-est td{padding:6px 5px;font-size:.82rem}
-  .c1-est .chip{padding:1px 6px;font-size:.76rem;gap:3px}
+  .c1-est th,.c1-est td{padding:6px 4px;font-size:.82rem}
+  /* the table fits a 390px phone in every language: English headers ("Transfer time", "Phone charge") may wrap
+     at the space; Japanese headers stay whole. Narrower screens scroll inside the focusable table region. */
+  :root[data-lang="en"] .c1-est thead th{white-space:normal;vertical-align:bottom}
+  .c1-est .chip{padding:1px 5px;font-size:.76rem;gap:2px}
   .c1-est tbody th .icon{display:none}
 }
 .c1-est td.num,.c1-est .chip{white-space:nowrap}
@@ -1251,9 +1254,13 @@ table.t tr:last-child td{border-bottom:0}
 .c2-chart .c2-goal-tx{fill:var(--ink)}
 .c2-ladder{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;align-items:end}
 .c2-ladder li{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:8px 4px;border-radius:8px;background:var(--era-soft);color:var(--era-ink);line-height:1.3;text-align:center}
-.c2-ladder li:nth-child(2){padding-top:16px}.c2-ladder li:nth-child(3){padding-top:22px}.c2-ladder li:nth-child(4){padding-top:34px;background:var(--era);color:var(--paper)}
+/* the steps rise by min-height (not padding), so a label that wraps at 390px or in 日+EN cannot break the staircase */
+.c2-ladder li:nth-child(1){min-height:4.2em}.c2-ladder li:nth-child(2){min-height:5em}.c2-ladder li:nth-child(3){min-height:6.2em}.c2-ladder li:nth-child(4){min-height:7.4em;background:var(--era);color:var(--paper)}
 .c2-ladder b{font-family:var(--f-display);font-size:1.15rem;font-weight:400}
 .c2-ladder span{font-size:.72rem;font-family:var(--f-mono)}
+/* 日+EN: one line per label (“V.34 rev.”), so the 33.6k step is never taller than the 56k step */
+:root[data-lang="both"] .c2-ladder .tj{display:none}
+:root[data-lang="both"] .c2-ladder .te{display:inline;font-size:inherit;line-height:inherit}
 
 /* ---------- STEP 3: district plan ---------- */
 .c2-town{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:stretch}
@@ -1445,6 +1452,10 @@ table.t tr:last-child td{border-bottom:0}
 
 /* touch targets: small buttons in this chapter are at least 44px tall (the whole stepper pill is a target in core) */
 .c2-stepbar .btn.sm,.c2-step .btn.sm{min-height:44px}
+/* step 4 question, 日+EN: keep the A–D key letter inside the key box (below it, it was white on the pale
+   green/red of a checked choice and could not be read) */
+:root[data-lang="both"] .c2-q4 .choice .mark{height:auto;min-height:32px;padding:3px 0;line-height:1.1}
+:root[data-lang="both"] .c2-q4 .choice .mark .te{font-size:.62em;font-family:var(--f-mono);font-weight:600;line-height:1.1}
 
 /* closed "want to know more?" boxes (history and side notes; not needed to continue) */
 .c2-more{border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper-2);min-width:0}
@@ -1580,7 +1591,9 @@ table.t tr:last-child td{border-bottom:0}
 .c3-results li.ok{background:var(--ok-bg);color:var(--ok-ink)}
 .c3-results li.ng{background:var(--ng-bg);color:var(--ng-ink)}
 .c3-results .c3-rs{font-size:.78rem;font-weight:700;border:1px solid currentColor;border-radius:999px;padding:0 8px;margin-left:8px}
-.c3-results.stale{opacity:.45}
+/* out-of-date results: neutral colors instead of fading, so the text keeps its contrast */
+.c3-results.stale li:not(.c3-stalenote){background:transparent;color:var(--muted);box-shadow:inset 0 0 0 1.5px var(--line-2)}
+.c3-results li.c3-stalenote{padding:0 2px;font-size:.88rem;font-weight:700;color:var(--ink);align-items:center}
 .c3-goals{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:.9rem}
 .c3-goals li{display:flex;gap:8px;align-items:flex-start;line-height:1.5;color:var(--muted)}
 .c3-goals li .icon{margin-top:.2em}
@@ -2128,6 +2141,10 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 .rv-head .eyebrow .icon{width:1.15em;height:1.15em}
 .rv-head h1{font-size:clamp(1.55rem,5.4vw,2.2rem)}
 .rv-lbl{display:inline-flex;flex-direction:column;align-items:center;line-height:1.25}
+/* 日+EN: a bilingual label wrapped in .rv-w is ONE flex item, so the English sits under the Japanese (buttons, eyebrows, summaries);
+   in small chips it stays on the same line, like the term chips */
+.rv-w{min-width:0}
+:root[data-lang="both"] .rv-root .chip:not(.rv-orig-chip)>.rv-w>.te{display:inline;margin-left:.35em}
 .rv-center{justify-content:center}
 .rv-mt{margin-top:8px}
 .rv-nick{color:var(--ink)}
@@ -2157,7 +2174,11 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 .rv-nav a{min-height:52px;justify-content:center;border-top:3px solid transparent;margin-top:-1px}
 .rv-nav a[aria-current="page"]{border-top-color:var(--signal)}
 .rv-nav a:hover{color:var(--ink)}
+/* keyboard focus must not stop under the fixed nav (taller here: two-line labels in 日+EN / big text); the script sets the exact value */
+:root:has(.screen.rv-root){scroll-padding-bottom:calc(env(safe-area-inset-bottom,0px) + 116px)}
 .rv-nav-l{display:flex;flex-direction:column;align-items:center}
+/* 「マイ／復習ノート」: Japanese breaks between words (inside one only if it cannot fit at all); English words never split ("Flashcard/s") */
+.rv-nav-l .tj{word-break:auto-phrase;overflow-wrap:anywhere}
 
 /* ---------- hub ---------- */
 .rv-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -2307,6 +2328,8 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 .rv-dock .btn{min-height:58px;min-width:0;padding:6px 4px;flex-direction:column;gap:3px;font-size:.88rem;border-radius:12px;-webkit-tap-highlight-color:transparent}
 .rv-dock .rv-navb{padding:6px 0}
 .rv-flash.is-end .rv-dock{position:static;box-shadow:none}
+/* keyboard focus on the card or the shuffle button must not land under the stuck dock (the script also nudges it after Tab) */
+.rv-flash:not(.is-end) :is(.rv-prog,.rv-stage) :is(a,button,summary,[tabindex]){scroll-margin-bottom:calc(var(--rv-dock-h,80px) + 8px)}
 .rv-dock .rv-lbl{max-width:100%;overflow-wrap:anywhere}
 :root[data-lang="both"] .rv-dock .te{font-size:.72rem}
 @media (max-width:400px){.rv-dock{grid-template-columns:44px repeat(3,minmax(0,1fr)) 44px;gap:6px;padding:6px}.rv-dock .btn{font-size:.84rem}}
@@ -2660,7 +2683,7 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 }
 /* fullscreen: everything sized to the screen height as well as its width, so the part name, the clock,
    the controls and the timeline fit on 1366x768 and 1920x1080 (also with 「文字を大きく」).
-   No justify-content:center — a centred column that overflows spills upward where it cannot be scrolled to;
+   No justify-content:center — a centered column that overflows spills upward where it cannot be scrolled to;
    the grid takes the free height instead, and the talking points scroll inside their own column. */
 .tc-stage:is(:fullscreen,.is-fs){border-radius:0;border-width:0;box-shadow:none;width:100vw;height:100vh;overflow:auto;
   padding:clamp(12px,min(3vw,3.6vh),56px) clamp(18px,3.2vw,56px);gap:clamp(8px,2vh,24px);justify-content:flex-start;background:var(--paper)}
@@ -2673,6 +2696,10 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 .tc-stage:is(:fullscreen,.is-fs) .tc-segrange .te{font-size:.82em}
 .tc-stage:is(:fullscreen,.is-fs) .tc-big{font-size:clamp(3.6rem,min(17vw,24vh),19rem)}
 .tc-stage:is(:fullscreen,.is-fs) .tc-big.is-long{font-size:clamp(2.8rem,min(11vw,17vh),12rem)}
+/* 日+EN: the English part name stays on one line (the full name is in the plan below the stage)
+   and the clock gives up a little height, so the timeline still fits on 1366x768 */
+:root[data-lang="both"] .tc-stage:is(:fullscreen,.is-fs) .tc-segname .te{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-lang="both"] .tc-stage:is(:fullscreen,.is-fs) .tc-big:not(.is-long){font-size:clamp(3.4rem,min(17vw,21vh),19rem)}
 .tc-stage:is(:fullscreen,.is-fs) .tc-status{min-height:0;margin-top:clamp(2px,.8vh,8px)}
 .tc-stage:is(:fullscreen,.is-fs) .tc-minis dd{font-size:clamp(1rem,min(2vw,3vh),1.8rem)}
 .tc-stage:is(:fullscreen,.is-fs) .tc-points-list{font-size:clamp(.92rem,min(1.6vw,2.4vh),1.6rem)}
@@ -2727,8 +2754,8 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 :root[data-lang="both"] .tc-b-mark .te{display:block;font-size:.6em;opacity:.8}
 .tc-b-ch.is-correct{border-color:var(--ok);background:var(--ok-bg);color:var(--ok-ink);box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 25%,transparent)}
 .tc-b-ch.is-correct .tc-b-mark{background:var(--ok);color:var(--paper)}
-.tc-b-ch.is-dim{opacity:.45}
-.tc-b-ok{position:absolute;top:-13px;right:14px;display:inline-flex;align-items:center;gap:4px;font-size:clamp(.78rem,1vw,.95rem);padding:2px 12px;border-radius:999px;background:var(--ok);color:var(--paper);box-shadow:0 0 0 3px var(--paper)}
+.tc-b-ch.is-dim{opacity:.72}   /* wrong choices step back but stay readable (≥4.5:1) on a projector */
+.tc-b-ok{position:absolute;top:-13px;right:14px;display:inline-flex;align-items:center;gap:4px;font-size:clamp(.78rem,1vw,.95rem);padding:2px 12px;border-radius:999px;background:var(--ok-ink);color:var(--paper);box-shadow:0 0 0 3px var(--paper)}
 .tc-b-explain{display:flex;flex-direction:column;gap:8px;padding:16px 20px;border-radius:14px;background:var(--paper);border:1.5px solid var(--ok);font-size:clamp(.98rem,1.3vw,1.2rem);line-height:1.75}
 .tc-b-ans{display:flex;align-items:center;gap:8px;color:var(--ok-ink);font-size:1.1em}
 .tc-b-ansmark{display:inline-block}
@@ -2760,18 +2787,17 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 .tc-teamtog{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:var(--r);background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow)}
 .tc-teamtog h3{display:flex;align-items:center;gap:8px;outline:none}
 .tc-teamtog-list{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr))}
-.tc-tog{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"b n" "b s";align-items:center;column-gap:10px;row-gap:0;text-align:left;
+/* badge + name on the first line; 「正解」 and the +points share the full width of the second line (no one-character wrapping in narrow tiles) */
+.tc-tog{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"b n n" "s s p";align-items:center;column-gap:10px;row-gap:4px;text-align:left;
   min-height:56px;padding:8px 12px;border-radius:12px;border:2px solid var(--line-2);background:var(--paper);cursor:pointer;line-height:1.3}
 .tc-tog .tc-tbadge{grid-area:b;font-size:1.1rem}
 .tc-tog-name{grid-area:n;font-weight:700;min-width:0;overflow-wrap:anywhere}
 .tc-tog-state{grid-area:s;font-size:.78rem;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
-.tc-tog-pts{position:absolute;right:10px;bottom:6px;font-family:var(--f-mono);font-weight:700;color:var(--ok-ink);line-height:1.2}
-.tc-tog[aria-pressed="true"]{padding-bottom:10px}
-.tc-tog[aria-pressed="true"] .tc-tog-state{padding-right:3.4em}   /* room for the +points at the bottom right */
+.tc-tog-pts{grid-area:p;justify-self:end;font-family:var(--f-mono);font-weight:700;color:var(--ok-ink);line-height:1.2}
 .tc-tog:hover{border-color:var(--ink)}
 .tc-tog[aria-pressed="true"]{border-color:var(--tc-team);background:color-mix(in srgb,var(--tc-team) 14%,var(--paper));box-shadow:inset 0 0 0 1.5px var(--tc-team)}
 .tc-tog[aria-pressed="true"] .tc-tog-state{color:var(--ok-ink);font-weight:700}
-.tc-fast{position:absolute;top:-10px;right:8px;display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--signal);color:var(--paper)}
+.tc-fast{position:absolute;top:-10px;right:8px;display:inline-flex;align-items:center;gap:3px;font-size:.72rem;font-weight:700;padding:1px 8px;white-space:nowrap;max-width:calc(100% - 16px);overflow:hidden;border-radius:999px;background:var(--signal-ink);color:var(--paper)}   /* -ink tokens: ≥4.5:1 with --paper in both themes */
 .tc-fast .icon{width:.95em;height:.95em}
 /* scoreboard */
 .tc-board{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:var(--r);background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow)}
@@ -2876,6 +2902,10 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 .tc-qtxt rt{display:none}
 .tc-qtxt .te{display:none}
 :root[data-lang="en"] .tc-qtxt .te{display:inline}
+/* 日+EN: the English line of the question is cut with an ellipsis too; 「問1」 stays together, with Q1 under it */
+:root[data-lang="both"] .tc-qtxt .te{overflow:hidden;text-overflow:ellipsis}
+.tc-qno{white-space:nowrap}
+:root[data-lang="both"] .tc-screen .tc-qrow .tc-qno .te{display:block;margin-left:0;font-size:.8em}
 .tc-qrow .b-track{height:16px;background:var(--line);border-radius:4px;overflow:hidden}
 .tc-qrow .b-track i{display:block;height:100%;background:var(--info);border-radius:4px}
 .tc-qrow.is-low .b-track i{background:var(--warn)}
@@ -3053,7 +3083,7 @@ th[aria-sort="ascending"] .tc-sort-ic,th[aria-sort="descending"] .tc-sort-ic{col
   .tc-div-legend .is-same,.tc-div-legend .is-up{justify-self:start}
   .tc-div-legend span{white-space:nowrap}
   /* guide: the 90-minute plan starts on a new page, so its heading and note are never left alone at the
-     bottom of page 1 (break-after:avoid is not honoured between the flex items of .screen) */
+     bottom of page 1 (break-after:avoid is not honored between the flex items of .screen) */
   .tc-g-sec,.tc-gplan{display:block}
   .tc-g-sec>*+*{margin-top:14px}
   .tc-gplan>li+li{margin-top:10px}
@@ -3147,6 +3177,7 @@ a.sr-src-title{color:var(--info-ink)}
 .sr-src-meta>span{min-width:0}
 .sr-gloss{font-size:.84rem;line-height:1.45;color:var(--ink);font-style:italic;overflow-wrap:anywhere}
 :root[data-lang="both"] .sr-gloss{font-size:.84rem}
+.sr-nobr{white-space:nowrap}   /* inline [n] links + the punctuation after them (see inl() in 45_sources.js) */
 .sr-host{font-family:var(--f-mono);font-size:.74rem;color:var(--faint)}
 .sr-src.sr-hit{border-color:var(--signal);background:var(--signal-soft);box-shadow:0 0 0 3px var(--signal-soft),var(--shadow)}
 .sr-backbtn{align-self:flex-start;margin-top:6px}
@@ -3800,7 +3831,11 @@ CTT.placer = (container, opt) => {
         t.classList.toggle('ok', r === true); t.classList.toggle('ng', r === false);
         if (r === false) {
           CTT.sfx('ng'); t.classList.add('shake');
-          setTimeout(() => { t.classList.remove('shake'); if (placement[tileId] === slotId) { place(tileId, null); } }, 700);
+          setTimeout(() => {
+            t.classList.remove('shake');
+            /* bounce back, but keep a card the student selected in the meantime */
+            if (placement[tileId] === slotId) { const keep = selected !== tileId ? selected : null; place(tileId, null); if (keep) select(keep); }
+          }, 700);
         } else if (r === true) CTT.sfx('ok');
       }
     }
@@ -4938,13 +4973,13 @@ CTT.QUIZ.push(
       `You communicate by radio with mobile phone base stations and can use it on the move.`),
     C('モデムを使って電話回線でプロバイダのアクセスポイントに電話をかけ、つないでいる間だけ通信する。電話代は接続時間に応じてかかる。',
       `You use a modem to call your provider's access point over the phone line and communicate only while connected; phone charges depend on how long you stay connected.`),
-    C('電話線のうち音声とは別の周波数帯を使うので、つなぎっぱなしでも通話料はかからない。',
-      `It uses a different frequency band on the phone line from voice calls, so staying connected does not add call charges.`),
+    C('電話線のうち音声とは別の周波数帯を使うので、つなぎっぱなしでも電話代はかからない。',
+      `It uses a different frequency band on the phone line from voice calls, so staying connected does not add phone charges.`),
   ],
   answer: 2,
   explain: {
     ja: 'ダイヤルアップ接続は電話をかけ続けるのと同じしくみで、つないでいる時間だけ電話代がかかりました。市内通話（3分10円）でも1時間で約200円になり、プロバイダの料金は別でした（市外のアクセスポイントにつなぐと、さらに高くなりました）。電話線の音声以外の{周波数|しゅうはすう}帯を使い、つなぎっぱなしにできるのはADSLです。',
-    en: `A dial-up connection works like an ongoing phone call, so you paid call charges for as long as you were connected. Even at the local rate of 10 yen per 3 minutes, an hour cost about 200 yen, plus the provider's own fee (and more if the access point was outside your local area). ADSL is the one that uses frequencies above the voice band on the phone line, so you can stay connected.` },
+    en: `A dial-up connection works like an ongoing phone call, so you paid phone charges for as long as you were connected. Even at the local rate of 10 yen per 3 minutes, an hour cost about 200 yen, plus the provider's own fee (and more if the access point was outside your local area). ADSL is the one that uses frequencies above the voice band on the phone line, so you can stay connected.` },
   src: ['nttwest', 'microsoft'] },
 
 /* d11 歴史：テレホーダイ — FACTS dialup-1990s-07/08/10/11 (VERIFIER) */
@@ -5150,7 +5185,7 @@ CTT.QUIZ.push(
   answer: 1,
   explain: {
     ja: 'iモードは1999年2月22日に始まった携帯電話向けのインターネットサービスで、2003年10月には4,000万契約を超えました。3Gの「FOMA」とともに、2026年3月31日に終了しました。ドコモのLTEサービスは2010年12月に始まった「Xi（クロッシィ）」で、iモードとは別のものです（LTEは一般に「4G」と呼ばれますが、総務省などは当初「3.9世代」と分類していました）。',
-    en: `i-mode, an internet service for mobile phones, started on February 22, 1999 and passed 40 million subscriptions in October 2003. It ended on March 31, 2026, together with the 3G FOMA service. DOCOMO's LTE service was "Xi", launched in December 2010, which is a different thing from i-mode. (LTE is commonly called "4G", although MIC and others originally classed it as "3.9G".)` },
+    en: `i-mode, an internet service for mobile phones, started on February 22, 1999 and passed 40 million subscriptions in October 2003. It ended on March 31, 2026, together with the 3G FOMA service. DOCOMO's LTE service was "Xi", launched in December 2010, which is separate from i-mode. LTE is commonly called "4G", although Japan's Ministry of Internal Affairs and Communications (MIC) and others originally classed it as "3.9G".` },
   src: ['docomo', 'docomo2', 'docomo3', 'docomo5'] },
 
 /* d22 移動通信の順番 — FACTS broadband-mobile-16/17/18 */
@@ -5166,7 +5201,7 @@ CTT.QUIZ.push(
   answer: 0,
   explain: {
     ja: 'iモードが1999年2月、ドコモの3G「FOMA」が2001年10月、LTE（4G）の「Xi」が2010年12月に始まり、5Gの商用サービスは2020年3月に始まりました。iモードは3Gのサービスより前に始まっている点がポイントです（LTEは一般に「4G」と呼ばれますが、総務省などは当初「3.9世代」と分類していました）。',
-    en: `i-mode started in February 1999, DOCOMO's 3G service FOMA in October 2001 and its LTE (4G) service Xi in December 2010, and commercial 5G began in March 2020. The key point is that i-mode started before 3G service did. (LTE is commonly called "4G", although MIC and others originally classed it as "3.9G".)` },
+    en: `i-mode started in February 1999, DOCOMO's 3G service FOMA in October 2001 and its LTE (4G) service Xi in December 2010, and commercial 5G began in March 2020. The key point is that i-mode started before 3G service did. LTE is commonly called "4G", although Japan's Ministry of Internal Affairs and Communications (MIC) and others originally classed it as "3.9G".` },
   src: ['docomo2', 'docomo4', 'docomo5', 'soumu17'] },
 
 /* d23 ルーティング — FACTS concepts-09 */
@@ -5371,7 +5406,7 @@ CTT.BIZ.push(
   answer: { ja: 'フリーWi-Fiには偽のWi-Fiや盗み見のリスクがあるとされます。大事な手続きや社外秘の作業はスマホのモバイル回線やVPNで行い、会社のルールに従うのが基本です。',
             en: `Free Wi-Fi is said to carry risks such as fake hotspots and eavesdropping. Do important or confidential work over your phone's mobile connection or a VPN, and follow your company's rules.` },
   body: { ja: 'フリーWi-Fiには、本物と同じ名前（SSID）を名乗る「偽のWi-Fi」や、暗号化されていないWi-Fiでの通信の盗み見といったリスクがあるとされ、総務省なども注意を呼びかけています。対策の例は、提供者がはっきりしたWi-Fiを選ぶ、HTTPSのサイトを使う、パスワードやカード番号など重要な情報の入力は避ける（必要ならモバイル回線やVPNを使う）、ファイル共有と自動接続をオフにする、OSやアプリを最新にする、などです。パスワードが店内などで公開されているWi-Fiは、暗号化されていても安全とは限りません。また、鍵マーク（ブラウザによっては別のアイコン）は通信が暗号化されている印で、相手のサイトが本物である保証ではないので、URLのドメインも確認しましょう。',
-          en: `Free Wi-Fi is said to carry risks such as "fake Wi-Fi" that uses the same name (SSID) as a genuine network, and eavesdropping on traffic over unencrypted Wi-Fi; MIC (Japan's Ministry of Internal Affairs and Communications) and others warn about this. Example measures: choose Wi-Fi whose provider is clear, use HTTPS sites, avoid entering important information such as passwords or card numbers (use your mobile connection or a VPN if needed), turn off file sharing and auto-connect, and keep your OS and apps up to date. Wi-Fi whose password is posted publicly, for example on a café wall, is not necessarily safe even if it is encrypted. The padlock (a different icon in some browsers) only shows that the connection is encrypted, not that the site is genuine, so check the domain in the URL as well.` },
+          en: `Free Wi-Fi is said to carry risks such as "fake Wi-Fi" that uses the same name (SSID) as a genuine network, and eavesdropping on traffic over unencrypted Wi-Fi; Japan's Ministry of Internal Affairs and Communications (MIC) and others warn about this. Example measures: choose Wi-Fi whose provider is clear, use HTTPS sites, avoid entering important information such as passwords or card numbers (use your mobile connection or a VPN if needed), turn off file sharing and auto-connect, and keep your OS and apps up to date. Wi-Fi whose password is posted publicly, for example on a café wall, is not necessarily safe even if it is encrypted. The padlock (a different icon in some browsers) only shows that the connection is encrypted, not that the site is genuine, so check the domain in the URL as well.` },
   line: { ja: '外出先のフリーWi-Fiでは、{社外秘|しゃがいひ}の資料やログインが必要な作業はせず、必要なときはスマホのモバイル回線かVPNを使うようにしています。',
           en: `On free Wi-Fi when I'm out, I avoid confidential files and anything that needs a login. When I have to, I switch to my phone's mobile connection or a VPN.` },
   src: ['blog', 'ietf12'] },
@@ -5453,7 +5488,7 @@ CTT.BIZ.push(
 </script>
 <script>
 /* ---- 23_sources.js ---- */
-/* CTT.SOURCES — generated from the verified fact check (keys are stable; append only) */
+/* CTT.SOURCES — generated from the verified fact check; pruned to the sources the app cites */
 (function () {
 Object.assign(CTT.SOURCES, {
  "jpnic": {
@@ -5481,11 +5516,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "IEEE Milestones Wiki (ETHW)",
   "url": "https://ieeemilestones.ethw.org/Milestone-Proposal:JUNET1984"
  },
- "jpnic3": {
-  "title": "僕らは僕らが欲しいものを作ってきた（砂原秀樹, Internet Week Showcase in 福岡）",
-  "publisher": "JPNIC",
-  "url": "https://www.nic.ad.jp/ja/materials/iw/sc-fukuoka/proceedings/c11/c11-sunahara.pdf"
- },
  "wide": {
   "title": "WIDEプロジェクト10年の歴史",
   "publisher": "WIDE Project",
@@ -5511,20 +5541,10 @@ Object.assign(CTT.SOURCES, {
   "publisher": "nippon.com",
   "url": "https://www.nippon.com/en/features/c01905/"
  },
- "ipsj2": {
-  "title": "FIT2007 イベント企画 講演概要（講演者略歴）",
-  "publisher": "情報処理学会",
-  "url": "https://www.ipsj.or.jp/10jigyo/fit/fit2007/fit2007program/html/event/event.html"
- },
  "keio2": {
   "title": "研究者詳細 - 村井 純",
   "publisher": "慶應義塾大学",
   "url": "https://k-ris.keio.ac.jp/html/100012650_ja.html"
- },
- "dl": {
-  "title": "Researches in network development of JUNET (Murai & Kato)",
-  "publisher": "ACM",
-  "url": "https://dl.acm.org/doi/10.1145/55483.55491"
  },
  "ir": {
   "title": "広域計算機ネットワーク・JUNETについて（松浦敏雄, 大阪大学大型計算機センターニュース 65号, 1987）",
@@ -5546,11 +5566,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "ancientfj archive (渡邊克宏)",
   "url": "https://katsu.watanabe.name/ancientfj/article.php?mid=3166@tansei.cc.u-tokyo.JUNET"
  },
- "katsu2": {
-  "title": "Ancient fj NetNews archive: KATO.89Sep9011729@aya.cs.titech.JUNET",
-  "publisher": "ancientfj archive",
-  "url": "https://katsu.watanabe.name/ancientfj/article.php?mid=KATO.89Sep9011729@aya.cs.titech.JUNET"
- },
  "iana": {
   "title": ".jp Domain Delegation Data",
   "publisher": "IANA",
@@ -5565,11 +5580,6 @@ Object.assign(CTT.SOURCES, {
   "title": "JPトップレベルドメインの再委任請求に関するIANA報告書(日本語訳)",
   "publisher": "JPRS",
   "url": "https://jprs.co.jp/doc/redelegation/ianareport_j.html"
- },
- "jpnic5": {
-  "title": "第2章 JNIC発足前の資源管理とJPNICの設立",
-  "publisher": "JPNIC",
-  "url": "https://www.nic.ad.jp/timeline/20th/chapter2.html"
  },
  "jpnic6": {
   "title": "JPドメイン名関連の主な出来事",
@@ -5606,11 +5616,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "FOLDOC",
   "url": "https://foldoc.org/bang-path"
  },
- "linuxdoc": {
-  "title": "Linux Network Administrator's Guide 17.3 Email Addresses",
-  "publisher": "The Linux Documentation Project",
-  "url": "https://linuxdoc.org/LDP/nag2/x-087-2-mail.address.html"
- },
  "retro11": {
   "title": "4.3BSD uucp CHANGES",
   "publisher": "4.3BSD source (retro11.de mirror)",
@@ -5626,11 +5631,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "WIDE Project",
   "url": "https://www.wide.ad.jp/About/index.html"
  },
- "wide3": {
-  "title": "WIDE News 2017-12-07",
-  "publisher": "WIDE Project",
-  "url": "https://www.wide.ad.jp/News/2017/20171207.html"
- },
  "jstage": {
   "title": "WIDEプロジェクトの25年 日本とインターネットのこれまでとこれから（砂原秀樹・村井純, 情報管理 56(9), 2013）",
   "publisher": "J-STAGE / JST",
@@ -5640,11 +5640,6 @@ Object.assign(CTT.SOURCES, {
   "title": "会社が設立されたのはいつですか（IR FAQ）",
   "publisher": "NTT",
   "url": "https://group.ntt/jp/ir/faq/post_company_01.html"
- },
- "soumu": {
-  "title": "平成27年版 情報通信白書（特集 冒頭）",
-  "publisher": "総務省",
-  "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/h27/pdf/n1100000.pdf"
  },
  "soumu2": {
   "title": "平成27年版 情報通信白書 通信自由化とICT産業の発展",
@@ -5661,35 +5656,15 @@ Object.assign(CTT.SOURCES, {
   "publisher": "総務省",
   "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/h27/html/nc111120.html"
  },
- "soumu4": {
-  "title": "昭和52年版 通信白書（料金改定）",
-  "publisher": "総務省（郵政省）",
-  "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/s52/html/s52a02020100.html"
- },
  "soumu5": {
   "title": "昭和56年版 通信白書 第2部第2章第2節1 電電公社業務",
   "publisher": "総務省（郵政省）",
   "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/s56/html/s56a02020201.html"
  },
- "soumu6": {
-  "title": "昭和57年版 通信白書 第2部第2章第2節1 電電公社業務",
-  "publisher": "総務省（郵政省）",
-  "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/s57/html/s57a02020201.html"
- },
- "ntteast2": {
-  "title": "NTT東日本 データブック（通話料の推移）",
-  "publisher": "NTT東日本",
-  "url": "https://www.ntt-east.co.jp/databook/pdf/2025_05-06.pdf"
- },
  "edinetdb": {
   "title": "株式会社インターネットイニシアティブ 有価証券報告書テキスト（沿革）",
   "publisher": "EDINET (via edinetdb.jp)",
   "url": "https://edinetdb.jp/company/E05480/text"
- },
- "theshashi": {
-  "title": "Internet Initiative Japan (company history)",
-  "publisher": "the-shashi.com",
-  "url": "https://the-shashi.com/en/tse/3774/"
  },
  "edinetdb2": {
   "title": "株式会社インターネットイニシアティブ 有価証券報告書テキスト（沿革：1993年7月 インターネット接続サービスの提供を開始）",
@@ -5701,55 +5676,20 @@ Object.assign(CTT.SOURCES, {
   "publisher": "JPNIC Internet Week 2020",
   "url": "https://www.nic.ad.jp/ja/materials/iw/2020/proceedings/c46/c46-asaba.pdf"
  },
- "iajapan": {
-  "title": "IAJ Review Vol.7-4",
-  "publisher": "日本インターネット協会",
-  "url": "https://www.iajapan.org/Review/pdf/IAJReviewVol7-4.pdf"
- },
- "ascii": {
-  "title": "IIJ 30周年記事",
-  "publisher": "ASCII",
-  "url": "https://ascii.jp/elem/000/004/171/4171525/"
- },
  "jpnic8": {
   "title": "日本のインターネットの発展を理解するためのキーワード（1993：IIJ、AT&T Jens(SPIN)サービス開始、主に法人向け）",
   "publisher": "JPNIC",
   "url": "https://www.nic.ad.jp/ja/materials/ng-tf/200404/04_20040410.pdf"
- },
- "meti": {
-  "title": "METI CBPRセミナー資料（IIJ：1993年 国内初 商用インターネット接続サービス提供開始）",
-  "publisher": "経済産業省（IIJ提供資料）",
-  "url": "https://www.meti.go.jp/policy/external_economy/cbpr/pdf/250319_seminar_02.pdf"
- },
- "mit": {
-  "title": "com-priv mailing list archive [8682]（1993年11月時点でAT&T Jens、InterCon、IIJが商用IP接続を提供）",
-  "publisher": "MIT com-priv archive",
-  "url": "https://diswww.mit.edu/menelaus/com-priv/8682"
- },
- "weblio": {
-  "title": "Jens（Wikipedia転載）",
-  "publisher": "Weblio / Wikipedia",
-  "url": "https://www.weblio.jp/content/Jens"
  },
  "allabout": {
   "title": "All About：インターネットの歴史（1994年6月IIJ、9月ベッコウアメ、10月リムネットがダイヤルアップ接続開始）",
   "publisher": "All About",
   "url": "https://allabout.co.jp/gm/gc/451058/3/"
  },
- "wikien": {
-  "title": "Global OnLine Japan",
-  "publisher": "Wikipedia (en)",
-  "url": "https://en.wikipedia.org/wiki/Global_OnLine_Japan"
- },
  "ntteast3": {
   "title": "電信電話のあゆみ（1995年：テレホーダイ1800のサービス開始(8/22)）",
   "publisher": "NTT東日本",
   "url": "https://www.ntt-east.co.jp/databook/pdf/2024_S4.pdf"
- },
- "bunshun": {
-  "title": "テレホーダイ25周年記事",
-  "publisher": "文春オンライン",
-  "url": "https://bunshun.jp/articles/-/43135"
  },
  "soumu7": {
   "title": "インターネット政策懇談会 報告書（深夜早朝時間帯（23時～翌朝8時）の通話料金を定額化する「テレホーダイ」）",
@@ -5771,20 +5711,10 @@ Object.assign(CTT.SOURCES, {
   "publisher": "All About",
   "url": "https://allabout.co.jp/gm/gc/48152"
  },
- "impress": {
-  "title": "INSテレホーダイ料金の報道（1996年）",
-  "publisher": "INTERNET Watch",
-  "url": "https://internet.watch.impress.co.jp/www/search/article/9601/2202.htm"
- },
  "gamespark": {
   "title": "2023年は、「テレホーダイ」最後の年!",
   "publisher": "Game*Spark",
   "url": "https://www.gamespark.jp/article/2023/01/03/125879.html"
- },
- "crexgroup": {
-  "title": "テレホーダイ解説",
-  "publisher": "CREX",
-  "url": "https://crexgroup.com/ja/internet-kaisen/knowledge/telehodai-service-explained/"
  },
  "ntteast5": {
   "title": "固定電話のIP網移行後のサービスについて（2022年12月8日）",
@@ -5816,16 +5746,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "Microsoft TechNet",
   "url": "https://technet.microsoft.com/en-us/library/cc751085.aspx"
  },
- "microsoft2": {
-  "title": "Windows 95 Resource Kit (Internet access chapter)",
-  "publisher": "Microsoft TechNet",
-  "url": "https://technet.microsoft.com/en-us/library/cc751109.aspx"
- },
- "ir2": {
-  "title": "大阪大学 1996年資料（ダイヤルアップネットワークでTCP/IPを設定）",
-  "publisher": "大阪大学",
-  "url": "https://ir.library.osaka-u.ac.jp/repo/ouka/all/66154/oksn_100_064.pdf"
- },
  "itu": {
   "title": "ITU-T V.32bis (02/91)",
   "publisher": "ITU-T",
@@ -5851,55 +5771,20 @@ Object.assign(CTT.SOURCES, {
   "publisher": "NTT",
   "url": "https://group.ntt/jp/ir/private_investor/business/history.html"
  },
- "pedia": {
-  "title": "INSネット（1988年4月19日 商用サービス開始）",
-  "publisher": "3rd-in pedia",
-  "url": "https://pedia.3rd-in.co.jp/wiki/INSネット"
- },
- "kotobank": {
-  "title": "ISDN",
-  "publisher": "コトバンク",
-  "url": "https://kotobank.jp/word/ISDN"
- },
  "ntt3": {
   "title": "インターネット接続サービス「OCN」が20周年を迎えます（2016年12月20日）",
   "publisher": "NTTコミュニケーションズ",
   "url": "https://www.ntt.com/about-us/press-releases/news/article/2016/20161220_2.html"
- },
- "impress4": {
-  "title": "OCN料金認可・サービス開始（1996年12月）",
-  "publisher": "INTERNET Watch",
-  "url": "https://internet.watch.impress.co.jp/www/search/article/9612/2001.htm"
- },
- "impress5": {
-  "title": "OCNエコノミー 12月25日藤沢市・大垣市で開始",
-  "publisher": "INTERNET Watch",
-  "url": "https://internet.watch.impress.co.jp/www/search/article/9612/2502.htm"
- },
- "ntt4": {
-  "title": "企業向けOCNサービスの一部提供終了について（2008年3月31日終了）",
-  "publisher": "NTTコミュニケーションズ",
-  "url": "https://www.ntt.com/about-us/press-releases/news/article/2008/20080328.html"
  },
  "soumu8": {
   "title": "平成22年版 情報通信白書（インターネット利用者数・人口普及率の推移）",
   "publisher": "総務省",
   "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/h22/pdf/m4010000.pdf"
  },
- "soumu9": {
-  "title": "平成16年通信利用動向調査の結果",
-  "publisher": "総務省",
-  "url": "https://www.soumu.go.jp/johotsusintokei/statistics/data/050510_1.pdf"
- },
  "soumu10": {
   "title": "平成18年版 情報通信白書（2005年末 8,529万人、66.8%）",
   "publisher": "総務省",
   "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/h18/html/i1211000.html"
- },
- "soumu11": {
-  "title": "平成20年版 情報通信白書（調査対象年齢の注記）",
-  "publisher": "総務省",
-  "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/h20/pdf/k1030000.pdf"
  },
  "nttwest": {
   "title": "ダイヤル通話料の推移",
@@ -5926,25 +5811,10 @@ Object.assign(CTT.SOURCES, {
   "publisher": "INTERNET Watch (Impress)",
   "url": "https://internet.watch.impress.co.jp/www/article/1999/1018/metallic.htm"
  },
- "impress9": {
-  "title": "日本のDSLの4年間を振り返る",
-  "publisher": "INTERNET Watch (Impress)",
-  "url": "https://internet.watch.impress.co.jp/www/article/2001/0702/dsl.htm"
- },
- "bs": {
-  "title": "ブロードバンド（ADSL） 同志社ビジネスケース05-04",
-  "publisher": "同志社大学ビジネススクール",
-  "url": "https://bs.doshisha.ac.jp/bs/attach/page/BUSINESS-PAGE-JA-319/153724/file/1050808003-52.pdf"
- },
  "impress10": {
   "title": "INTERNET Watch 2000/12/12 ADSL記事",
   "publisher": "INTERNET Watch (Impress)",
   "url": "https://internet.watch.impress.co.jp/www/article/2000/1212/adsl.htm"
- },
- "ascii2": {
-  "title": "ASCII.jp フレッツ・ADSL提供開始記事",
-  "publisher": "ASCII.jp",
-  "url": "https://ascii.jp/elem/000/000/319/319044/"
  },
  "ntt5": {
   "title": "NTTニュースリリース 2000年（ADSL接続サービスの本格提供開始およびフレッツ・ADSLの提供開始について）",
@@ -5956,20 +5826,10 @@ Object.assign(CTT.SOURCES, {
   "publisher": "ソフトバンクグループ",
   "url": "https://group.softbank/news/press/20010829"
  },
- "softbank2": {
-  "title": "\"YAHOO! BB\" BROADBAND INTERNET SERVICE PROGRESS REPORT (2001-09-04)",
-  "publisher": "SoftBank Group",
-  "url": "https://group.softbank/en/news/press/20010904"
- },
  "itmedia": {
   "title": "@IT 2001/08/30 ADSL料金記事",
   "publisher": "@IT (ITmedia)",
   "url": "https://atmarkit.itmedia.co.jp/news/200108/30/adsl.html"
- },
- "impress11": {
-  "title": "INTERNET Watch 2001/12/26 10大ニュース",
-  "publisher": "INTERNET Watch (Impress)",
-  "url": "https://internet.watch.impress.co.jp/www/article/2001/1226/10news06.htm"
  },
  "soumu13": {
   "title": "国民のためのサイバーセキュリティサイト 用語集",
@@ -5981,11 +5841,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "総務省",
   "url": "https://www.soumu.go.jp/johotsusintokei/statistics/yougo/HR-yougo.pdf"
  },
- "soumu15": {
-  "title": "平成27年版 情報通信白書 総括及び今後の課題",
-  "publisher": "総務省",
-  "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/h27/html/nc111340.html"
- },
  "flets": {
   "title": "フレッツ・ADSL 伝送損失について",
   "publisher": "NTT東日本",
@@ -5996,31 +5851,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "NTT西日本",
   "url": "https://flets-w.com/service/adsl/plan_sentaku/sankou_jouhou/"
  },
- "ntteast6": {
-  "title": "（別紙）本文に登場する「フレッツ」サービスのご説明",
-  "publisher": "NTT東日本",
-  "url": "https://www.ntt-east.co.jp/release/0810/081029a_1.html"
- },
- "softbank3": {
-  "title": "「Yahoo! BB 12M」商用サービス開始のお知らせ",
-  "publisher": "ソフトバンクグループ",
-  "url": "https://group.softbank/news/press/20020812"
- },
- "softbank4": {
-  "title": "Yahoo! BB 50M プレスリリース 2004/07/07",
-  "publisher": "ソフトバンクBB",
-  "url": "https://www.softbank.jp/corp/group/sbb/news/press/2004/20040707_01/"
- },
- "softbank5": {
-  "title": "Yahoo! BB 26M プレスリリース 2003/07/15",
-  "publisher": "ソフトバンクBB",
-  "url": "https://www.softbank.jp/corp/group/sbb/news/press/2003/20030715_03/"
- },
- "impress12": {
-  "title": "NTT東日本 フレッツ・ADSL モアIII 記事 (2004/07/14)",
-  "publisher": "INTERNET Watch (Impress)",
-  "url": "https://internet.watch.impress.co.jp/cda/news/2004/07/14/3916.html"
- },
  "ntteast7": {
   "title": "NTT東日本 年表（参考）",
   "publisher": "NTT東日本",
@@ -6030,11 +5860,6 @@ Object.assign(CTT.SOURCES, {
   "title": "NTT東西が「Bフレッツ」を8月1日に正式開始，最大100Mビット/秒のサービスも提供",
   "publisher": "日経クロステック",
   "url": "https://xtech.nikkei.com/it/free/NIT/NEWS/20010702/9/"
- },
- "ntt6": {
-  "title": "NTTグループの歩み",
-  "publisher": "NTT",
-  "url": "https://group.ntt/jp/group/history/"
  },
  "nikkei2": {
   "title": "FTTHサービスが本格始動",
@@ -6051,11 +5876,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "NTT東日本",
   "url": "https://www.ntt-east.co.jp/release/detail/20200218_01.html"
  },
- "impress13": {
-  "title": "最大10Gbpsの「フレッツ 光クロス」が4月1日提供、月額6300円、NTT東西",
-  "publisher": "INTERNET Watch (Impress)",
-  "url": "https://internet.watch.impress.co.jp/docs/news/1235778.html"
- },
  "impress14": {
   "title": "総務省発表、ブロードバンド契約数でFTTHがDSLを初めて上回る",
   "publisher": "INTERNET Watch (Impress)",
@@ -6065,16 +5885,6 @@ Object.assign(CTT.SOURCES, {
   "title": "令和3年版 情報通信白書 通信インフラ",
   "publisher": "総務省",
   "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/r03/html/nd102100.html"
- },
- "ntteast10": {
-  "title": "「フレッツ光」提供エリアにおける「フレッツ・ＡＤＳＬ」の提供終了等について",
-  "publisher": "NTT東日本",
-  "url": "https://www.ntt-east.co.jp/release/detail/20171130_01.html"
- },
- "ntteast11": {
-  "title": "一部エリアにおける「フレッツ・ＡＤＳＬ」の提供終了日変更について",
-  "publisher": "NTT東日本",
-  "url": "https://www.ntt-east.co.jp/release/detail/20220302_01.html"
  },
  "ntteast12": {
   "title": "「フレッツ・ＡＤＳＬ」のサービス提供終了日および新規申込受付終了日等について",
@@ -6086,20 +5896,10 @@ Object.assign(CTT.SOURCES, {
   "publisher": "NTT西日本",
   "url": "https://www.ntt-west.co.jp/news/2304/230421a.html"
  },
- "softbank6": {
-  "title": "ADSLサービスの提供終了について（2019年プレスリリース）",
-  "publisher": "ソフトバンク",
-  "url": "https://www.softbank.jp/corp/news/press/sbkk/2019/20190510_03/"
- },
  "softbank7": {
   "title": "ADSLサービスの提供終了について（2024年3月お知らせ）",
   "publisher": "ソフトバンク",
   "url": "https://www.softbank.jp/internet/info/service/240325-001/"
- },
- "softbank8": {
-  "title": "22年の歴史に幕。「Yahoo! BB ADSL」が切り拓いた日本のブロードバンド",
-  "publisher": "ソフトバンクニュース",
-  "url": "https://www.softbank.jp/sbnews/entry/20240325_02"
  },
  "docomo": {
   "title": "「FOMA」および「iモード」サービス終了のご案内",
@@ -6161,16 +5961,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "総務省",
   "url": "https://www.soumu.go.jp/johotsusintokei/whitepaper/ja/r08/html/nd212250.html"
  },
- "soumu20": {
-  "title": "電気通信サービスの契約数及びシェアに関する四半期データ（令和7年度第3四半期）概要",
-  "publisher": "総務省",
-  "url": "https://www.soumu.go.jp/main_content/001075222.pdf"
- },
- "soumu21": {
-  "title": "固定系ブロードバンドサービスの普及状況",
-  "publisher": "総務省 近畿総合通信局",
-  "url": "https://www.soumu.go.jp/soutsu/kinki/calc/kotei_index.html"
- },
  "soumu22": {
   "title": "電気通信事業法の消費者保護ルールに関するガイドライン",
   "publisher": "総務省",
@@ -6191,11 +5981,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "NTT東日本",
   "url": "https://business.ntt-east.co.jp/column/service/flets-hikari/hikari_onu.html"
  },
- "fletsw2": {
-  "title": "光回線に必要なONU(回線終端装置)って何？",
-  "publisher": "NTT西日本",
-  "url": "https://flets-w.com/chienetta/pc_mobile/cb_other56.html"
- },
  "ntteast15": {
   "title": "NAT 用語解説（BizDrive）",
   "publisher": "NTT東日本",
@@ -6210,11 +5995,6 @@ Object.assign(CTT.SOURCES, {
   "title": "ネットワークスイッチとルーターの違い",
   "publisher": "Cisco",
   "url": "https://www.cisco.com/c/ja_jp/solutions/small-business/resource-center/networking/network-switch-vs-router.html"
- },
- "ntteast16": {
-  "title": "ハブとは（法人向けコラム）",
-  "publisher": "NTT東日本",
-  "url": "https://business.ntt-east.co.jp/column/service/omakase_it_lan/hub.html"
  },
  "ntteast17": {
   "title": "ネットワークスイッチとは（法人向けコラム）",
@@ -6231,20 +6011,10 @@ Object.assign(CTT.SOURCES, {
   "publisher": "エレコム",
   "url": "https://www.elecom.co.jp/pickup/column/wifi_column/vol13/"
  },
- "ntteast18": {
-  "title": "Wi-Fiアクセスポイントとは（法人向けコラム）",
-  "publisher": "NTT東日本",
-  "url": "https://business.ntt-east.co.jp/column/service/gigarakuwifi/wifi-access-point.html"
- },
  "sharp": {
   "title": "ADSL接続例（IP電話・ADSL）",
   "publisher": "シャープ",
   "url": "https://jp.sharp/support/fax/station/doc/ip_adsl-1.pdf"
- },
- "softbank11": {
-  "title": "Yahoo! BB ADSL 接続設定ガイド（dslcmb_set）",
-  "publisher": "ソフトバンク",
-  "url": "https://www.softbank.jp/internet/set/support/common/pdf/adsl/dslcmb_set.pdf"
  },
  "ntteast19": {
   "title": "光回線のルーターとモデムの違いとは？接続・設定方法を解説",
@@ -6256,55 +6026,15 @@ Object.assign(CTT.SOURCES, {
   "publisher": "RAND Corporation",
   "url": "https://www.rand.org/pubs/research_memoranda/RM3765.html"
  },
- "rand2": {
-  "title": "On Distributed Communications (RAND RM-3638)",
-  "publisher": "RAND Corporation",
-  "url": "https://www.rand.org/pubs/research_memoranda/RM3638.html"
- },
- "chm": {
-  "title": "Computer History Museum catalog: On Distributed Communications",
-  "publisher": "Computer History Museum",
-  "url": "https://www.computerhistory.org/collections/catalog/102724343"
- },
- "wikien2": {
-  "title": "Paul Baran (pointer only)",
-  "publisher": "Wikipedia",
-  "url": "https://en.wikipedia.org/wiki/Paul_Baran"
- },
  "history": {
   "title": "Donald W. Davies (Computer Pioneers)",
   "publisher": "IEEE Computer Society",
   "url": "https://history.computer.org/pioneers/davies.html"
  },
- "ethw": {
-  "title": "Packet Switching",
-  "publisher": "Engineering and Technology History Wiki (IEEE)",
-  "url": "https://ethw.org/Packet_Switching"
- },
- "historyofcom": {
-  "title": "Donald Davies 1965-1966",
-  "publisher": "History of Computer Communications",
-  "url": "https://historyofcomputercommunications.info/section/4.5/Donald-Davies-1965-1966/"
- },
  "courses": {
   "title": "ISOC History of the Internet (copy of 'A Brief History of the Internet')",
   "publisher": "Internet Society (course copy, Duke Univ.)",
   "url": "https://courses.cs.duke.edu/fall19/compsci514/papers/ISOC-History-of-the-Internet_1997.pdf"
- },
- "courses2": {
-  "title": "A Brief History of the Internet (HTML copy)",
-  "publisher": "Internet Society (course copy, Duke Univ.)",
-  "url": "https://courses.cs.duke.edu/cps182s/spring06/papers/internet_history.html"
- },
- "nettime": {
-  "title": "nettime-l post reproducing Herzfeld statement",
-  "publisher": "nettime mailing list (secondary)",
-  "url": "https://nettime.org/Lists-Archives/nettime-l-1306/msg00073.html"
- },
- "elists": {
-  "title": "[ih] When the words 'Internet was design to survive a nuclear war' appeared for the first time?",
-  "publisher": "ISOC internet-history mailing list",
-  "url": "https://elists.isoc.org/pipermail/internet-history/2019-February/004949.html"
  },
  "leuphana": {
   "title": "An Unrelated RAND Study: ARPANET and Nuclear Mythographies",
@@ -6321,40 +6051,15 @@ Object.assign(CTT.SOURCES, {
   "publisher": "Princeton course copy",
   "url": "https://www.cs.princeton.edu/courses/archive/fall10/cos597B/papers/e2e-tocs84.pdf"
  },
- "cyber": {
-  "title": "End-to-End Arguments in System Design (PDF)",
-  "publisher": "Harvard Berkman Klein Center copy",
-  "url": "https://cyber.law.harvard.edu/msdoj/endtoend.pdf"
- },
  "impress15": {
   "title": "Internet Watch 2003: 村井純氏の講演記事(「自律・分散・協調」)",
   "publisher": "INTERNET Watch (Impress)",
   "url": "https://internet.watch.impress.co.jp/www/article/2003/0616/ecare.htm"
  },
- "impress16": {
-  "title": "Internet Watch 2001: IP Meeting 村井純氏の発言",
-  "publisher": "INTERNET Watch (Impress)",
-  "url": "https://internet.watch.impress.co.jp/www/article/2001/1206/ipmeet.htm"
- },
  "wide4": {
   "title": "WIDE Project 2022年度報告書 part00",
   "publisher": "WIDE Project",
   "url": "https://www.wide.ad.jp/About/report/pdf2022/part00.pdf"
- },
- "kantei": {
-  "title": "Trusted Web 会合資料(2022年3月15日)村井純氏資料",
-  "publisher": "内閣官房 デジタル市場競争本部",
-  "url": "https://www.kantei.go.jp/jp/singi/digitalmarket/trusted_web/pdf/20220315/shiryo01.pdf"
- },
- "impress17": {
-  "title": "iNTERNET magazine Reboot: 村井純氏インタビュー",
-  "publisher": "INTERNET Watch (Impress)",
-  "url": "https://internet.watch.impress.co.jp/docs/imreboot/column/1094016.html"
- },
- "wide5": {
-  "title": "WIDE Project 2021年度報告書 part00",
-  "publisher": "WIDE Project",
-  "url": "https://www.wide.ad.jp/About/report/pdf2021/part00.pdf"
  },
  "ietf2": {
   "title": "RFC 2328: OSPF Version 2",
@@ -6371,20 +6076,10 @@ Object.assign(CTT.SOURCES, {
   "publisher": "IETF",
   "url": "https://datatracker.ietf.org/doc/html/rfc4271"
  },
- "rfc3": {
-  "title": "RFC 4271 (RFC Editor)",
-  "publisher": "RFC Editor",
-  "url": "https://www.rfc-editor.org/rfc/rfc4271"
- },
  "freesoft": {
   "title": "RFC 791 Internet Header Format (mirror)",
   "publisher": "Connected: An Internet Encyclopedia (RFC 791 mirror)",
   "url": "https://freesoft.org/CIE/RFC/791/12.htm"
- },
- "ietf4": {
-  "title": "RFC 8200: IPv6 Specification (states IPv6 increases address size from 32 to 128 bits)",
-  "publisher": "IETF",
-  "url": "https://datatracker.ietf.org/doc/html/rfc8200"
  },
  "rfc4": {
   "title": "RFC 8200: Internet Protocol, Version 6 (IPv6) Specification",
@@ -6406,25 +6101,10 @@ Object.assign(CTT.SOURCES, {
   "publisher": "IETF",
   "url": "https://www.ietf.org/rfc/rfc801"
  },
- "elists2": {
-  "title": "[ih] NCP to TCP/IP Transition",
-  "publisher": "ISOC internet-history mailing list",
-  "url": "https://elists.isoc.org/pipermail/internet-history/2009-April/000793.html"
- },
- "wikien3": {
-  "title": "Flag day (computing) (pointer only)",
-  "publisher": "Wikipedia",
-  "url": "https://en.wikipedia.org/wiki/Flag_day_(computing)"
- },
  "ietf7": {
   "title": "RFC 1035: Domain Names - Implementation and Specification",
   "publisher": "IETF",
   "url": "https://www.ietf.org/rfc/rfc1035"
- },
- "ietf8": {
-  "title": "Datatracker: Dr. Paul V. Mockapetris (RFC list)",
-  "publisher": "IETF Datatracker",
-  "url": "https://datatracker.ietf.org/person/Dr.%20Paul%20V.%20Mockapetris"
  },
  "awards": {
   "title": "ACM award recipient: Paul Mockapetris",
@@ -6446,11 +6126,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "CERN",
   "url": "https://web30.web.cern.ch/web-history.html"
  },
- "history2": {
-  "title": "The World's First Web Site",
-  "publisher": "History.com (secondary)",
-  "url": "https://www.history.com/articles/the-worlds-first-web-site"
- },
  "gendai2": {
   "title": "9月30日 日本初のホームページ公開(1992年)",
   "publisher": "講談社 現代ビジネス",
@@ -6460,11 +6135,6 @@ Object.assign(CTT.SOURCES, {
   "title": "台風とともに迎えた「日本初のウェブサイト」誕生20年",
   "publisher": "J-CAST",
   "url": "https://www.j-cast.com/trend/2012/10/01148475.html"
- },
- "gigazine": {
-  "title": "日本最初のWebサーバー関連記事",
-  "publisher": "GIGAZINE",
-  "url": "https://gigazine.net/news/20071203_first_web_server/"
  },
  "nist": {
   "title": "NIST SP 800-145 (landing page)",
@@ -6491,21 +6161,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "NIST",
   "url": "https://csrc.nist.gov/glossary/term/Platform_as_a_Service"
  },
- "techmeme": {
-  "title": "Techmeme snapshot, April 8, 2008 (Google App Engine launch)",
-  "publisher": "Techmeme (secondary)",
-  "url": "https://www.techmeme.com/080408/p6"
- },
- "csrc": {
-  "title": "NIST glossary mirror: Infrastructure as a Service",
-  "publisher": "Unofficial archive of NIST CSRC glossary",
-  "url": "https://csrc.nist.rip/glossary/term/Infrastructure_as_a_Service"
- },
- "wikien4": {
-  "title": "Timeline of Amazon Web Services (pointer only)",
-  "publisher": "Wikipedia",
-  "url": "https://en.wikipedia.org/wiki/Timeline_of_Amazon_Web_Services"
- },
  "aws": {
   "title": "Shared Responsibility Model",
   "publisher": "Amazon Web Services",
@@ -6520,11 +6175,6 @@ Object.assign(CTT.SOURCES, {
   "title": "RFC 7568: Deprecating Secure Sockets Layer Version 3.0",
   "publisher": "RFC Editor / IETF",
   "url": "https://www.rfc-editor.org/rfc/rfc7568"
- },
- "ietf9": {
-  "title": "RFC 7568 (Datatracker)",
-  "publisher": "IETF",
-  "url": "https://datatracker.ietf.org/doc/html/rfc7568"
  },
  "rfc8": {
   "title": "RFC 8996: Deprecating TLS 1.0 and TLS 1.1",
@@ -6541,16 +6191,6 @@ Object.assign(CTT.SOURCES, {
   "publisher": "RFC Editor",
   "url": "https://www.rfc-editor.org/info/rfc8446"
  },
- "rfc10": {
-  "title": "RFC 9846: The Transport Layer Security (TLS) Protocol Version 1.3",
-  "publisher": "RFC Editor / IETF",
-  "url": "https://www.rfc-editor.org/rfc/rfc9846.html"
- },
- "ietf11": {
-  "title": "RFC 9846 announcement",
-  "publisher": "IETF Announce",
-  "url": "https://mailarchive.ietf.org/arch/msg/ietf-announce/saMiKaxaZQdG9mwSzeCL5jNyUzM/"
- },
  "ietf12": {
   "title": "RFC 2818: HTTP Over TLS",
   "publisher": "IETF",
@@ -6562,7 +6202,7 @@ Object.assign(CTT.SOURCES, {
   "url": "https://rfc-editor.org/rfc/rfc9110.html"
  },
  "blog": {
-  "title": "Chromium Blog, May 2023 (An Update on the Lock Icon)",
+  "title": "Chromium Blog, May 2023 archive (post: “An Update on the Lock Icon”)",
   "publisher": "Google Chromium",
   "url": "https://blog.chromium.org/2023/05"
  },
@@ -6570,16 +6210,6 @@ Object.assign(CTT.SOURCES, {
   "title": "フィッシングサイトの届出は4倍以上に、HTTPS対応サイトも半数を超える",
   "publisher": "ScanNetSecurity(フィッシング対策協議会の報告を紹介)",
   "url": "https://scan.netsecurity.ne.jp/article/2020/06/04/44172.html"
- },
- "kaspersky": {
-  "title": "HTTPS doesn't mean safe",
-  "publisher": "Kaspersky (secondary)",
-  "url": "https://www.kaspersky.com/blog/https-does-not-mean-safe/20725/"
- },
- "searchengine": {
-  "title": "Chrome HTTPS lock icon is going away",
-  "publisher": "Search Engine Journal (secondary)",
-  "url": "https://www.searchenginejournal.com/chrome-https-lock-icon-is-going-away/485861/"
  },
  "nri": {
   "title": "多要素認証(用語解説)",
@@ -6606,80 +6236,30 @@ Object.assign(CTT.SOURCES, {
   "publisher": "NTT東日本",
   "url": "https://business.ntt-east.co.jp/column/bizdrive/no-need-regular-password-change.html"
  },
- "iphonemania": {
-  "title": "ヤフー、パスワード定期変更の注意喚起を削除へ",
-  "publisher": "iPhone Mania",
-  "url": "https://iphone-mania.jp/news-207280/"
- },
- "itmedia5": {
-  "title": "結局、パスワードの定期変更は不要なのか、必要なのか",
-  "publisher": "@IT (ITmedia)",
-  "url": "https://atmarkit.itmedia.co.jp/ait/spv/1910/15/news011.html"
- },
- "conetrix": {
-  "title": "NIST 800-63B: A future without password change cycles",
-  "publisher": "Conetrix (secondary, quotes NIST)",
-  "url": "https://conetrix.com/articles/nist-800-63b-a-future-without-password-change-cycles"
- },
- "enzoic": {
-  "title": "NIST SP 800-63B Rev 4",
-  "publisher": "Enzoic (secondary)",
-  "url": "https://www.enzoic.com/blog/nist-sp-800-63b-rev4/"
- },
- "rand3": {
-  "title": "On Distributed Communications (RAND RM-3420 series index)",
-  "publisher": "",
-  "url": "https://www.rand.org/pubs/research_memoranda/RM3420.html"
- },
  "rfc12": {
   "title": "RFC 1034",
-  "publisher": "",
+  "publisher": "RFC Editor / IETF",
   "url": "https://www.rfc-editor.org/rfc/rfc1034"
  },
  "rfc13": {
   "title": "RFC 6176",
-  "publisher": "",
+  "publisher": "RFC Editor / IETF",
   "url": "https://www.rfc-editor.org/rfc/rfc6176"
- },
- "raw": {
-  "title": "tlswg/tls13-spec: draft-ietf-tls-rfc8446bis.md (header)",
-  "publisher": "",
-  "url": "https://raw.githubusercontent.com/tlswg/tls13-spec/master/draft-ietf-tls-rfc8446bis.md"
- },
- "raw2": {
-  "title": "NIST SP 800-63-3 sec4_model.md (usnistgov GitHub source)",
-  "publisher": "",
-  "url": "https://raw.githubusercontent.com/usnistgov/800-63-3/nist-pages/sp800-63-3/sec4_model.md"
- },
- "raw3": {
-  "title": "NIST SP 800-63B sec5_authenticators.md (usnistgov GitHub source)",
-  "publisher": "",
-  "url": "https://raw.githubusercontent.com/usnistgov/800-63-3/nist-pages/sp800-63b/sec5_authenticators.md"
  },
  "github": {
   "title": "Public Suffix List (.jp section, confirmed by JPRS 2024-11-22)",
-  "publisher": "",
+  "publisher": "Public Suffix List (GitHub)",
   "url": "https://github.com/publicsuffix/list/blob/main/public_suffix_list.dat"
  },
  "github2": {
   "title": "NIST SP 800-63B Sec. 5 Authenticators (usnistgov GitHub)",
-  "publisher": "",
+  "publisher": "NIST (usnistgov, GitHub)",
   "url": "https://github.com/usnistgov/800-63-3/blob/nist-pages/sp800-63b/sec5_authenticators.md"
  },
  "github3": {
   "title": "NIST SP 800-63-3 Sec. 4 Digital Identity Model (usnistgov GitHub)",
-  "publisher": "",
+  "publisher": "NIST (usnistgov, GitHub)",
   "url": "https://github.com/usnistgov/800-63-3/blob/nist-pages/sp800-63-3/sec4_model.md"
- },
- "blog2": {
-  "title": "Chromium Blog: An Update on the Lock Icon (May 2023)",
-  "publisher": "",
-  "url": "https://blog.chromium.org/2023/05/an-update-on-lock-icon.html"
- },
- "github4": {
-  "title": "Security in Amazon EC2 (awsdocs GitHub)",
-  "publisher": "",
-  "url": "https://github.com/awsdocs/amazon-ec2-user-guide/blob/master/doc_source/ec2-security.md"
  }
 });
 })();
@@ -6916,10 +6496,13 @@ function restore() {
 }
 function saveResume() {
   if (!S) return;
-  CTT.resume.set('opening', {
+  const o = {
     step: S.step, max: S.max, sentSpeed: S.sentSpeed, sent: S.sent, partB: S.partB, partC: S.partC, scale: S.scale,
     calcTried: S.calcTried, calcSolved: S.calcSolved, calcFirstTry: S.calcFirstTry, hours: S.hours, warped: S.warped,
-  });
+  };
+  const prev = CTT.resume.get('opening');
+  if (prev && JSON.stringify(prev) === JSON.stringify(o)) return;   /* unchanged: no extra write */
+  CTT.resume.set('opening', o);
 }
 
 /* ---------- timers (all cancelled in leave() and on step change) ---------- */
@@ -7324,7 +6907,7 @@ function step3() {
           <p class="small" id="op-coins-cap"></p>
           <div class="op-coins" id="op-coins" aria-hidden="true"></div>
         </div>
-        ${MORE(`<p class="small" id="op-heavy">${T(`市外のアクセスポイントにつなぐと、電話代はさらに高くなりました。長時間つないだり、市外のアクセスポイントを使ったりすると電話代がかさみ${CTT.src('nttwest')}、高額な{請求|せいきゅう}に驚く人もいました${CTT.src('allabout2')}。`, `Calling an access point outside your local area cost even more. Long sessions or out-of-area access points could run up big phone bills${CTT.src('nttwest')} that took people by surprise${CTT.src('allabout2')}.`)}</p>`)}
+        ${MORE(`<p class="small" id="op-heavy">${T(`長時間つないだり、{市外|しがい}のアクセスポイント（市内通話より高い）を使ったりすると電話代がかさみ${CTT.src('nttwest')}、高額な{請求|せいきゅう}に驚く人もいました${CTT.src('allabout2')}。`, `Long sessions, or calling an access point outside your local area (pricier than a local call), could run up big phone bills${CTT.src('nttwest')} that took people by surprise${CTT.src('allabout2')}.`)}</p>`)}
       </div>
       <aside class="stack sticky-side">
         <div class="op-bill" id="op-bill"></div>
@@ -7479,7 +7062,7 @@ function arrivalHTML() {
       <div class="row between"><span class="chip era">${icon('check')}<span>${T('導入クリア', 'Intro complete')}</span></span><span class="badge-yr">1984</span></div>
       <h3 id="op-clear-h" tabindex="-1">${T('ようこそ、1984年へ。', 'Welcome to 1984.')}</h3>
       <dl class="kv op-kv">
-        <dt>${T('IT用語の不安度（はじめ）', 'IT-word anxiety (start)')}</dt><dd>${preTX}</dd>
+        <dt>${T('IT用語の不安度（はじめ）', 'Anxiety about IT terms (at the start)')}</dt><dd>${preTX}</dd>
         <dt>${T('写真1枚（300bps）の予想', 'Photo at 300 bps — your guess')}</dt><dd>${guessTX}</dd>
         <dt>${T('計算問題', 'Calculation question')}</dt><dd>${calcTX}</dd>
         <dt>${T('ダイヤルアップの電話代', 'Dial-up phone bill')}</dt><dd>${T(`1日${CTT.fmt.num(S.hours, 1)}時間 → 月${CTT.fmt.int(yenMonth(S.hours))}円`, `${CTT.fmt.num(S.hours, 1)} h a day → ¥${CTT.fmt.int(yenMonth(S.hours))} a month`)}</dd>
@@ -7553,7 +7136,8 @@ function showStep(i, opt) {
   refreshNext();
   doneNote();
   CTT.setParams([String(S.step + 1)]);
-  if (!opt.noSave) saveResume();
+  /* only a student's own move is saved; a plain render (route, reload, deep link, teacher-mode refresh) writes nothing */
+  if (!opt.noSave && !opt.initial) saveResume();
   if (opt.initial) return;
   const h = $('h2', stage);
   if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
@@ -7566,7 +7150,7 @@ function go(i) {
 async function reset() {
   const ok = await CTT.confirm({
     title: { ja: '導入を最初からやり直しますか？', en: 'Start the intro over?' },
-    body: { ja: 'アンケートの答えと、この画面での体験の結果を消して、STEP 1に戻ります。獲得した用語カードと完了の記録は残ります。', en: 'Your survey answers and the results on this screen will be cleared and you\'ll return to STEP 1. Collected term cards and completion are kept.' },
+    body: { ja: 'アンケートの答えと、この画面での体験の結果を消して、STEP 1に戻ります。獲得した用語カードと完了の記録は残ります。', en: 'Your survey answers and the results on this screen will be cleared and you\'ll return to STEP 1. Collected term cards and your completion record are kept.' },
     ok: { ja: 'やり直す', en: 'Start over' },
   });
   if (!ok || !alive()) return;
@@ -7615,7 +7199,7 @@ CTT.screen('opening', {
     root.classList.add('op-screen');
     root.innerHTML = `
       <header class="screen-head">
-        <span class="eyebrow">${T('導入', 'Introduction')}<span class="yr">2026→1984</span></span>
+        <span class="eyebrow">${TS('導入', 'Introduction')}<span class="yr">2026→1984</span></span>
         <h1>${T('「従量課金」の時代へタイムスリップ', 'Back to the pay-per-minute era')}</h1>
         <p class="lead">${T('つないでいる時間だけ電話代がかかる「{従量課金|じゅうりょうかきん}」の時代がありました。当時の「速さ」と「料金」を体験してから、1984年へ出発しましょう。',
           'There was a time when going online cost money for every minute you stayed connected, just like a phone call. Try out the speed and the cost of those days, then we set off for 1984.')}</p>
@@ -8163,7 +7747,7 @@ function stepBrief(stage) {
           <p>${T('1984年9月にまず慶應義塾大学と東京工業大学（現・東京科学大学）のコンピュータが電話回線で結ばれ、10月に東京大学が加わって、3つの大学を結ぶ実験ネットワーク「JUNET（ジュネット）」が始まったとされます。',
             'In September 1984, computers at Keio University and the Tokyo Institute of Technology (now Institute of Science Tokyo) were first linked by telephone line; in October the University of Tokyo joined, and JUNET, an experimental network linking the three universities, is said to have begun.')}${src('jpnic2', 'ieeemileston', 'jpnic')}</p>
           <p>${T('コンピュータがモデムで隣に電話をかけてメールやニュースを渡し、受け取った側がまた次へ渡す。まるで<b>バケツリレー</b>です。',
-            'Computers used modems to phone a neighbor and hand over mail and news, which was passed on again to the next one, like a <b>bucket relay</b> (a bucket brigade).')}${src('jpnic', 'api')}</p>
+            'Computers used modems to phone a neighbor and hand over mail and news, and the neighbor passed it on to the next one, like a <b>bucket relay</b> (a bucket brigade).')}${src('jpnic', 'api')}</p>
           ${MORE(`
             <p class="small">${T('最初の{接続|せつぞく}は300bps（1秒に300ビット）のモデムだったといわれます。', 'That very first link reportedly used a 300 bps modem (300 bits per second).')}${src('jpnic2', 'ieeemileston')}</p>
             <p class="small">${T('中心になったのは、当時東京工業大学の{助手|じょしゅ}だった村井純（のちに慶應義塾大学教授）。東京大学の石田晴久ら、各大学の研究者の協力で始まったとされます。',
@@ -8171,7 +7755,7 @@ function stepBrief(stage) {
             <p class="factnote">${T('村井純の{回想|かいそう}によれば、当時は自前のモデムを電話回線に自由につなぐことが{正式|せいしき}には認められていませんでした。1985年4月1日、電気通信事業法が{施行|しこう}されて通信の{自由化|じゆうか}が始まり、状況が変わりました。',
               'According to Jun Murai&#39;s own recollection, freely attaching your own modem to the phone line was not yet officially permitted at the time. That changed when the Telecommunications Business Act took effect on 1 April 1985 and telecoms were opened to competition.')}${src('nippon', 'soumu2')}</p>
             <p class="factnote">${T('JUNETでは、各大学のUNIXコンピュータが、モデムと電話回線でUUCPという仕組みを使ってデータを受け渡しました。', 'On JUNET, the universities&#39; UNIX computers passed data on with a system called UUCP, using modems and phone lines.')}${src('jpnic', 'api')}</p>
-            <p class="factnote">${T('上の画面の文字は、300bpsで英数字を送る速さ（1文字＝10ビットとして、1秒に約30文字）で表示しています。', 'The text above appears at the speed of sending plain letters at 300 bps (counting 10 bits per character: about 30 characters per second).')}</p>`)}
+            <p class="factnote">${T('ブリーフィングの文字は、300bpsで英数字を送る速さ（1文字＝10ビットとして、1秒に約30文字）で表示しています。', 'The briefing text appears at the speed of sending plain letters at 300 bps (counting 10 bits per character: about 30 characters per second).')}</p>`)}
         </section>
       </aside>
     </div>
@@ -8373,7 +7957,7 @@ function stepPackets(stage) {
       ? T(`大きすぎ：壊れたパケットの送り直しで${AJ(x.waste)}のむだ。`, `Too big: resending broken packets wasted ${AE(x.waste)}.`)
       : kind === 'small'
         ? T(`細かすぎ：ヘッダと返事待ちで${AJ(x.over)}。パケットの数だけ増えます。`, `Too small: headers and waiting cost ${AE(x.over)}, more with every extra packet.`)
-        : T(`ちょうどよい大きさ。送り直しのむだ（${AJ(x.waste)}）とヘッダ・返事待ち（${AJ(x.over)}）の合計が、ほぼ最小です。`, `A good size: resends (${AE(x.waste)}) plus headers and waiting (${AE(x.over)}) add up to about the smallest total.`);
+        : T(`ちょうどよい大きさ。送り直しのむだ（${AJ(x.waste)}）とヘッダ・返事待ち（${AJ(x.over)}）の合計が、ほぼ最小です。`, `A good size: resends (${AE(x.waste)}) plus headers and waiting (${AE(x.over)}) add up to almost the smallest possible total.`);
     const parts = [
       { k: 'data', v: x.data, ja: 'データ本体', en: 'Memo data' },
       { k: 'head', v: x.head, ja: 'ヘッダ', en: 'Headers' },
@@ -8662,7 +8246,8 @@ function stepRoute(stage) {
   const R = S.route;
   const nodeSVG = k => {
     const m = MAP[k];
-    return `<g class="node pick c1-mnode" data-mnode="${k}" tabindex="0" role="button" ${A(`${ND[k].ja}（${m.host}）`, `${ND[k].en} (${m.host})`)} transform="translate(${m.x} ${m.y})">
+    /* the name repeats the visible words in their order (WCAG 2.5.3); brackets would break the match */
+    return `<g class="node pick c1-mnode" data-mnode="${k}" tabindex="0" role="button" ${A(`${ND[k].ja}、${m.host}`, `${ND[k].en}, ${m.host}`)} transform="translate(${m.x} ${m.y})">
       <circle r="42"/>
       <g class="c1-mpc" transform="translate(-17 -16) scale(1.45)"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></g>
       <text class="tj c1-mname" y="68" text-anchor="middle">${ND[k].ja}</text><text class="te c1-mname" y="68" text-anchor="middle">${ND[k].en}</text>
@@ -8964,7 +8549,7 @@ function stepFinal(stage) {
         <td>${x.within ? `<span class="chip ok">${icon('check')}${T('予算内', 'OK')}</span>` : `<span class="chip ng">${icon('x')}${x.arrived ? T('オーバー', 'Over') : T('失敗', 'Fails')}</span>`}</td></tr>`;
     }).join('');
     return `<div class="stack-sm"><span class="label">${T(`見積もり：${F.n}個に分けて、2区間（電話2回）`, `Estimate: ${F.n} packets, 2 hops (2 calls)`)}</span>
-      <div class="table-wrap no-both"><table class="t c1-est"><thead><tr><th scope="col">${T('送る時刻', 'Start')}</th><th scope="col" class="num">${T('通信時間', 'Transfer time')}</th><th scope="col" class="num">${T('電話代', 'Phone charge')}</th><th scope="col">${T('予算', 'Budget')}</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="table-wrap no-both" tabindex="0" role="region" ${A('見積もりの表', 'Estimate table')}><table class="t c1-est"><thead><tr><th scope="col">${T('送る時刻', 'Start')}</th><th scope="col" class="num">${T('通信時間', 'Transfer time')}</th><th scope="col" class="num">${T('電話代', 'Phone charge')}</th><th scope="col">${T('予算', 'Budget')}</th></tr></thead><tbody>${rows}</tbody></table></div>
       <p class="tiny muted">${T('東工大で全部保存してから2回目の電話（2区間の時間は同じ：ゲーム上の設定）。', 'Tokyo Tech stores everything, then makes the second call (both hops take the same time: game setting).')}</p></div>`;
   }
   function paintCtl() {
@@ -9548,7 +9133,7 @@ function buildDialup(el) {
       <aside class="stack c2-side">
         <div class="panel stack">
           <h3>${icon('users')}${T('つなぐ会社「ISP」の登場', 'Enter the ISPs')}</h3>
-          <p class="small">${T('接続サービスを売る会社を ISP（インターネット・サービス・プロバイダ）といいます。', 'A company that sells internet access is an ISP (Internet Service Provider).')}</p>
+          <p class="small">${T('接続サービスを売る会社を ISP（インターネット・サービス・プロバイダ）といいます。', 'A company that sells internet access is an ISP (internet service provider).')}</p>
           ${MORE(factList([
             { y: '1992', ja: 'IIJが{設立|せつりつ}される。1993年に{商用|しょうよう}の接続サービスを始め、1994年3月には国際接続を含むIP接続サービスを{本格的|ほんかくてき}に始めた。日本で{最初期|さいしょき}の商用ISPの一つ。', en: 'IIJ is founded. It began commercial connection services in 1993 and full IP service, including international links, in March 1994 — one of Japan\'s earliest commercial ISPs.', src: ['edinetdb', 'jpnic7'] },
             { y: '1992', ja: 'AT&T Jensも11月にSPIN（UUCP接続）を始めたとされ、何をもって「日本初」とするかは{定義|ていぎ}によって変わる（主に{法人|ほうじん}向け）。', en: 'AT&T Jens is reported to have started SPIN (a UUCP service, mainly for businesses) in November, so which provider was “first” depends on the definition.', src: ['jpnic7', 'jpnic8'] },
@@ -9758,7 +9343,7 @@ function buildRush(el) {
         <div class="panel sunk stack">
           <h3>${icon('info')}${T('ゲーム上の設定', 'Game settings')}</h3>
           <ul class="c2-rules small">
-            <li>${T('23時前につなぐのは10人以下。23:00〜23:02に120人がいっせいに電話をかけ、その後も約60人がつなぎ続けます。', 'Before 11 p.m. no more than 10 people are online. From 11:00 to 11:02, 120 people dial in at once; the number then falls gradually, and about 60 stay online.')}</li>
+            <li>${T('23時前につなぐのは10人以下。23:00〜23:02に120人がいっせいに電話をかけ、その後は少しずつ減って約60人がつなぎ続けます。', 'Before 11 p.m. no more than 10 people are online. From 11:00 to 11:02, 120 people dial in at once; the number then falls gradually, and about 60 stay online.')}</li>
             <li>${T('回線（モデム）1本につき1人。空きがなければ「話し中」。', 'Each line (modem) takes one caller. If none is free, you hear a busy signal.')}</li>
             <li>${T('利用者のモデムは最大56kbps（1998年に標準化されたV.90の、下りの理論上の最大値。1995年ごろのモデムはこれより遅かった）。ゲームでは、混んでいなければこの速さが出ることにします。', 'Every user\'s modem tops out at 56 kbps (the theoretical downstream maximum of V.90, standardized in 1998; modems around 1995 were slower). In this game you get that speed whenever the line is not crowded.')}${SRC('itu4')}</li>
             <li>${T('ISPからインターネットへの回線は、つないでいる全員で分け合います。<br><b>1人あたり ＝ 回線の太さ ÷ 人数</b>（最大56kbps）', 'The ISP\'s line to the internet is shared by everyone online.<br><b>Speed per person = line capacity ÷ people online</b> (max 56 kbps)')}</li>
@@ -9907,7 +9492,7 @@ function showRushResult(r, fresh) {
   const hint = !r.ok && !s.solved && s.fails >= 2
     ? `<p class="c2-hint">${icon('bulb')}${TS('ヒント：「話し中」を減らすのは<b>回線（モデム）の数</b>。「1人あたりの速さ」を決めるのは<b>ISPの回線の太さ ÷ 人数</b>。両方そろえよう。', 'Hint: busy signals depend on the <b>number of lines (modems)</b>; speed per person is <b>ISP line capacity ÷ people online</b>. You need both.')}</p>` : '';
   box.innerHTML = `<div class="panel stack ${fresh ? 'reveal' : ''}">
-      <div class="row between"><h3>${icon('chart')}${T('結果（いちばん混んだ23:00）', 'Result (at the 11 p.m. peak)')}</h3><span class="chip">${T(`回線${r.L}本・${num(r.U, 1)}Mbps`, `${r.L} lines · ${num(r.U, 1)} Mbps`)}</span></div>
+      <div class="row between"><h3>${icon('chart')}${T('結果（いちばん混んだ23:00）', 'Result (at the 11 p.m. peak)')}</h3><span class="chip">${TS(`回線${r.L}本・${num(r.U, 1)}Mbps`, `${r.L} lines · ${num(r.U, 1)} Mbps`)}</span></div>
       <ul class="c2-checks">
         <li class="${r.okBusy ? 'ok' : 'ng'}">${okIcon(r.okBusy)}<span>${T('話し中になった人の割合', 'Callers who got a busy signal')}</span><b>${r.busy}%</b></li>
         <li class="${r.okSpeed ? 'ok' : 'ng'}">${okIcon(r.okSpeed)}<span>${T('1人あたりの速さ', 'Speed per person')}</span><b>${k} kbps</b></li>
@@ -10229,7 +9814,7 @@ function buildHome(el) {
       'Let\'s jump ahead to a home today. Fiber (FTTH) comes into the house, and you need to get a computer and a smartphone online. Starting from the optical outlet on the wall, put the right device in each spot.')}</p></div>
     <div class="split">
       <div class="stack">
-        ${win(`<span>HOME NETWORK</span><span class="chip c2-gamechip">${T('典型的な接続例（一体型の機器もある）', 'Typical setup (all-in-one devices also exist)')}</span>`, `<div id="c2-p4" class="c2-home"></div>`, 'c2-homewin')}
+        ${win(`<span>HOME NETWORK</span><span class="chip c2-gamechip">${TS('典型的な接続例（一体型の機器もある）', 'Typical setup (all-in-one devices also exist)')}</span>`, `<div id="c2-p4" class="c2-home"></div>`, 'c2-homewin')}
         <div id="c2-fb4" class="c2-fb" aria-live="polite"></div>
         <div id="c2-q4"></div>
         <div id="c2-after4" class="stack"></div>
@@ -10644,7 +10229,8 @@ function buildSummary(el) {
   const fin = v => typeof v === 'number' && Number.isFinite(v);
   const rushOk = [d.lines, d.uplinkMbps, d.busyRate, d.userKbps].every(fin);
   const planOk = isObj(d.plan) && fin(d.planCost) && Number.isInteger(d.tries3) && d.tries3 > 0;
-  const planTxt = planOk ? DIST.map(x => { const t = techOf(d.plan[x.id]); return `${x.id}:${t ? TX(t) : '-'}`; }).join(' / ') : '';
+  /* one T() for the whole line (in 日+EN the Japanese line sits above the English one) */
+  const planOf = k => DIST.map(x => { const t = techOf(d.plan[x.id]); return `${x.id}:${t ? t[k] : '-'}`; }).join(' / ');
   const ratioRows = RATIOS.map(r => `<tr><td>${T(r.aL.ja + ' → ' + r.bL.ja, r.aL.en + ' → ' + r.bL.en)}${SRC(...r.src)}</td><td class="num">${CTT.fmt.int(r.b)} ÷ ${CTT.fmt.int(r.a)} ≒ ${num(r.b / r.a, 1)}</td><td class="num"><b>${TX(r.r)}</b></td></tr>`).join('');
   el.innerHTML = `<section class="c2-step" aria-labelledby="c2-h">
     ${stepHead(5)}
@@ -10655,7 +10241,7 @@ function buildSummary(el) {
         <ul class="c2-checks">${crit.map(c => `<li class="${c.ok ? 'ok' : 'ng'}">${okIcon(c.ok)}<span>${T(c.ja, c.en)}</span><b>${c.ok ? '★' : '☆'}</b></li>`).join('')}</ul>
         ${rushOk || planOk ? `<dl class="kv">
           ${rushOk ? `<dt>${T('23時の壁', '11 p.m. rush')}</dt><dd>${T(`回線${num(d.lines, 0)}本・${num(d.uplinkMbps, 1)}Mbps → 話し中${num(d.busyRate, 0)}%・1人あたり${num(d.userKbps, 1)}kbps`, `${num(d.lines, 0)} lines · ${num(d.uplinkMbps, 1)} Mbps → ${num(d.busyRate, 0)}% busy · ${num(d.userKbps, 1)} kbps each`)}</dd>` : ''}
-          ${planOk ? `<dt>${T('ブロードバンド計画', 'Broadband plan')}</dt><dd>${planTxt}　${T(`（${num(d.planCost, 0)}コイン・テスト${d.tries3}回）`, `(${num(d.planCost, 0)} coins, ${d.tries3} test${d.tries3 > 1 ? 's' : ''})`)}</dd>` : ''}
+          ${planOk ? `<dt>${T('ブロードバンド計画', 'Broadband plan')}</dt><dd>${T(`${planOf('ja')}（${num(d.planCost, 0)}コイン・テスト${d.tries3}回）`, `${planOf('en')} (${num(d.planCost, 0)} coins, ${d.tries3} test${d.tries3 > 1 ? 's' : ''})`)}</dd>` : ''}
         </dl>` : ''}
         <p class="tiny muted">${T('星は「マイ復習ノート」に記録されます（やり直しても、いちばん良い結果が残ります）。', 'Your stars are saved to “My review notebook” (if you replay, your best result is kept).')}</p>
       </div>
@@ -10749,7 +10335,7 @@ CTT.screen('ch2', {
         <span class="eyebrow">${TS('第2章', 'Chapter 2')} <span class="yr">1995–2001</span></span>
         <h1>${T('常時接続とブロードバンド革命', 'Always-on and the broadband revolution')}</h1>
         <p class="lead">${T('電話でつなぐ「ダイヤルアップ」から、つなぎっぱなしで定額の「ブロードバンド」へ。手を動かして確かめます。',
-          'From dialing in by phone to always-on, flat-rate broadband — find out hands-on.')}</p>
+          'From dialing in by phone to always-on, flat-rate broadband — try it out for yourself.')}</p>
       </header>
       <div class="c2-stepbar">
         <nav id="c2-stepper" ${A('第2章の手順', 'Chapter 2 steps')}>${stepperHTML()}</nav>
@@ -10990,7 +10576,7 @@ function fresh() {
     s2: { phase: 'star', starSent: false, starDown: false, links: [], tests: 0, fails: 0, last: null, survived: 0, done: false, ok: false, shown: false, running: false, cost: 0 },
     s3: { sent: false, wrong: [], done: false, running: false },
     s4: { placement: null, mistakes: 0, miss: {}, done: false },
-    s5: { mode: 'http', seen: { http: false, https: false }, aDone: false, picks: {}, missed: {}, checks: 0, mistakes: 0, verdict: false, bDone: false, mfa: {}, mfaMistakes: 0, done: false },
+    s5: { mode: 'http', seen: { http: false, https: false }, aDone: false, picks: {}, vpicks: {}, missed: {}, checks: 0, mistakes: 0, verdict: false, bDone: false, mfa: {}, mfaMistakes: 0, done: false },
   };
 }
 const stepDone = i => [S.s1.done, S.s2.done, S.s3.done, S.s4.done, S.s5.done, S.completed][i];
@@ -11009,7 +10595,7 @@ function snapshot(st) {
     s2: { phase: s2.phase, starSent: s2.starSent, starDown: s2.starDown, links: s2.links.slice(), tests: s2.tests, fails: s2.fails, tested: !!s2.last, survived: s2.survived, done: s2.done, ok: s2.ok, shown: s2.shown },
     s3: { sent: s3.sent, wrong: s3.wrong.slice(), done: s3.done },
     s4: { placement: s4.placement, mistakes: s4.mistakes, miss: s4.miss, done: s4.done },
-    s5: { mode: s5.mode, seen: s5.seen, aDone: s5.aDone, picks: s5.picks, missed: s5.missed, checks: s5.checks, mistakes: s5.mistakes, verdict: s5.verdict, bDone: s5.bDone, mfa: s5.mfa, mfaMistakes: s5.mfaMistakes, done: s5.done },
+    s5: { mode: s5.mode, seen: s5.seen, aDone: s5.aDone, picks: s5.picks, vpicks: s5.vpicks, missed: s5.missed, checks: s5.checks, mistakes: s5.mistakes, verdict: s5.verdict, bDone: s5.bDone, mfa: s5.mfa, mfaMistakes: s5.mfaMistakes, done: s5.done },
   };
 }
 /* stored data is untrusted: copy only known keys with the right types */
@@ -11040,10 +10626,12 @@ function restore(r) {
   const miss = {}; Object.keys(o(r4.miss)).forEach(k => { if (CLOUD_TILES.some(t => t.id === k)) miss[k] = n(r4.miss[k], 999); });
   const p4 = place(r4.placement, CLOUD_TILES.map(t => t.id), BINS.map(x => x.id));
   Object.assign(st.s4, { placement: p4 && Object.fromEntries(Object.entries(p4).filter(([k, v]) => CLOUD_TILES.find(t => t.id === k).bin === v)), mistakes: n(r4.mistakes, 999), miss, done: b(r4.done) });
-  const picks = {}, missed = {}; CHECKS.forEach(c => { if (b(o(r5.picks)[c.id])) picks[c.id] = true; if (b(o(r5.missed)[c.id])) missed[c.id] = true; });
+  const picks = {}, vpicks = {}, missed = {};
+  const vsrc = r5.vpicks && typeof r5.vpicks === 'object' ? r5.vpicks : r5.picks;
+  CHECKS.forEach(c => { if (b(o(r5.picks)[c.id])) picks[c.id] = true; if (b(o(vsrc)[c.id])) vpicks[c.id] = true; if (b(o(r5.missed)[c.id])) missed[c.id] = true; });
   const mfa = {}; MFA_Q.forEach(q => { if (o(r5.mfa)[q.id] === 'ok') mfa[q.id] = 'ok'; });
   const seen = { http: b(o(r5.seen).http), https: b(o(r5.seen).https) };
-  Object.assign(st.s5, { mode: r5.mode === 'https' ? 'https' : 'http', seen, aDone: b(r5.aDone) && seen.http && seen.https, picks, missed, checks: n(r5.checks, 999), mistakes: n(r5.mistakes, 999),
+  Object.assign(st.s5, { mode: r5.mode === 'https' ? 'https' : 'http', seen, aDone: b(r5.aDone) && seen.http && seen.https, picks, vpicks, missed, checks: n(r5.checks, 999), mistakes: n(r5.mistakes, 999),
     verdict: b(r5.verdict), bDone: b(r5.bDone), mfa, mfaMistakes: n(r5.mfaMistakes, 999), done: b(r5.done) });
   if (st.s5.bDone && !st.s5.aDone) st.s5.bDone = false;
   if (st.s5.done && !MFA_Q.every(q => mfa[q.id] === 'ok')) st.s5.done = false;
@@ -11506,7 +11094,12 @@ function toggleLink(box, id) {
 function afterEdit(box) {
   paintBuild(box);
   const res = $('#c3-res', box);
-  if (res && res.children.length) res.classList.add('stale');
+  /* old results stay readable (no fading), with a line saying they are out of date */
+  if (res && res.children.length && !res.classList.contains('stale')) {
+    res.classList.add('stale');
+    res.insertAdjacentHTML('afterbegin', `<li class="c3-stalenote">${icon('info')}<span>${T('前回のテスト結果です。線を変えたので、もう一度「災害テスト」で確かめよう。', 'These are the results of your last test. You changed the lines, so run the disaster test again.')}</span></li>`);
+    CTT.refreshAttrs(res);
+  }
   if (S.s2.last) { S.s2.last = null; paintGoals(box, null); }
 }
 function paintBuild(box) {
@@ -11895,6 +11488,8 @@ function step3(box) {
     lostMark(box, true);
     $('#c3-st3', box).innerHTML = T('1・2・4番は届いたのに、3番が来ない…。', 'Packets 1, 2 and 4 arrived, but 3 is missing…');
     $('#c3-q3', box).hidden = false;
+    /* choices already tried stay marked (after a return or a reload) */
+    $$('.choice', box).forEach(x => { if (s.wrong.includes(Number(x.dataset.c))) { x.classList.add('wrong'); x.disabled = true; } });
   }
   sendBtn.addEventListener('click', () => sendPackets(box));
   $('#c3-ch3', box).addEventListener('click', e => {
@@ -12098,7 +11693,7 @@ function more4(el, anim) {
   el.innerHTML = `<div class="stack-lg ${anim ? 'reveal' : ''}">
     <div class="panel stack">
       <div class="panel-head"><h3>${icon('users')}<span>${T('だれが管理する？（目安）', 'Who manages what? (rough guide)')}</span></h3></div>
-      <div class="table-wrap"><table class="t c3-resp">
+      <div class="table-wrap" tabindex="0" role="region" ${CTT.A('だれが管理するかの表', 'Table: who manages what')}><table class="t c3-resp">
         <caption class="sr">${T('オンプレミス・IaaS・PaaS・SaaS で、利用者と事業者のどちらが管理するかの表', 'Table: whether the user or the provider manages each layer in on-premises, IaaS, PaaS and SaaS')}</caption>
         <thead><tr><th scope="col">${T('管理するもの', 'Layer')}</th><th scope="col">${T('オンプレミス<small>（自社で全部持つ）</small>', 'On-premises<small>(own everything)</small>')}</th><th scope="col">IaaS</th><th scope="col">PaaS</th><th scope="col">SaaS</th></tr></thead>
         <tbody>${rows.map(r => `<tr><th scope="row">${T(r.ja, r.en)}</th>${r.v.map((v, i) => cell(v, r.note && r.note[i])).join('')}</tr>`).join('')}</tbody>
@@ -12261,18 +11856,18 @@ function part5b(box, anim) {
     persist();
   });
   $('#c3-check5', el).addEventListener('click', () => checkList(box));
-  if (s.verdict) paintChecks(box);
+  /* verdicts are those of the last 答え合わせ (picks changed since then are not re-judged for free) */
+  if (s.verdict) paintChecks(box, s.vpicks);
   if (s.bDone) checksDone(box);
   CTT.refreshAttrs(el);
 }
-function paintChecks(box) {
-  const s = S.s5;
+function paintChecks(box, picks) {
+  const s = S.s5, pk = picks || s.picks;
   let wrong = 0;
   CHECKS.forEach(c => {
     const li = $(`#c3-checks li[data-id="${c.id}"]`, box);
-    const right = !!s.picks[c.id] === c.safe;
+    const right = !!pk[c.id] === c.safe;
     if (!right) wrong++;
-    li.classList.toggle('ok', right); li.classList.toggle('ng', !right);
     if (!right) s.missed[c.id] = true;
     li.classList.toggle('ok', right); li.classList.toggle('ng', !right);
     const w = $('.c3-why', li); w.hidden = false;
@@ -12294,6 +11889,7 @@ function checksDone(box) {
 function checkList(box) {
   const s = S.s5; if (s.bDone) return;
   s.checks++; s.verdict = true;
+  s.vpicks = Object.assign({}, s.picks);
   const wrong = paintChecks(box);
   s.mistakes += wrong;
   const fb = $('#c3-fb5b', box);
@@ -13584,7 +13180,7 @@ const NAV = [
   { sub: 'cards', href: 'review/cards', ic: 'card', ja: '単語帳', en: 'Flashcards' },
   { sub: 'drill', href: 'review/drill', ic: 'target', ja: '1分ドリル', en: '1-minute drill' },
   { sub: 'biz', href: 'review/biz', ic: 'briefcase', ja: '就活カード', en: 'Career cards' },
-  { sub: 'note', href: 'note', ic: 'book', ja: '復習ノート', en: 'Notebook' },
+  { sub: 'note', href: 'note', ic: 'book', ja: 'マイ<wbr>復習ノート', en: 'Review notebook' },
 ];
 /* lesson stops (CTT.nextStop ids) for the "back to the lesson" bar */
 const STOPS = {
@@ -13625,13 +13221,15 @@ const termChips = ids => (Array.isArray(ids) ? ids : []).filter(id => CTT.TERMS[
 const modalOpen = () => { const m = $('#modal'), d = $('#drawer'); return !!((m && m.open) || (d && d.open)); };
 const typing = e => !!(e.target && e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"]'));
 const lbl = html => `<span class="rv-lbl">${html}</span>`;
+/* one flex item for a bilingual label: in 日+EN the English sits under (or, in chips, right after) the Japanese instead of becoming a separate flex column */
+const W = html => `<span class="rv-w">${html}</span>`;
 const pl = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 /* nickname: escaped, and braces/pipes neutralised so the ruby markup cannot touch it */
 const nickSafe = () => esc((CTT.state.nickname || '').trim()).replace(/[{}|]/g, c => '&#' + c.charCodeAt(0) + ';');
 function statusChip(st) {
-  if (st === 'again') return `<span class="chip warn rv-st">${icon('reset')}${T('もう一度', 'Again')}</span>`;
-  if (st === 'known') return `<span class="chip ok rv-st">${icon('check')}${T('覚えた', 'Learned')}</span>`;
-  return `<span class="chip rv-st">${T('未チェック', 'Not rated')}</span>`;
+  if (st === 'again') return `<span class="chip warn rv-st">${icon('reset')}${W(T('もう一度', 'Again'))}</span>`;
+  if (st === 'known') return `<span class="chip ok rv-st">${icon('check')}${W(T('覚えた', 'Learned'))}</span>`;
+  return `<span class="chip rv-st">${W(T('未チェック', 'Not rated'))}</span>`;
 }
 function quizPool() {
   const seen = new Set();
@@ -13660,9 +13258,10 @@ const clearedList = () => { const c = rsGet().cleared; return Array.isArray(c) ?
 const quizMissed = q => q.set === 'class' && typeof CTT.quizCorrect === 'function' && CTT.quizCorrect(q.id) === false;
 const quizMiss = q => quizMissed(q) && !clearedList().includes(q.id);
 const wrongOf = q => (CTT.state.drill.wrong[q.id] || 0) || (quizMiss(q) ? 1 : 0);
+/* terms of every question still "to retry" (drill misses and review-quiz misses): other questions on them get more weight */
 function missedTerms() {
   const set = new Set();
-  quizPool().filter(quizMiss).forEach(q => (Array.isArray(q.terms) ? q.terms : []).forEach(t => set.add(t)));
+  quizPool().filter(q => wrongOf(q)).forEach(q => (Array.isArray(q.terms) ? q.terms : []).forEach(t => set.add(t)));
   return set;
 }
 
@@ -13677,7 +13276,7 @@ function lessonStop() {
     LESSON_IDS.some(k => CTT.resume && CTT.resume.get(k));
   return started ? stop : null;
 }
-const backBtn = (stop, cls) => `<a class="btn ${cls || 'primary'}" href="#/${stop}">${icon('left')}${T(`授業に{戻|もど}る（${STOPS[stop].ja}）`, `Back to the lesson (${STOPS[stop].en})`)}</a>`;
+const backBtn = (stop, cls) => `<a class="btn ${cls || 'primary'}" href="#/${stop}">${icon('left')}${W(T(`授業に{戻|もど}る（${STOPS[stop].ja}）`, `Back to the lesson (${STOPS[stop].en})`))}</a>`;
 function lessonBar() {
   const stop = lessonStop();
   if (!stop) return '';
@@ -13734,7 +13333,7 @@ function navHTML(sub) {
 function setAllCards(v) {
   CTT.setOpt('allCards', !!v);
   fc.own = !v; fc.allSeen = !!v;
-  CTT.toast(v ? T('すべてのカードを開きました', 'All cards are now unlocked') : T('獲得したカードだけを表示します', 'Showing only the cards you collected'), { type: 'ok' });
+  CTT.toast(W(v ? T('すべてのカードを開きました', 'All cards are now unlocked') : T('獲得したカードだけを表示します', 'Showing only the cards you collected')), { type: 'ok' });
 }
 
 /* ============================================================
@@ -13777,7 +13376,7 @@ function renderHub(main) {
     </div>`;
   main.innerHTML = `
     <header class="screen-head rv-head">
-      <span class="eyebrow">${icon('mobile')}${stop ? T('いつでも復習', 'Review any time') : T('授業のあとに', 'After class')}</span>
+      <span class="eyebrow">${icon('mobile')}${W(stop ? T('いつでも復習', 'Review any time') : T('授業のあとに', 'After class'))}</span>
       <h1>${T('復習メニュー', 'Review menu')}</h1>
       <p class="lead">${T(`${nick ? `こんにちは、<b class="rv-nick">${nick}</b>さん！` : 'こんにちは！'}通学の電車やスキマ時間に、授業の用語を1分ずつ{復習|ふくしゅう}しましょう。`,
         `${nick ? `Hi, <b class="rv-nick">${nick}</b>!` : 'Hi there!'} Use spare moments, like your commute, to review the class terms one minute at a time.`)}</p>
@@ -13807,7 +13406,7 @@ function renderHub(main) {
     ${have === 0 && !stop ? `<div class="callout rv-sync">${icon('sync')}<div class="stack-sm">
         <p><b>${T('授業で使ったPCの学習コードを入力すると、カードが{引|ひ}き{継|つ}がれます。', 'Enter the learning code from the class PC to bring your cards over to this device.')}</b></p>
         <p class="small">${T('学習コードは「CT-」で始まる文字で、PCの「マイ復習ノート」に表示されています。', 'The code starts with “CT-” and is shown in “My review notebook” on the class PC.')}</p>
-        <div class="btn-row"><a class="btn primary" href="#/sync">${icon('sync')}${T('学習コードを入力する', 'Enter a learning code')}</a></div>
+        <div class="btn-row"><a class="btn primary" href="#/sync">${icon('sync')}${W(T('学習コードを入力する', 'Enter a learning code'))}</a></div>
       </div></div>${allSwitch}` : ''}
 
     <section class="rv-tiles" aria-labelledby="rv-menu-h">
@@ -13835,11 +13434,11 @@ function renderHub(main) {
 
     <section class="stack-sm" aria-labelledby="rv-today-h">
       <div class="row between rv-today-head"><h2 id="rv-today-h" class="h3"><span>${T('今日のおすすめ', 'Today’s picks')}</span></h2>
-        <a class="btn sm ghost" href="#/review/cards">${T('単語帳を開く', 'Open flashcards')}${icon('right')}</a></div>
+        <a class="btn sm ghost" href="#/review/cards">${W(T('単語帳を開く', 'Open flashcards'))}${icon('right')}</a></div>
       ${picks.length ? `<p class="small muted">${T('「もう一度」をつけたカードと、まだ{復習|ふくしゅう}していないカードから3枚。', 'Three cards from the ones you marked “Again” and the ones you have not reviewed yet.')}</p>
         <ul class="rv-today">${picks.map(miniCard).join('')}</ul>`
       : anyOpen ? `<div class="callout ok">${icon('check')}<div>${T('すべてのカードに「覚えた」がついています！ 1分ドリルで本当に覚えたか確かめてみましょう。', 'Every card is marked “Learned”! Try the 1-minute drill to check that it really stuck.')}
-          <div class="btn-row rv-mt"><a class="btn sm" href="#/review/drill">${icon('target')}${T('1分ドリルへ', 'Go to the drill')}</a></div></div></div>`
+          <div class="btn-row rv-mt"><a class="btn sm" href="#/review/drill">${icon('target')}${W(T('1分ドリルへ', 'Go to the 1-minute drill'))}</a></div></div></div>`
       : stop ? `<div class="callout plain">${icon('card')}<div>${inClassCardsMsg()}</div></div>`
       : `<div class="callout plain">${icon('card')}<div>${T('まだカードがありません。授業でカードを集めるか、学習コードを入力するか、「すべてのカードを開く」をオンにしてください。', 'No cards yet. Collect them in class, enter your learning code, or turn on “Unlock all cards”.')}</div></div>`}
     </section>
@@ -13922,7 +13521,7 @@ function renderCards(main) {
   fc.focusId = null; fc.flipped = false;
   main.innerHTML = `
     <header class="screen-head rv-head">
-      <span class="eyebrow">${icon('card')}${T('復習メニュー', 'Review')}</span>
+      <span class="eyebrow">${icon('card')}${W(T('復習メニュー', 'Review menu'))}</span>
       <h1>${T('デジタル単語帳', 'Flashcards')}</h1>
       <p class="lead">${T('カードをタップして裏返し、{意味|いみ}を確かめましょう。自信がなければ「もう一度」、覚えたら「覚えた」。', 'Tap a card to flip it and check the meaning. Mark it “Again” if you are unsure, or “Learned” once you know it.')}</p>
     </header>
@@ -13934,7 +13533,7 @@ function renderCards(main) {
       <label class="rv-own"><input type="checkbox" class="switch" id="rv-own" ${fc.own ? 'checked' : ''}>${lbl(T('{獲得|かくとく}したカードのみ', 'Collected cards only'))}</label>
     </div>
     <div class="rv-filters" role="group" ${CTT.A('カードの絞り込み', 'Filter cards')}>${FILTERS.map(f =>
-      `<button type="button" class="rv-fchip" data-filter="${f.k}" aria-pressed="${fc.filter === f.k}"${/^\d$/.test(f.k) ? ` data-ch="${f.k}"` : ''}>${T(f.ja, f.en)}<span class="rv-n num" data-count="${f.k}">0</span></button>`).join('')}</div>
+      `<button type="button" class="rv-fchip" data-filter="${f.k}" aria-pressed="${fc.filter === f.k}"${/^\d$/.test(f.k) ? ` data-ch="${f.k}"` : ''}>${W(T(f.ja, f.en))}<span class="rv-n num" data-count="${f.k}">0</span></button>`).join('')}</div>
     <div id="rv-cbody" class="rv-cbody"></div>
     <div class="sr" aria-live="polite" id="rv-live"></div>`;
   updateCounts();
@@ -14013,22 +13612,22 @@ function drawBody() {
 }
 function emptyHTML() {
   if (fc.filter === 'again') return `<div class="callout plain">${icon('info')}<div class="stack-sm"><p>${T('「もう一度」のカードはありません。', 'No cards are marked “Again”.')}</p>
-    <div class="btn-row"><button type="button" class="btn sm" data-filter-go="all">${T('すべてのカードを見る', 'Show all cards')}</button></div></div></div>`;
+    <div class="btn-row"><button type="button" class="btn sm" data-filter-go="all">${W(T('すべてのカードを見る', 'Show all cards'))}</button></div></div></div>`;
   if (fc.filter === 'known') return `<div class="callout plain">${icon('info')}<div class="stack-sm"><p>${T('「覚えた」のカードはまだありません。カードを見て「覚えた」を押すと、ここに集まります。', 'No cards are marked “Learned” yet. Press “Learned” on a card and it will appear here.')}</p>
-    <div class="btn-row"><button type="button" class="btn sm" data-filter-go="all">${T('すべてのカードを見る', 'Show all cards')}</button></div></div></div>`;
+    <div class="btn-row"><button type="button" class="btn sm" data-filter-go="all">${W(T('すべてのカードを見る', 'Show all cards'))}</button></div></div></div>`;
   const stop = lessonStop();
   if (fc.own && CTT.cardCount() === 0 && stop) return `<div class="callout plain rv-sync">${icon('card')}<div class="stack-sm">
     <p><b>${T('まだカードを{獲得|かくとく}していません。', 'You have not collected any cards yet.')}</b></p>
     <p class="small">${inClassCardsMsg()}</p>
     <div class="btn-row">${backBtn(stop, 'primary sm')}
-      <button type="button" class="btn sm" data-unlock-all>${icon('unlock')}${T('すべてのカードを開く', 'Unlock all cards')}</button></div></div></div>`;
+      <button type="button" class="btn sm" data-unlock-all>${icon('unlock')}${W(T('すべてのカードを開く', 'Unlock all cards'))}</button></div></div></div>`;
   if (fc.own && CTT.cardCount() === 0) return `<div class="callout rv-sync">${icon('card')}<div class="stack-sm">
     <p><b>${T('まだカードを{獲得|かくとく}していません。', 'You have not collected any cards yet.')}</b></p>
     <p class="small">${T('授業で使ったPCの学習コードを入力すると、カードが引き継がれます。授業を{欠席|けっせき}した人は「すべてのカードを開く」で全部のカードを見られます。', 'Enter the learning code from the class PC to bring your cards over. If you missed class, “Unlock all cards” shows every card.')}</p>
-    <div class="btn-row"><a class="btn primary sm" href="#/sync">${icon('sync')}${T('学習コードを入力する', 'Enter a learning code')}</a>
-      <button type="button" class="btn sm" data-unlock-all>${icon('unlock')}${T('すべてのカードを開く', 'Unlock all cards')}</button></div></div></div>`;
+    <div class="btn-row"><a class="btn primary sm" href="#/sync">${icon('sync')}${W(T('学習コードを入力する', 'Enter a learning code'))}</a>
+      <button type="button" class="btn sm" data-unlock-all>${icon('unlock')}${W(T('すべてのカードを開く', 'Unlock all cards'))}</button></div></div></div>`;
   return `<div class="callout plain">${icon('info')}<div class="stack-sm"><p>${T('この章のカードはまだ獲得していません。', 'You have not collected any cards from this chapter yet.')}</p>
-    <div class="btn-row"><button type="button" class="btn sm" data-own-off>${T('まだ獲得していないカードも表示する', 'Also show cards not collected yet')}</button></div></div></div>`;
+    <div class="btn-row"><button type="button" class="btn sm" data-own-off>${W(T('まだ獲得していないカードも表示する', 'Also show cards not collected yet'))}</button></div></div></div>`;
 }
 
 /* ----- flashcard mode ----- */
@@ -14054,6 +13653,7 @@ function drawFlash(body) {
   CTT.refreshAttrs(body);
   bindStage($('#rv-stage', body));
   drawCard(0);
+  layoutVars(); // --rv-dock-h
 }
 function cardFaces(id) {
   const t = CTT.TERMS[id], ch = termCh(id);
@@ -14064,8 +13664,8 @@ function cardFaces(id) {
       <div class="rv-fhead">${head}${icon('lock', 'rv-lock')}</div>
       <div class="rv-fmain"><p class="rv-term rv-term-q" aria-hidden="true">？？？</p>
         <p class="muted">${T('まだ{獲得|かくとく}していないカードです。授業でこの用語を体験すると開きます。', 'You have not collected this card yet. It unlocks when you meet the term in class.')}</p>
-        <div class="btn-row rv-center"><button type="button" class="btn sm" data-unlock-all>${icon('unlock')}${T('すべてのカードを開く', 'Unlock all cards')}</button>
-          ${lessonStop() ? '' : `<a class="btn sm ghost" href="#/sync">${icon('sync')}${T('学習コードで引き継ぐ', 'Use a learning code')}</a>`}</div></div>
+        <div class="btn-row rv-center"><button type="button" class="btn sm" data-unlock-all>${icon('unlock')}${W(T('すべてのカードを開く', 'Unlock all cards'))}</button>
+          ${lessonStop() ? '' : `<a class="btn sm ghost" href="#/sync">${icon('sync')}${W(T('学習コードで引き継ぐ', 'Use a learning code'))}</a>`}</div></div>
     </div></div></div>`;
   }
   const ja = CTT.plain(t.ja), en = CTT.plain(t.en);
@@ -14088,7 +13688,7 @@ function cardFaces(id) {
       <p class="rv-def">${TXs(t.def) || T('（定義を準備中です）', '(Definition coming soon.)')}</p>
       ${bi(t.analogy) ? `<div class="analogy rv-analogy"><span class="label">${T('たとえると', 'Analogy')}</span><p>${TXs(t.analogy)}</p></div>` : ''}
       ${bi(t.itp) ? `<p class="rv-itp"><span class="itp-tag">${T('ITパスポート', 'IT Passport')}</span><span>${TXs(t.itp)}</span></p>` : ''}
-      ${bi(t.more) ? `<details class="rv-more"><summary>${T('もっと知る（歴史・背景）', 'Learn more (history & background)')}</summary><p class="small">${TXs(t.more)}${srcRefs(t.src)}</p></details>` : ''}
+      ${bi(t.more) ? `<details class="rv-more"><summary>${W(T('もっと知る（歴史・背景）', 'Learn more (history & background)'))}</summary><p class="small">${TXs(t.more)}${srcRefs(t.src)}</p></details>` : ''}
       ${rel.length ? `<div class="rv-rel"><span class="label">${T('関連する用語', 'Related terms')}</span><span class="rv-chips">${termChips(rel)}</span></div>` : ''}
     </div>
   </div></div>`;
@@ -14106,9 +13706,9 @@ function endFace() {
         <div class="stat"><div class="k">${T('未チェック', 'Not rated')}</div><div class="v">${u}</div></div>
       </div>
       <div class="btn-row rv-center">
-        ${a && fc.filter !== 'again' ? `<button type="button" class="btn primary" data-filter-go="again">${icon('reset')}${T('「もう一度」だけ復習する', 'Review the “Again” cards')}</button>` : ''}
-        <button type="button" class="btn" data-restart>${icon('left')}${T('最初から', 'Start over')}</button>
-        <a class="btn" href="#/review/drill">${icon('target')}${T('1分ドリルで確かめる', 'Check with the drill')}</a>
+        ${a && fc.filter !== 'again' ? `<button type="button" class="btn primary" data-filter-go="again">${icon('reset')}${W(T('「もう一度」だけ復習する', 'Review the “Again” cards'))}</button>` : ''}
+        <button type="button" class="btn" data-restart>${icon('left')}${W(T('最初から', 'Start over'))}</button>
+        <a class="btn" href="#/review/drill">${icon('target')}${W(T('1分ドリルで確かめる', 'Check with the 1-minute drill'))}</a>
       </div>
     </div></div></div></div>`;
 }
@@ -14265,7 +13865,7 @@ function drawList(body) {
   body.innerHTML = `
     <p class="small muted">${T(`${fc.deck.length}枚${locked ? `（うち ${locked}枚はまだ{獲得|かくとく}していません）` : ''}`, pl(fc.deck.length, 'card', 'cards') + (locked ? ` (${locked} not collected yet)` : ''))}</p>
     <ul class="rv-list">${fc.deck.map(id => `<li class="rv-li">${CTT.cardHTML(id, { lockable: true })}${isOpen(id) ? `<div class="rv-li-foot">${statusChip(CTT.state.flash[id])}
-      <button type="button" class="btn sm" data-practice="${esc(id)}">${icon('flip')}${T('このカードで練習', 'Practice this card')}</button></div>` : ''}</li>`).join('')}</ul>`;
+      <button type="button" class="btn sm" data-practice="${esc(id)}">${icon('flip')}${W(T('このカードで練習', 'Practice this card'))}</button></div>` : ''}</li>`).join('')}</ul>`;
 }
 
 /* ============================================================
@@ -14278,8 +13878,8 @@ let dm = null, tickId = null, lastTs = 0, fbTimer = 0, drRestored = false;
 function buildQueue(pool) {
   /* random order (Math.random: the drill differs every time). Past mistakes (drill.wrong, and review-quiz misses not yet
      answered correctly here) always come first, as the UI promises; within each group a weighted random order
-     (Efraimidis–Spirakis keys u^(1/w)) puts questions missed more often, questions on the terms of missed review-quiz
-     questions, and questions about the student's own cards earlier on average. */
+     (Efraimidis–Spirakis keys u^(1/w)) puts questions missed more often, questions on the terms of missed questions,
+     and questions about the student's own cards earlier on average. */
   const key = w => Math.pow(Math.random(), 1 / w);
   const miss = missedTerms();
   return pool.map(q => {
@@ -14343,18 +13943,18 @@ function drawIntro() {
   const wrongN = pool.filter(q => wrongOf(q)).length;
   dm.innerHTML = `
     <header class="screen-head rv-head">
-      <span class="eyebrow">${icon('target')}${T('ITパスポート一問一答', 'IT Passport practice')}</span>
+      <span class="eyebrow">${icon('target')}${W(T('ITパスポート一問一答', 'IT Passport practice'))}</span>
       <h1>${T('1分ドリル', '1-minute drill')}</h1>
       <p class="lead">${T('60秒で何問正解できるかな？ 1タップで答えると、すぐに◯×と短い{解説|かいせつ}が出ます。', 'How many can you get right in 60 seconds? Answer with one tap and you instantly see ◯ or × with a short explanation.')}</p>
     </header>
-    <p class="rv-orig"><span class="chip rv-orig-chip">${icon('info')}${ORIG_LABEL()}</span></p>
+    <p class="rv-orig"><span class="chip rv-orig-chip">${icon('info')}${W(ORIG_LABEL())}</span></p>
     ${pool.length ? `<section class="panel rv-dstart stack" aria-labelledby="rv-rules-h">
       <div class="stats">
         <div class="stat"><div class="k">${T('ベスト', 'Best')}</div><div class="v">${d.best}<small>${T('問正解', 'correct')}</small></div></div>
         <div class="stat"><div class="k">${T('挑戦回数', 'Plays')}</div><div class="v">${d.plays}<small>${T('回', '')}</small></div></div>
         <div class="stat ${wrongN ? 'warn' : ''}"><div class="k">${T('復習待ちの問題', 'To retry')}</div><div class="v">${wrongN}<small>${T('問', '')}</small></div></div>
       </div>
-      <div class="btn-row"><button type="button" class="btn primary lg rv-startb" data-start>${icon('play')}${T('スタート', 'Start')}</button>
+      <div class="btn-row"><button type="button" class="btn primary lg rv-startb" data-start>${icon('play')}${W(T('スタート', 'Start'))}</button>
         <span class="small muted">${T(`全${pool.length}問から出題`, `Drawn from ${pool.length} questions`)}</span></div>
       ${held ? `<p class="small muted rv-held">${icon('lock')}<span>${T(`授業のまとめクイズの${held}問は、クイズで答えたあとにドリルにも出ます（クイズは最初の解答が記録されるため）。`, `The ${held} questions from the review quiz join the drill after you answer them in the quiz (the quiz records your first answer).`)}</span></p>` : ''}
       <hr class="hr">
@@ -14362,7 +13962,7 @@ function drawIntro() {
       <ul class="rv-rules">
         <li>${icon('clock')}<span>${T('{制限|せいげん}時間は60秒（ゲーム上の設定）。解説を表示している間は時計が止まります。', 'You have 60 seconds (a game setting). The clock stops while an explanation is shown.')}</span></li>
         <li class="rv-kbd-rule">${icon('target')}<span>${T('選択肢をタップ。キーボードなら ア＝<kbd>1</kbd>・イ＝<kbd>2</kbd>・ウ＝<kbd>3</kbd>・エ＝<kbd>4</kbd> で答えられます（<kbd>A</kbd>〜<kbd>D</kbd> でも可）。', 'Tap a choice, or press <kbd>1</kbd>–<kbd>4</kbd> (or <kbd>A</kbd>–<kbd>D</kbd>) on a keyboard.')}</span></li>
-        <li>${icon('reset')}<span>${T('前にまちがえた問題（まとめクイズでまちがえた問題も）が先に出ます。その用語の問題や、あなたが集めたカードに関係する問題も出やすくなっています。', 'Questions you missed before (including in the review quiz) come up first. Questions on those terms and on the cards you have collected come up more often.')}</span></li>
+        <li>${icon('reset')}<span>${T('前にまちがえた問題（まとめクイズでまちがえた問題も）が先に出ます。同じ用語の問題や、あなたが集めたカードに関係する問題も出やすくなっています。', 'Questions you missed before (including ones from the review quiz) come up first. Questions on the same terms, and on the cards you have collected, come up more often.')}</span></li>
         <li>${icon('pause')}<span>${T('別のタブやアプリに切り替えると、自動で{一時停止|いちじていし}します。', 'Switching to another tab or app pauses the drill automatically.')}</span></li>
       </ul>
       <p class="factnote">${ORIG_NOTE()}</p>
@@ -14380,7 +13980,7 @@ function startDrill() {
 }
 function drawPlay() {
   dm.innerHTML = `
-    <header class="rv-dhead"><h1 class="rv-dh1" tabindex="-1">${icon('target')}<span>${T('1分ドリル', '1-minute drill')}</span></h1><span class="chip rv-orig-chip">${T('オリジナル問題', 'Original questions')}</span></header>
+    <header class="rv-dhead"><h1 class="rv-dh1" tabindex="-1">${icon('target')}<span>${T('1分ドリル', '1-minute drill')}</span></h1><span class="chip rv-orig-chip">${W(T('オリジナル問題', 'Original questions'))}</span></header>
     <div class="rv-dbar" id="rv-dbar">
       <div class="rv-timer" role="timer" ${CTT.A('残り時間（秒）', 'Time left (seconds)')}><span class="rv-tnum num" id="rv-tnum">60</span><span class="rv-tunit">${T('秒', 's')}</span></div>
       <div class="rv-score" aria-live="off"><span class="rv-score-k">${T('正解', 'Correct')}</span><b class="num" id="rv-sc">0</b><span class="muted num" id="rv-scn">/ 0</span></div>
@@ -14425,7 +14025,7 @@ function paintAnswer() {
   fb.innerHTML = `<p class="rv-fb-h"><span class="rv-mk" aria-hidden="true">${ok ? '◯' : '×'}</span><span>${ok ? T('正解！', 'Correct!') : T(`不正解… 正解は「${MARKS[cpos]}」`, `Not quite. The answer is ${MARKS_EN[cpos]}.`)}</span></p>
     ${ex ? `<p class="rv-fb-x">${T(firstSentence(ex.ja, 'ja'), firstSentence(ex.en, 'en'))}</p>` : ''}
     <div class="rv-fb-row"><span class="rv-auto" aria-hidden="true"><i style="animation-duration:${ms}ms"></i></span>
-      <button type="button" class="btn sm rv-nextb" data-next>${T('次へ', 'Next')}${icon('right')}</button></div>`;
+      <button type="button" class="btn sm rv-nextb" data-next>${W(T('次へ', 'Next'))}${icon('right')}</button></div>`;
   return ms;
 }
 function answer(pos) {
@@ -14523,9 +14123,9 @@ function drawPaused() {
   box.innerHTML = `<section class="panel rv-paused stack" aria-labelledby="rv-ph">
     <h2 id="rv-ph" class="h3" tabindex="-1">${icon('pause')}<span>${T('一時停止中', 'Paused')}</span></h2>
     <p class="muted">${msg}</p>
-    <div class="btn-row"><button type="button" class="btn primary lg" data-resume>${icon('play')}${T('再開する', 'Resume')}</button>
-      <button type="button" class="btn" data-finish>${icon('chart')}${T('ここで終えて結果を見る', 'Finish and see results')}</button>
-      <button type="button" class="btn ghost" data-quit>${icon('x')}${T('やめる', 'Quit')}</button></div>
+    <div class="btn-row"><button type="button" class="btn primary lg" data-resume>${icon('play')}${W(T('再開する', 'Resume'))}</button>
+      <button type="button" class="btn" data-finish>${icon('chart')}${W(T('ここで終えて結果を見る', 'Finish and see results'))}</button>
+      <button type="button" class="btn ghost" data-quit>${icon('x')}${W(T('やめる', 'Quit'))}</button></div>
   </section>`;
   const h = $('#rv-ph', box); if (h && dr.why === 'user') h.focus({ preventScroll: true });
 }
@@ -14581,7 +14181,7 @@ function drawEnd() {
   const head = r.why === 'time' ? T('タイムアップ！', 'Time’s up!') : r.why === 'all' ? T('全部の問題に答えました！', 'You answered every question!') : T('おつかれさま！', 'Nice work!');
   dm.innerHTML = `
     <header class="screen-head rv-head">
-      <span class="eyebrow">${icon('target')}${T('1分ドリル', '1-minute drill')}</span>
+      <span class="eyebrow">${icon('target')}${W(T('1分ドリル', '1-minute drill'))}</span>
       <h1>${head}</h1>
     </header>
     <section class="panel rv-result stack" aria-labelledby="rv-res-h">
@@ -14589,15 +14189,15 @@ function drawEnd() {
       <div class="rv-res-main" role="status">
         <p class="rv-res-score"><span class="num rv-res-n">${r.score}</span><span class="rv-res-u">${T('問正解', r.score === 1 ? 'correct answer' : 'correct answers')}</span></p>
         <p class="muted">${r.n ? T(`${r.n}問中 · 正答率 ${pct}%`, `out of ${r.n} · ${pct}% accuracy`) : T('解答した問題はありません', 'No questions answered')}</p>
-        ${r.newBest ? `<span class="chip ok rv-best">${icon('star')}${T('自己ベスト更新！', 'New personal best!')}</span>` : ''}
+        ${r.newBest ? `<span class="chip ok rv-best">${icon('star')}${W(T('自己ベスト更新！', 'New personal best!'))}</span>` : ''}
       </div>
       <div class="stats">
         <div class="stat"><div class="k">${T('ベスト', 'Best')}</div><div class="v">${d.best}<small>${T('問', '')}</small></div></div>
         <div class="stat"><div class="k">${T('挑戦回数', 'Plays')}</div><div class="v">${d.plays}<small>${T('回', '')}</small></div></div>
         <div class="stat ${missed.length ? 'warn' : 'ok'}"><div class="k">${T('まちがえた問題', 'Missed')}</div><div class="v">${missed.length}</div></div>
       </div>
-      <div class="btn-row"><button type="button" class="btn primary lg" data-start>${icon('reset')}${T('もう一回', 'Play again')}</button>
-        <a class="btn lg" href="#/review/cards">${icon('card')}${T('単語帳で復習', 'Review flashcards')}</a></div>
+      <div class="btn-row"><button type="button" class="btn primary lg" data-start>${icon('reset')}${W(T('もう一回', 'Play again'))}</button>
+        <a class="btn lg" href="#/review/cards">${icon('card')}${W(T('単語帳で復習', 'Review flashcards'))}</a></div>
     </section>
     ${missed.length ? `<section class="stack" aria-labelledby="rv-miss-h"><h2 id="rv-miss-h" class="h3">${T('まちがえた問題と{解説|かいせつ}', 'Missed questions & explanations')}</h2>
         <p class="small muted">${T('まちがえた問題は、次のドリルで{優先|ゆうせん}して出ます。', 'Missed questions will come up first in your next drill.')}</p>
@@ -14647,7 +14247,7 @@ function suspendDrill() {
 /* ============================================================
    BIZ  #/review/biz(/<id>) — 就活カード（就活・実務のビジネスケース）
    ============================================================ */
-const readChip = read => read ? `<span class="chip ok rv-readchip">${icon('check')}${T('読んだ', 'Read')}</span>` : `<span class="chip rv-readchip">${T('未読', 'New')}</span>`;
+const readChip = read => read ? `<span class="chip ok rv-readchip">${icon('check')}${W(T('読んだ', 'Read'))}</span>` : `<span class="chip rv-readchip">${W(T('未読', 'New'))}</span>`;
 function renderBiz(main, params) {
   const list = bizPool();
   const id = params && params[0];
@@ -14658,7 +14258,7 @@ function bizList(main, list, missing) {
   const s = CTT.state, read = list.filter(b => s.biz[b.id]).length;
   main.innerHTML = `
     <header class="screen-head rv-head">
-      <span class="eyebrow">${icon('briefcase')}${T('就活・実務のビジネスケース', 'Career & workplace cases')}</span>
+      <span class="eyebrow">${icon('briefcase')}${W(T('就活・実務のビジネスケース', 'Career & workplace cases'))}</span>
       <h1>${T('就活カード', 'Career cards')}</h1>
       <p class="lead">${T('授業で学んだ用語は、就職活動の{面接|めんせつ}や仕事の会話でも役に立ちます。気になる質問から読んでみましょう。', 'The terms from class are useful in job interviews and at work, too. Start with any question that catches your eye.')}</p>
     </header>
@@ -14688,7 +14288,7 @@ function bizDetail(main, list, i) {
   const srcs = (Array.isArray(b.src) ? b.src : []).filter(k => CTT.SOURCES[k]);
   const num = String(i + 1).padStart(2, '0');
   main.innerHTML = `
-    <nav class="rv-crumb" ${CTT.A('就活カードの移動', 'Career card navigation')}><a class="btn sm ghost" href="#/review/biz">${icon('left')}${T('就活カード一覧', 'All career cards')}</a><span class="small muted num">${i + 1} / ${list.length}</span></nav>
+    <nav class="rv-crumb" ${CTT.A('就活カードの移動', 'Career card navigation')}><a class="btn sm ghost" href="#/review/biz">${icon('left')}${W(T('就活カード一覧', 'All career cards'))}</a><span class="small muted num">${i + 1} / ${list.length}</span></nav>
     <article class="rv-biz stack">
       <header class="screen-head rv-head">
         <span class="rv-bmeta"><span class="rv-case num">${T('就活カード ' + num, 'Career card ' + num)}</span>${chChip(b.ch)}<span id="rv-readslot">${readChip(!!s.biz[b.id])}</span></span>
@@ -14698,7 +14298,7 @@ function bizDetail(main, list, i) {
       ${bi(b.body) ? `<section class="rv-bbody"><h2 class="label">${T('くわしく', 'In detail')}</h2><p>${TXs(b.body)}</p></section>` : ''}
       ${line ? `<figure class="rv-line"><figcaption>${icon('users')}<span>${T('{面接|めんせつ}・仕事で使える一言', 'A line for interviews & work')}</span></figcaption>
           <blockquote><p>${T('「' + line.ja + '」', '“' + line.en + '”')}</p></blockquote>
-          <button type="button" class="btn sm ghost" data-copy-line>${icon('copy')}${T('この一言をコピー', 'Copy this line')}</button></figure>` : ''}
+          <button type="button" class="btn sm ghost" data-copy-line>${icon('copy')}${W(T('この一言をコピー', 'Copy this line'))}</button></figure>` : ''}
       ${chips ? `<div class="rv-rel"><span class="label">${T('関連する用語カード', 'Related term cards')}</span><span class="rv-chips">${chips}</span></div>` : ''}
       ${srcs.length ? `<div class="factnote rv-srcs"><span class="label">${T('出典', 'Sources')}</span><ul>${srcs.map(k => `<li>${srcLine(k)}</li>`).join('')}</ul></div>` : ''}
       <div class="rv-bizfoot">
@@ -14723,13 +14323,13 @@ function bizDetail(main, list, i) {
       if (on) {
         CTT.sfx('ok');
         const done = list.filter(x => s.biz[x.id]).length;
-        CTT.toast(T(`読んだ就活カード ${done}/${list.length}`, `Career cards read: ${done}/${list.length}`), { type: 'ok', ms: 2200 });
+        CTT.toast(W(T(`読んだ就活カード ${done}/${list.length}`, `Career cards read: ${done}/${list.length}`)), { type: 'ok', ms: 2200 });
       }
       return;
     }
     if (e.target.closest('[data-copy-line]') && line) {
       const l = CTT.state.lang, ja = CTT.plain(line.ja), en = CTT.plain(line.en);
-      CTT.copy(l === 'en' ? en : l === 'both' && ja !== en ? ja + '\n' + en : ja, T('一言をコピーしました', 'Line copied'));
+      CTT.copy(l === 'en' ? en : l === 'both' && ja !== en ? ja + '\n' + en : ja, W(T('一言をコピーしました', 'Line copied')));
     }
   };
 }
@@ -14743,12 +14343,41 @@ function layoutVars() {
   const root = rootEl;
   if (!root || !root.isConnected) return;
   const nav = $('.rv-nav', root);
-  if (nav) root.style.setProperty('--rv-nav-h', nav.offsetHeight + 'px');
+  if (nav) {
+    root.style.setProperty('--rv-nav-h', nav.offsetHeight + 'px');
+    /* keyboard focus must not stop under the fixed nav (its height varies: two-line labels in 日+EN, big text) */
+    document.documentElement.style.scrollPaddingBottom = `calc(env(safe-area-inset-bottom, 0px) + ${nav.offsetHeight + 16}px)`;
+  }
   const tb = $('.topbar');
   const stick = !!tb && getComputedStyle(tb).position === 'sticky';
   root.style.setProperty('--rv-top-h', (stick ? Math.round(tb.getBoundingClientRect().height) : 0) + 'px');
   const bar = $('#rv-dbar', root);
   if (bar) root.style.setProperty('--rv-dbar-h', bar.offsetHeight + 'px');
+  const dock = $('.rv-dock', root);
+  if (dock) root.style.setProperty('--rv-dock-h', dock.offsetHeight + 'px');
+}
+/* Tab / Shift+Tab: the browser's focus scrolling knows the sticky top bar and the fixed nav (scroll-padding), but not the
+   drill's sticky timer bar or the flashcard dock, and it does not scroll at all while the element is still partly in view.
+   After the browser has scrolled, move the page so the focused element is clear of all of them. */
+let tabAt = 0;
+function revealFocus(el) {
+  const root = rootEl;
+  if (!root || !el || !el.isConnected || document.activeElement !== el || el.closest('.rv-nav, .rv-dbar, .rv-dock')) return;
+  const r = el.getBoundingClientRect();
+  if (!r.height) return;
+  const tb = $('.topbar');
+  let top = tb && getComputedStyle(tb).position === 'sticky' ? Math.max(0, tb.getBoundingClientRect().bottom) : 0;
+  let bottom = window.innerHeight;
+  const nav = $('.rv-nav', root);
+  if (nav) bottom = Math.min(bottom, nav.getBoundingClientRect().top);
+  /* a sticky bar can only cover what comes after it (timer, sticks to the top) or before it (dock, sticks to the bottom) */
+  const bar = $('#rv-dbar', root);
+  if (bar && (bar.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING)) top = Math.max(top, bar.getBoundingClientRect().bottom);
+  const dock = $('.rv-dock', root);
+  if (dock && (dock.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_PRECEDING)) bottom = Math.min(bottom, dock.getBoundingClientRect().top);
+  const gap = 8;
+  if (r.top < top + 2) window.scrollBy(0, r.top - top - gap);
+  else if (r.bottom > bottom - 2 && r.height + 2 * gap < bottom - top) window.scrollBy(0, r.bottom - bottom + gap);
 }
 /* menu → 記録をすべて消す (or an erase in another tab): forget the in-memory views and the resume slot */
 document.addEventListener('ctt:reset', () => {
@@ -14789,12 +14418,16 @@ CTT.screen('review', {
       window.scrollTo({ top: 0, behavior: CTT.env.reduceMotion ? 'auto' : 'smooth' });
     }, { signal: ac.signal });
     layoutVars();
+    document.addEventListener('keydown', e => { if (e.key === 'Tab') tabAt = performance.now(); }, { signal: ac.signal });
+    root.addEventListener('focusin', e => {
+      if (performance.now() - tabAt < 600) requestAnimationFrame(() => revealFocus(e.target));
+    }, { signal: ac.signal });
     const relayout = () => { layoutVars(); requestAnimationFrame(layoutVars); };
     window.addEventListener('resize', relayout, { signal: ac.signal });
     document.addEventListener('ctt:lang', relayout, { signal: ac.signal });
     document.addEventListener('ctt:settings', relayout, { signal: ac.signal });
   },
-  leave() { suspendDrill(); cleanup(); },
+  leave() { suspendDrill(); cleanup(); document.documentElement.style.scrollPaddingBottom = ''; },
 });
 })();
 
@@ -14943,7 +14576,7 @@ const SEGS = [
     sub: J('ダイヤルアップ → 23時の壁 → ブロードバンド → 家の中 → URLとDNS → まとめ', 'Dial-up → 11 p.m. rush → Broadband → Home network → URL & DNS → Summary'),
     points: [
       /* FACTS dialup-1990s-07, -08, -10 */
-      { ja: '1995年8月、NTTの「テレホーダイ」が始まった：夜11時〜翌朝8時、登録した2つの番号への通話が月額定額。23時になると利用者が一斉に接続し、話し中や速度低下がよく起きたといわれる（いわゆる「テレホタイム」）。', en: 'In August 1995 NTT launched “Telehodai”: calls to two registered numbers between 11 p.m. and 8 a.m. for a flat monthly fee. At 11 p.m. users reportedly all dialled in at once, so access points were often busy or slow (the so-called “Teleho time”).', src: ['ntteast3', 'soumu7'] },
+      { ja: '1995年8月、NTTの「テレホーダイ」が始まった：夜11時〜翌朝8時、登録した2つの番号への通話が月額定額。23時になると利用者が一斉に接続し、話し中や速度低下がよく起きたといわれる（いわゆる「テレホタイム」）。', en: 'In August 1995 NTT launched “Telehodai”: calls to two registered numbers between 11 p.m. and 8 a.m. for a flat monthly fee. At 11 p.m. users reportedly all dialed in at once, so access points were often busy or slow (the so-called “Teleho time”).', src: ['ntteast3', 'soumu7'] },
       /* FACTS dialup-1990s-12 */
       { ja: '1995年11月23日、Windows 95日本語版が発売された。', en: 'The Japanese edition of Windows 95 went on sale on 23 November 1995.', src: ['impress3'] },
       /* FACTS broadband-mobile-03, -04, -05, -06, -08 */
@@ -14973,7 +14606,7 @@ const SEGS = [
       /* FACTS itpassport-16 */
       { ja: 'ITパスポート試験の出題範囲を参考にした授業のオリジナル問題で、実際の試験問題ではない。', en: 'They are original questions based on the IT Passport exam scope, not actual exam questions.' },
       { ja: 'チーム対抗にするなら「対戦クイズ」を映す。記録のため、各自のPCでも解答してもらう（対戦クイズの結果は学習コードに入らない）。', en: 'For a team game, project the quiz battle. Students should still answer on their own PCs so the results are recorded (quiz battle results are not in the learning code).' },
-      { ja: '解答のあとに事後アンケート（IT用語への不安 1〜5）。', en: 'After the quiz: the post-survey (anxiety about IT terms, 1–5).' },
+      { ja: '解答のあとに事後アンケート（IT用語への不安 1〜5）。', en: 'After answering: the post-survey (anxiety about IT terms, 1–5).' },
     ] },
   { id: 'note', a: 75, b: 85, route: 'note', grp: 'review',
     name: J('振り返り②　復習ノートと学習コード提出', 'Review 2: review notebook & learning code'), short: J('ノート', 'Notebook'),
@@ -15019,11 +14652,11 @@ function renderMenu(root) {
       d: J('まとめクイズ10問またはドリル問題で、2〜6チームの対抗戦。答えは声・ハンドサイン・紙で出し、先生が正解チームをタップして得点します。', 'A 2–6 team contest with the 10 review quiz questions or drill questions. Teams answer aloud, by hand signs or on paper; you tap the teams that got it right.'),
       f: [J('制限時間 10・20・30秒', 'Time limit 10, 20 or 30 s'), J('早押しボーナス +50点', '+50 bonus for the fastest team'), J('キーボードで進行', 'Keyboard control')] },
     { id: 'dashboard', ic: 'chart', when: J('授業後・集計', 'After class · results'), chip: dashChip,
-      d: J('学生が提出した学習コードを貼り付けるだけで、章の完了率、クイズの正答率、不安度の変化、用語カードの獲得率を集計します。', 'Paste the learning codes your students submitted to see chapter completion, quiz results, the change in anxiety and term-card collection.'),
+      d: J('学生が提出した学習コードを貼り付けるだけで、章の完了率、まとめクイズの正答率、不安度の変化、用語カードの獲得率を集計します。', 'Paste the learning codes your students submitted to see chapter completion, review quiz results, the change in anxiety and term-card collection.'),
       f: [J('「要フォロー」の問題を表示', 'Flags questions that need follow-up'), CTT.canDownload ? J('表をコピー・CSVを保存', 'Copy the table or save CSV') : J('表をコピー（Excelに貼り付け）', 'Copy the table (paste into Excel)'), J('サンプルデータで試せる', 'Try it with sample data')] },
     { id: 'guide', ic: 'book', when: J('授業前・準備', 'Before class · preparation'), chip: '',
-      d: J('ねらい、90分の進行表、準備チェックリスト、まとめクイズの解答、正確さのための注記（よくある誤解と出典）をまとめた授業ガイドです。', 'Objectives, the 90-minute plan, a preparation checklist, the quiz answer key, and accuracy notes on common misconceptions with sources.'),
-      f: [CTT.canPrint ? J('印刷できる', 'Printable') : J('印刷はブラウザで直接開いたときに', 'Print when opened directly in a browser'), J('解答一覧 問1〜問10', 'Answer key Q1–Q10'), J('出典つきの注記', 'Notes with sources')] },
+      d: J('ねらい、90分の進行表、準備チェックリスト、まとめクイズの解答、正確さのための注記（よくある誤解と出典）をまとめた授業ガイドです。', 'Objectives, the 90-minute plan, a preparation checklist, the review quiz answer key, and accuracy notes on common misconceptions with sources.'),
+      f: [CTT.canPrint ? J('印刷できる', 'Printable') : J('印刷はブラウザで直接開いたときに', 'Printable when opened directly in a browser'), J('解答一覧 問1〜問10', 'Answer key Q1–Q10'), J('出典つきの注記', 'Notes with sources')] },
   ];
   root.innerHTML = `${navHTML('')}
     ${headHTML(PAGES[0], J('授業の進行、教室での対戦クイズ、学生の学習コードの集計を、この画面から行えます。プロジェクターに映すときは、メニューの「文字を大きく」もお使いください。', 'Run the lesson and a quiz battle, and analyze your students’ learning codes from here. When projecting, you can also turn on “Larger text” in the menu.'))}
@@ -15158,7 +14791,7 @@ function renderTimer(root) {
           <span class="tc-plan-time num">${s.a}–${s.b}</span>
           <div class="tc-plan-body"><b>${TJ(s.name)}</b><span class="small muted">${TJ(s.sub)}</span></div>
           <span class="tc-plan-state" data-state-for="${i}"></span>
-          <button type="button" class="btn sm" data-jump="${i}" ${CTT.A(`ここへ移動：${CTT.plain(s.name.ja)}（${s.a}分）`, `Jump here: ${s.name.en} (${s.a} min)`)}><span>${T('ここへ移動', 'Jump here')}</span></button>
+          <button type="button" class="btn sm" data-jump="${i}"><span>${T('ここへ移動', 'Jump here')}</span><span class="sr">${T(`：${CTT.plain(s.name.ja)}（${s.a}分）`, `: ${s.name.en} (${s.a} min)`)}</span></button>
         </li>`).join('')}
       </ol>
     </section>`;
@@ -15329,8 +14962,10 @@ function renderTimer(root) {
     if (b.id === 'tc-run') toggleRun();
     else if (b.id === 'tc-minus') nudge(-60000);
     else if (b.id === 'tc-plus') nudge(60000);
-    else if (b.id === 'tc-reset' || b.id === 'tc-stale-reset') { reset(); return; }
-    else if (b.id === 'tc-fs') { toggleFs(); return; }
+    /* blur first: a confirm dialog would hand focus back to the button, and in fullscreen Space on a focused
+       全画面 button would leave fullscreen instead of starting the timer */
+    else if (b.id === 'tc-reset' || b.id === 'tc-stale-reset') { dropMouseFocus(e); reset(); return; }
+    else if (b.id === 'tc-fs') { dropMouseFocus(e); toggleFs(); return; }
     else if (b.dataset.jump != null) jump(+b.dataset.jump);
     else if (b.dataset.view) {
       TS().timerView = b.dataset.view; CTT.save();
@@ -15629,7 +15264,7 @@ function renderBattle(root) {
         <span class="tc-rank-no">${T(rk[i] + '位', ordinal(rk[i]))}</span>${badge(i)}<span class="tc-rank-name">${teamName(B, i)}</span>
         <span class="tc-btrack" aria-hidden="true"><i style="width:${(sc[i] / max * 100).toFixed(1)}%"></i></span>
         <span class="tc-rank-pts"><b class="num">${sc[i]}</b>${T('点', ' pts')} <span class="small muted">${T(`正解 ${correctCount(i)}/${B.qids.length}問`, `${correctCount(i)}/${B.qids.length} correct`)}</span></span></li>`).join('')}</ol>
-      <div class="table-wrap"><table class="t tc-final-t"><caption class="sr">${T('問題ごとの結果', 'Results by question')}</caption>
+      <div class="table-wrap" tabindex="0" role="region" ${CTT.A('問題ごとの結果の表', 'Table: results by question')}><table class="t tc-final-t"><caption class="sr">${T('問題ごとの結果', 'Results by question')}</caption>
         <thead><tr><th scope="col">${T('問題', 'Question')}</th><th scope="col">${T('正解', 'Answer')}</th>${Array.from({ length: B.n }, (_, i) => `<th scope="col" data-team="${i}">${badge(i)}<span class="sr">${teamName(B, i)}</span></th>`).join('')}<th scope="col" class="num">${T('正解チーム数', 'Teams correct')}</th></tr></thead>
         <tbody>${B.qids.map((id, k) => { const q = qById(id), c = B.hist[k] || [];
           return `<tr><th scope="row">${T('問' + (k + 1), 'Q' + (k + 1))}</th><td>${validQ(q) ? markHTML(q.answer) : '–'}</td>${Array.from({ length: B.n }, (_, i) => `<td class="tc-cell">${c.includes(i) ? `${icon('check')}<span class="sr">${T('正解', 'correct')}</span>${B.bonus && c[0] === i ? `<span class="tc-cell-fast">+50</span>` : ''}` : '<span aria-hidden="true">–</span><span class="sr">' + T('不正解', 'not correct') + '</span>'}</td>`).join('')}<td class="num">${c.length}/${B.n}</td></tr>`; }).join('')}</tbody></table></div>
@@ -15736,6 +15371,7 @@ function renderBattle(root) {
     else if (act === 'fs') { toggleFullscreen(box); dropMouseFocus(e); }
     else if (act === 'new' || act === 'again' || act === 'setup') {
       const inGame = B.phase === 'q' || B.phase === 'reveal';
+      dropMouseFocus(e);   /* after Cancel, focus must not return to this button (Space would open the dialog again) */
       const ok = await CTT.confirm(act === 'again'
         ? { title: J('同じ設定で新しいゲームを始めますか？', 'Start a new game with the same settings?'), body: J('いまの結果は消えます。', 'The current results will be cleared.'), ok: J('始める', 'Start') }
         : { title: J('新しいゲームにしますか？', 'Start a new game?'), body: inGame ? J('進行中のゲームの得点は消えます。チーム名と設定は残ります。', 'The scores of the game in progress will be cleared. Team names and settings are kept.') : J('結果は消えます。チーム名と設定は残ります。', 'The results will be cleared. Team names and settings are kept.'), ok: J('新しいゲーム', 'New game'), danger: inGame });
@@ -16051,9 +15687,9 @@ CT-XXXXX-XXXXX-XXXXX-XXXXX, 2401002
       <div class="stat ${pr.dups.length ? 'warn' : ''}"><div class="k">${T('再提出（後の行を使用）', 'Resubmissions (later line used)')}</div><div class="v">${pr.dups.length}</div></div>
     </div>`);
     if (pr.headers || pr.ignored) parts.push(`<p class="tiny muted">${T(`見出し行 ${pr.headers}行・# の行 ${pr.ignored}行は集計から除きました。`, `Skipped ${pr.headers} header line(s) and ${pr.ignored} line(s) starting with #.`)}</p>`);
-    if (pr.errors.length) parts.push(`<div class="tc-issues"><h3 class="h4">${T('読み取れない行', 'Lines that could not be read')}</h3><ul>${pr.errors.slice(0, 50).map(er =>
+    if (pr.errors.length) parts.push(`<div class="tc-issues"><h3 class="h4" id="tc-iss-err-h">${T('読み取れない行', 'Lines that could not be read')}</h3><ul tabindex="0" aria-labelledby="tc-iss-err-h">${pr.errors.slice(0, 50).map(er =>
       `<li><span class="chip ng"><span>${T(er.ln + '行目', 'Line ' + er.ln)}</span></span> <span>${TJ(er.err)}</span><code class="tc-rawline">${esc(er.raw.trim().slice(0, 70))}</code></li>`).join('')}${pr.errors.length > 50 ? `<li>…</li>` : ''}</ul></div>`);
-    if (pr.dups.length) parts.push(`<div class="tc-issues"><h3 class="h4">${T('同じ学籍番号（ラベル）の再提出', 'Same student number (label) submitted again')}</h3><ul>${pr.dups.slice(0, 50).map(d =>
+    if (pr.dups.length) parts.push(`<div class="tc-issues"><h3 class="h4" id="tc-iss-dup-h">${T('同じ学籍番号（ラベル）の再提出', 'Same student number (label) submitted again')}</h3><ul tabindex="0" aria-labelledby="tc-iss-dup-h">${pr.dups.slice(0, 50).map(d =>
       `<li>${d.labels.map(l => `<span class="chip warn">${jx(l)}</span>`).join(' ')} <span>${T(`${d.lines.join('・')}行目 → ${d.used}行目を使用`, `lines ${d.lines.join(', ')} → using line ${d.used}`)}</span></li>`).join('')}</ul></div>`);
     return parts.join('');
   }
@@ -16114,8 +15750,8 @@ CT-XXXXX-XXXXX-XXXXX-XXXXX, 2401002
         ${sample ? `<span class="chip warn">${icon('alert')}<span>${mode === 'preview' ? T('見本・架空のデータ', 'Preview · fictional data') : T('サンプル（架空のデータ）', 'Sample (fictional data)')}</span></span>` : ''}</div>
       <div class="stats tc-kpis">
         <div class="stat"><div class="k">${T('学生数', 'Students')}</div><div class="v">${N}<small>${T('人', '')}</small></div></div>
-        <div class="stat"><div class="k">${T('全部完了（導入〜クイズ）', 'Finished everything')}</div><div class="v">${fmtPct(A.allDone / N)}<small>${A.allDone}/${N}</small></div></div>
-        <div class="stat"><div class="k">${T('まとめクイズの平均', 'Quiz average')}</div><div class="v">${A.avg == null ? '–' : num1(A.avg)}<small>/10 (n=${A.full})</small></div></div>
+        <div class="stat"><div class="k">${T('全部完了（導入〜まとめクイズ）', 'Finished everything (intro to review quiz)')}</div><div class="v">${fmtPct(A.allDone / N)}<small>${A.allDone}/${N}</small></div></div>
+        <div class="stat"><div class="k">${T('まとめクイズの平均', 'Review quiz average')}</div><div class="v">${A.avg == null ? '–' : num1(A.avg)}<small>/10 (n=${A.full})</small></div></div>
         <div class="stat"><div class="k">${T('IT用語への不安（前後とも回答した人の平均）', 'Anxiety about IT terms (students who answered both)')}</div><div class="v">${A.pairN ? `${num1(A.pairPre)} → ${num1(A.pairPost)}` : '–'}<small>n=${A.pairN}</small></div></div>
         <div class="stat"><div class="k">${T('用語カード（平均）', 'Term cards (mean)')}</div><div class="v">${A.cardAvg == null ? '–' : num1(A.cardAvg)}<small>/${CTT.TERM_ORDER.length}</small></div></div>
       </div>
@@ -16127,12 +15763,12 @@ CT-XXXXX-XXXXX-XXXXX-XXXXX, 2401002
 
     <div class="grid cols-2 tc-d-grid">
       <section class="panel stack-sm" aria-labelledby="tc-comp-h">
-        <h3 id="tc-comp-h">${T('ステップごとの完了率', 'Completion by stop')}</h3>
+        <h3 id="tc-comp-h">${T('完了率（導入・各章・まとめクイズ）', 'Completion (intro, chapters, review quiz)')}</h3>
         <div class="bars tc-bars">${A.stops.map(s => hbar(TJ(s.name), s.n / N, `${fmtPct(s.n / N)} <small>${s.n}/${N}</small>`, { color: 'var(--info)' })).join('')}</div>
       </section>
       <section class="panel stack-sm" aria-labelledby="tc-hist-h">
-        <h3 id="tc-hist-h">${T('まとめクイズの得点分布', 'Quiz score distribution')}</h3>
-        ${A.full ? histHTML(A) : `<p class="small muted">${A.takers ? T(`10問すべてに答えた学生がまだいません（途中まで答えた学生：${A.partial}人）。`, `No student has answered all 10 questions yet (${A.partial} answered some).`) : T('まだクイズに答えた学生がいません。', 'No student has answered the quiz yet.')}</p>`}
+        <h3 id="tc-hist-h">${T('まとめクイズの得点分布', 'Review quiz score distribution')}</h3>
+        ${A.full ? histHTML(A) : `<p class="small muted">${A.takers ? T(`10問すべてに答えた学生がまだいません（途中まで答えた学生：${A.partial}人）。`, `No student has answered all 10 questions yet (${A.partial} answered some).`) : T('まだまとめクイズに答えた学生がいません。', 'No student has answered the review quiz yet.')}</p>`}
       </section>
     </div>
 
@@ -16213,7 +15849,7 @@ CT-XXXXX-XXXXX-XXXXX-XXXXX, 2401002
     const pos = v => ((v - 1) / 4 * 100).toFixed(1);
     const P2 = A.pairN;
     const half = n => P2 ? n / P2 * 50 : 0;
-    /* one scale for all three blocks (50% = everyone); "same" straddles the centre line */
+    /* one scale for all three blocks (50% = everyone); "same" straddles the center line */
     const sameW = half(A.same), downW = half(A.down), upW = half(A.up), sameL = 50 - sameW / 2;
     return `<div class="stats">
         <div class="stat"><div class="k">${T('授業前（平均）', 'Before (mean)')}</div><div class="v">${A.pre == null ? '–' : num1(A.pre)}<small>n=${A.preN}</small></div></div>
@@ -16256,8 +15892,8 @@ CT-XXXXX-XXXXX-XXXXX-XXXXX, 2401002
     { key: 'label', name: J('ラベル', 'Label') },
     { key: 'prog', name: J('進み具合', 'Progress') },
     { key: 'stars', name: J('星（1・2・3章）', 'Stars (ch.1·2·3)') },
-    { key: 'cards', name: J('カード', 'Cards'), num: true },
-    { key: 'score', name: J('クイズ', 'Quiz'), num: true },
+    { key: 'cards', name: J('用語カード', 'Term cards'), num: true },
+    { key: 'score', name: J('まとめクイズ', 'Review quiz'), num: true },
     { key: 'anx', name: J('不安 前→後', 'Anxiety before→after') },
   ];
   const sortVal = (r, k) => k === 'label' ? (r.label || '￿' + String(r.ln).padStart(6, '0')).toLowerCase()
@@ -16271,7 +15907,7 @@ CT-XXXXX-XXXXX-XXXXX-XXXXX, 2401002
       const va = sortVal(a, sort.key), vb = sortVal(b, sort.key);
       return (va < vb ? -1 : va > vb ? 1 : a.ln - b.ln) * sort.dir;
     });
-    const dot = (on, j, e) => `<span class="tc-pd${on ? ' is-on' : ''}" title="${esc(P(j, e))}">${on ? icon('check') : ''}<span class="sr">${T(j, e)}${on ? T('：完了', ': done') : T('：未完了', ': not done')}</span></span>`;
+    const dot = (on, j, e) => `<span class="tc-pd${on ? ' is-on' : ''}" title="${esc(P(j, e))}">${on ? icon('check') : ''}<span class="sr">${on ? T(j + '：完了', e + ': done') : T(j + '：未完了', e + ': not done')}</span></span>`;
     return `<table class="t tc-stab"><caption class="sr">${T('学生ごとの結果', 'Results by student')}</caption>
       <thead><tr>${COLS.map(c => `<th scope="col" class="${c.num ? 'num' : ''}" aria-sort="${sort.key === c.key ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" class="tc-sort" data-sort="${c.key}">${TJ(c.name)}<span class="tc-sort-ic" aria-hidden="true">${sort.key === c.key ? (sort.dir > 0 ? '▲' : '▼') : '↕'}</span></button></th>`).join('')}</tr></thead>
       <tbody>${rows.map(r => {
@@ -16299,7 +15935,7 @@ CT-XXXXX-XXXXX-XXXXX-XXXXX, 2401002
     const head = [P('ラベル', 'Label'), P('行', 'Line'), P('学習コード', 'Learning code'),
       ...STOPS.map(([, n]) => P(n.ja + '完了', n.en + ' done')),
       ...CTT.CHAPTERS.map((c, i) => P(`第${i + 1}章の星`, `Ch.${i + 1} stars`)),
-      P('カード数', 'Cards'), P('クイズ解答数', 'Quiz answered'), P('クイズ正解数', 'Quiz correct'),
+      P('用語カード数', 'Term cards'), P('まとめクイズ解答数', 'Review quiz answered'), P('まとめクイズ正解数', 'Review quiz correct'),
       ...CTT.QUIZ_ORDER.map((q, i) => P('問' + (i + 1), 'Q' + (i + 1))),
       P('不安（授業前）', 'Anxiety before'), P('不安（授業後）', 'Anxiety after')];
     const rows = recs.slice().sort((a, b) => a.ln - b.ln).map(r => {
@@ -16414,7 +16050,7 @@ const MYTHS = [
       yes: J('JUNETは主にUUCP（電話でつないでデータを受け渡す方式）で運用された（1987年ごろには一部でTCP/IPも使われた）。IPによる本格的な研究網は、1988年発足のWIDEプロジェクトが担った。', 'JUNET ran mainly on UUCP, passing data over dial-up phone connections (by about 1987 some links also used TCP/IP). Full-scale research networking on IP was carried by the WIDE Project, launched in 1988.'), src: ['keio', 'wide2'] },
     /* junet-uucp-17, -18 */
     { no: J('JUNETは電話代の安い深夜にだけ通信していた。', 'JUNET only communicated late at night, when calls were cheap.'),
-      yes: J('JUNETでは各サイトが定期的（例：1時間に1回程度）に電話をかけていたとされ、夜間だけ通信していたという資料は見つかっていない。料金の安い時間帯にまとめて通信する設定は、UUCP一般でよく使われた（例：米国の4.3BSD版UUCPの「Night」指定）。', 'JUNET sites reportedly dialled each other regularly (about once an hour, for example); no source shows that they communicated only at night. Scheduling calls for cheap hours was common UUCP practice in general (e.g. the “Night” keyword in US 4.3BSD UUCP).'), src: ['ieeemileston', 'retro112'] },
+      yes: J('JUNETでは各サイトが定期的（例：1時間に1回程度）に電話をかけていたとされ、夜間だけ通信していたという資料は見つかっていない。料金の安い時間帯にまとめて通信する設定は、UUCP一般でよく使われた（例：米国の4.3BSD版UUCPの「Night」指定）。', 'JUNET sites reportedly dialed each other regularly (about once an hour, for example); no source shows that they communicated only at night. Scheduling calls for cheap hours was common UUCP practice in general (e.g. the “Night” keyword in US 4.3BSD UUCP).'), src: ['ieeemileston', 'retro112'] },
     /* junet-uucp-07 */
     { no: J('JUNETは300bpsで動いていた。', 'JUNET ran at 300 bps.'),
       yes: J('300bpsとされるのは最初の慶應—東工大の接続で、その後は1200bpsや2400bpsのモデムが主に使われた。', '300 bps reportedly applies only to the very first Keio–Tokyo Tech link; later links mainly used 1200 or 2400 bps modems.'), src: ['jpnic2', 'wide'] },
@@ -16485,7 +16121,7 @@ function renderGuide(root) {
   usedKeys.sort((a, b) => Object.keys(CTT.SOURCES).indexOf(a) - Object.keys(CTT.SOURCES).indexOf(b));
   const toc = [['tc-g-obj', J('ねらい', 'Objectives')], ['tc-g-plan', J('90分の進行表', '90-minute plan')], ['tc-g-prep', J('準備チェックリスト', 'Preparation checklist')], ['tc-g-key', J('解答一覧', 'Answer key')], ['tc-g-myth', J('注意したい誤解', 'Common misconceptions')], ['tc-g-itp', J('ITパスポート試験のメモ', 'IT Passport notes')], ['tc-g-src', J('出典', 'Sources')]];
   root.innerHTML = `${navHTML('guide')}
-    ${headHTML(page, J('授業の進め方、準備、まとめクイズの解答、正確に教えるための注記をまとめました。印刷して手元に置くこともできます。', 'How to run the lesson, what to prepare, the quiz answer key, and notes for teaching accurately. You can print it to keep at hand.'),
+    ${headHTML(page, J('授業の進め方、準備、まとめクイズの解答、正確に教えるための注記をまとめました。印刷して手元に置くこともできます。', 'How to run the lesson, what to prepare, the review quiz answer key, and notes for teaching accurately. You can print it to keep at hand.'),
       CTT.canPrint ? `<div class="btn-row no-print"><button type="button" class="btn primary" id="tc-print">${icon('print')}<span>${T('印刷 / PDFに保存', 'Print / save as PDF')}</span></button></div>`
         : `<p class="tiny muted no-print">${T('印刷するには、このアプリをブラウザで直接開いてください。', 'To print, open this app directly in a browser.')}</p>`)}
     <nav class="tc-toc no-print" ${CTT.A('このページの目次', 'On this page')}>${toc.map(([id, n]) => `<a href="#${id}" data-toc="${id}"><span>${TJ(n)}</span></a>`).join('')}</nav>
@@ -16627,9 +16263,9 @@ CTT.screen('teacher', DEF);
 'use strict';
 const { T, TX, esc, icon, $, $$ } = CTT;
 
-/* LEAD_NOTES 5: RFC 9846 must not be mentioned (not independently verified).
-   No module cites these keys (rfc10/ietf11 = RFC 9846, raw = its rfc8446bis draft
-   header), so drop them before anything renders; [n] numbers are computed from
+/* LEAD_NOTES 5: the 2026 TLS 1.3 revision RFC must not be mentioned (not independently
+   verified). No module cites these keys (rfc10/ietf11 = that RFC, raw = its rfc8446bis
+   draft header), so drop them before anything renders; [n] numbers are computed from
    Object.keys(CTT.SOURCES) at render time, so every label stays consistent.
    (Requested from the lead: remove them, and the other uncited keys, from 23_sources.js.) */
 ['rfc10', 'ietf11', 'raw'].forEach(k => { delete CTT.SOURCES[k]; });
@@ -16690,7 +16326,7 @@ const NOTES = [
     src: ['jpnic2', 'wide', 'ir'] },
   { /* dialup-1990s-19, dialup-1990s-20 (VERIFIER FINAL) */
     topic: { ja: '「通信費10万円時代」', en: 'The “100,000-yen phone bill era”' },
-    myth: { ja: '「ダイヤルアップの時代は、毎月10万円の電話代が当たり前だった」', en: '“In the dial-up days, a 100,000-yen phone bill every month was normal.”' },
+    myth: { ja: '「ダイヤルアップの時代は、毎月10万円の電話代が当たり前だった」', en: '“In the dial-up days, paying 100,000 yen a month in phone charges was normal.”' },
     fact: { ja: '正確には、つないだ時間だけ電話代がかかる「{従量|じゅうりょう}{課金|かきん}」の時代。市内通話（3分10円）でも1時間で約200円かかり、長時間つないだり市外のアクセスポイントを使ったりすると電話代がかさんで、高額な請求に驚く人もいた。ただし毎月10万円は一般的な額ではなく{極端|きょくたん}な例である（市内通話で月10万円になるには、約500時間の接続が必要）。',
       en: 'More accurately, it was an era of pay-per-minute charges. Even local calls (10 yen per 3 minutes) cost about 200 yen an hour, and long sessions or out-of-area access points could run up bills that shocked people, but 100,000 yen a month was an extreme case, not the norm (at local rates it would take about 500 hours online).' },
     src: ['nttwest', 'allabout2', 'ntt3'] },
@@ -16767,8 +16403,12 @@ const CH_NAME = {
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const refs = keys => (keys || []).map(k => CTT.src(k)).join('');
-/* "[[a,b]]" inside note text → [n] links at that point of the sentence */
-const inl = s => String(s).replace(/\[\[([a-z0-9_,]+)\]\]/g, (m, ks) => refs(ks.split(',')));
+/* "[[a,b]]" inside note text → [n] links at that point of the sentence. The links are
+   inline-blocks, so the browser may break a line right after them and start the next line
+   with "." or "。"; keep them together with the character before and the punctuation after
+   (never the "}" that closes {漢字|かんじ} ruby markup). */
+const inl = s => String(s).replace(/([^\s}>])?\[\[([a-z0-9_,]+)\]\]([.,;:!?。、，．：；！？]*)/g,
+  (m, pre, ks, post) => `<span class="sr-nobr">${pre || ''}${refs(ks.split(','))}${post}</span>`);
 /* one T() per sentence, with the [n] links inside both languages (日+EN mode keeps them on each line) */
 const TR = (ja, en, keys) => { const r = refs(keys); return T(inl(ja) + r, inl(en) + r); };
 const host = url => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
@@ -16999,7 +16639,8 @@ if (typeof CTT.cardHTML === 'function' && !CTT.cardHTML.srPatched) {
     if (html.indexOf('t-def') < 0 || html.indexOf('src-ref') >= 0 || html.indexOf('<div class="punch"') < 0) return html;
     const r = refs(t.src);
     if (!r) return html;
-    return html.replace('<div class="punch"', `<p class="tiny muted sr-card-src"><span class="inline">${T('出典', 'Sources')}</span> ${r}</p><div class="punch"`);
+    /* one T() for the whole line, like the core's 「ITパスポート：…」 line (日+EN: JA line, EN line below) */
+    return html.replace('<div class="punch"', `<p class="tiny muted sr-card-src">${T('出典：' + r, 'Sources: ' + r)}</p><div class="punch"`);
   };
   withSrc.srPatched = true;
   CTT.cardHTML = withSrc;
