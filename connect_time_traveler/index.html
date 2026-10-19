@@ -3886,7 +3886,33 @@ CTT.placer = (container, opt) => {
   });
   const ac = new AbortController();
   const alive = () => { if (root.isConnected) return true; ac.abort(); return false; };
-  CTT.onLeave(() => { ac.abort(); if (drag && drag.ghost) drag.ghost.remove(); drag = null; document.body.classList.remove('ctt-dragging'); });
+  CTT.onLeave(() => { ac.abort(); stopEdgeScroll(); if (drag && drag.ghost) drag.ghost.remove(); drag = null; document.body.classList.remove('ctt-dragging'); });
+  const highlight = (x, y) => {
+    const under = document.elementFromPoint(x, y);
+    CTT.$$('.slot', root).forEach(s => s.classList.toggle('over', !!under && s.contains(under)));
+  };
+  /* On a small screen the tray and a box can be farther apart than the screen is tall, and a finger that
+     holds a card cannot scroll the page. So while a card is held near the top or bottom edge, the page
+     scrolls by itself (faster the closer to the edge) until the card is moved away or dropped. */
+  let edgeRaf = 0;
+  function stopEdgeScroll() { if (edgeRaf) cancelAnimationFrame(edgeRaf); edgeRaf = 0; }
+  function edgeScroll() {
+    edgeRaf = 0;
+    if (!drag || !drag.ghost || !alive()) return;
+    const bar = CTT.$('.topbar'), nav = CTT.$('.bottomnav');
+    const top = bar ? Math.max(0, bar.getBoundingClientRect().bottom) : 0;
+    const bottom = nav && nav.offsetParent ? nav.getBoundingClientRect().top : window.innerHeight;
+    const zone = Math.max(36, Math.min(80, (bottom - top) / 4));
+    let ratio = 0;
+    if (drag.cy < top + zone) ratio = -(top + zone - drag.cy) / zone;
+    else if (drag.cy > bottom - zone) ratio = (drag.cy - (bottom - zone)) / zone;
+    if (!ratio) return;
+    const before = window.scrollY;
+    window.scrollBy(0, Math.sign(ratio) * Math.ceil(18 * Math.min(1.5, Math.abs(ratio))));
+    if (window.scrollY === before) return;          /* already at the top / bottom of the page */
+    highlight(drag.cx, drag.cy);
+    edgeRaf = requestAnimationFrame(edgeScroll);
+  }
   window.addEventListener('pointermove', e => {
     if (!alive() || !drag || e.pointerId !== drag.pid) return;
     if (!drag.ghost) {
@@ -3895,13 +3921,15 @@ CTT.placer = (container, opt) => {
       document.body.appendChild(drag.ghost); drag.el.classList.add('dragging'); document.body.classList.add('ctt-dragging'); select(drag.id);
     }
     e.preventDefault();
+    drag.cx = e.clientX; drag.cy = e.clientY;
     drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
-    const under = document.elementFromPoint(e.clientX, e.clientY);
-    CTT.$$('.slot', root).forEach(s => s.classList.toggle('over', !!under && s.contains(under)));
+    highlight(e.clientX, e.clientY);
+    if (!edgeRaf) edgeRaf = requestAnimationFrame(edgeScroll);
   }, { passive: false, signal: ac.signal });
   function endDrag(e) {
     if (!alive() || !drag || (e && e.pointerId !== drag.pid)) return;
     const d = drag; drag = null;
+    stopEdgeScroll();
     if (!d.ghost) return;            /* it was a click: let the click handler select it */
     d.ghost.remove(); d.el.classList.remove('dragging');
     CTT.$$('.slot', root).forEach(s => s.classList.remove('over'));
@@ -3914,7 +3942,7 @@ CTT.placer = (container, opt) => {
     else select(null);
   }
   window.addEventListener('pointerup', endDrag, { signal: ac.signal });
-  window.addEventListener('pointercancel', () => { document.body.classList.remove('ctt-dragging'); if (drag && drag.ghost) { drag.ghost.remove(); drag.el.classList.remove('dragging'); } drag = null; if (alive()) select(null); }, { signal: ac.signal });
+  window.addEventListener('pointercancel', () => { stopEdgeScroll(); document.body.classList.remove('ctt-dragging'); if (drag && drag.ghost) { drag.ghost.remove(); drag.el.classList.remove('dragging'); } drag = null; if (alive()) select(null); }, { signal: ac.signal });
 
   return {
     el: root,
