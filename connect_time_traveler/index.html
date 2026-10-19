@@ -150,6 +150,9 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus{outline:none}
 .tools{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
 .tool-btn{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:var(--paper-2);cursor:pointer}
 .tool-btn:hover{border-color:var(--line-2)}
+#tm-chip{cursor:pointer;border:0;font:inherit;font-size:.78rem;font-weight:700;min-height:32px}
+:root[data-lang="both"] #tm-chip .te{display:none!important}
+@media (max-width:640px){#tm-chip{display:none}}
 .tool-btn .ico{width:18px;height:18px;display:inline-block}
 .card-count .ico{background:linear-gradient(var(--signal),var(--signal)) 0 0/100% 34% no-repeat,var(--paper);border:2px solid var(--ink);border-radius:3px;width:20px;height:14px}
 .card-count .num{font-weight:600}
@@ -2378,7 +2381,8 @@ textarea.input.qz-comment{font-family:var(--f-body);font-size:1rem;min-height:92
 .rv-col[data-view="drill"] :is(.rv-qtext,.choice,.rv-fb,.rv-q a,.rv-q button,.rv-paused h2,.rv-paused .btn){scroll-margin-top:calc(var(--rv-dbar-h,90px) + 12px)}
 .rv-timer{display:flex;align-items:baseline;gap:4px}
 .rv-tnum{font-size:2.6rem;font-weight:600;line-height:1;min-width:2ch;text-align:right;color:var(--ink)}
-.rv-tunit{font-size:.9rem;color:var(--muted);font-weight:700}
+.rv-tunit{font-size:.9rem;color:var(--muted);font-weight:700;white-space:nowrap}
+:root[data-lang="both"] .rv-tunit .te{display:none!important}
 .rv-score{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;justify-content:center;min-width:0}
 .rv-score .num{white-space:nowrap}
 .rv-score-k{font-size:.8rem;color:var(--muted);font-weight:700}
@@ -3964,10 +3968,14 @@ CTT.code = {
   },
   /* returns {ok:true, data} or {ok:false, error:{ja,en}} */
   parse(input) {
+    /* a pasted submission line may carry a nickname before the code ("Aoi\tCT-…"): pick out the code token first */
+    const raw = String(input || '').normalize('NFKC');
+    const tok = raw.match(/CT[\s\-‐-―−ー_]*(?:[0-9A-Za-z]{5}[\s\-‐-―−ー_]*){3}[0-9A-Za-z]{5}(?![0-9A-Za-z])/i);
+    if (tok) input = tok[0];
     let s = String(input || '').toUpperCase().replace(/[ＡＢＣ-Ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
       .replace(/O/g, '0').replace(/[IL]/g, '1').replace(/[^0-9A-Z]/g, '');
     if (s.startsWith('CT') && s.length === 22) s = s.slice(2);
-    if (s.length !== 20) return { ok: false, error: { ja: 'コードの文字数が違います（CT- のあとに英数字20文字）。', en: 'Wrong length: expected 20 characters after "CT-".' } };
+    if (s.length !== 20) return { ok: false, error: { ja: 'コードの文字数が違います。名前などは消して、CT- で始まるコードだけを入れてください（CT- のあとに英数字20文字）。', en: 'Wrong length. Remove your name etc. and enter only the code starting with "CT-" (20 letters and digits after it).' } };
     const bits = [];
     for (const ch of s) { const v = B32.indexOf(ch); if (v < 0) return { ok: false, error: { ja: '使えない文字が入っています（U など）。', en: 'The code contains an invalid character.' } }; for (let j = 4; j >= 0; j--) bits.push((v >> j) & 1); }
     const bytes = bitsToBytes(bits.slice(0, 96));
@@ -4096,6 +4104,15 @@ function updateChrome() {
   }
   const n = CTT.$('#card-count-num');
   if (n) n.textContent = CTT.cardCount() + '/' + CTT.TERM_ORDER.length;
+  const tools = CTT.$('.topbar .tools');
+  let tm = CTT.$('#tm-chip');
+  if (CTT.state.teacherMode && tools && !tm) {
+    tm = document.createElement('button'); tm.type = 'button'; tm.id = 'tm-chip'; tm.className = 'chip warn';
+    tm.innerHTML = CTT.T('教員モード', 'Teacher mode');
+    tm.title = CTT.P('教員モード：全ステップ開放中（メニューで切りかえ）', 'Teacher mode: all steps open (switch it in the menu)');
+    tm.addEventListener('click', () => CTT.$('#menu-btn').click());
+    tools.insertBefore(tm, tools.firstChild);
+  } else if (!CTT.state.teacherMode && tm) tm.remove();
 }
 CTT.updateChrome = updateChrome;
 
@@ -4139,7 +4156,7 @@ function openDrawer() {
     if (e.target.id === 'opt-furi') CTT.setOpt('furigana', e.target.checked);
     if (e.target.id === 'opt-big') CTT.setOpt('big', e.target.checked);
     if (e.target.id === 'opt-sound') { CTT.setOpt('sound', e.target.checked); if (e.target.checked) CTT.sfx('ok'); }
-    if (e.target.id === 'opt-teach') { CTT.setOpt('teacherMode', e.target.checked); CTT.refresh(); }
+    if (e.target.id === 'opt-teach') { CTT.setOpt('teacherMode', e.target.checked); updateChrome(); CTT.refresh(); }
   };
   refreshAttrs(d);
   try { d.showModal(); } catch (e) { d.setAttribute('open', ''); }
@@ -10659,7 +10676,7 @@ window.addEventListener('pagehide', () => { if (S && ROOT && ROOT.isConnected) p
    screen
    ============================================================ */
 CTT.screen('ch3', {
-  title: { ja: '第3章 自律分散とクラウド・AIの基盤', en: 'Chapter 3: Resilient networks, cloud & AI' },
+  title: { ja: '第3章 自律分散とクラウド・AIの基盤', en: 'Chapter 3: Resilient networks, the cloud and AI' },
   era: 'now',
   render(root, params) {
     stopAll();
@@ -10672,7 +10689,7 @@ CTT.screen('ch3', {
     root.innerHTML = `
       <header class="screen-head">
         <span class="eyebrow"><span class="yr">NOW</span>${T('第3章 · 現代〜未来', 'Chapter 3 · Today and tomorrow')}</span>
-        <h1>${T('自律分散とクラウド・AIの{基盤|きばん}', 'Resilient networks, the cloud, and the foundations of AI')}</h1>
+        <h1>${T('自律分散とクラウド・AIの{基盤|きばん}', 'Resilient networks, the cloud and AI')}</h1>
         <p class="lead">${T('ついに現代へ。SNSや生成AIを支える「今のネットの土台」を、手を動かして確かめよう。',
           'Back to the present: get hands-on with the foundations under today’s social media and generative AI.')}</p>
       </header>
@@ -12009,7 +12026,7 @@ function step6(box) {
         <p class="small">${T('ダイヤルアップから、ADSLや光回線のブロードバンドへ。ネットは「いつでもつながっているもの」になった。', 'From dial-up to ADSL and fiber broadband: the internet became something that is always there.')}</p>
         <div class="c3-chips">${['always_on', 'broadband', 'dns'].map(id => CTT.chip(id)).join('')}</div></div></li>
       <li class="c3-era e3"><span class="c3-dot" aria-hidden="true"></span><div class="stack-sm">
-        <span class="c3-yr">NOW</span><b>${T('第3章　自律分散とクラウド・AIの基盤', 'Ch. 3: Resilient networks, cloud and AI')}</b>
+        <span class="c3-yr">NOW</span><b>${T('第3章　自律分散とクラウド・AIの基盤', 'Ch. 3: Resilient networks, the cloud and AI')}</b>
         <p class="small">${T('スマホでどこでも。迂回できるネットワークの上でクラウドや生成AIが動き、TLSと多要素認証で守る。', 'Online anywhere by phone. Cloud services and generative AI run on a network that routes around failures, protected by TLS and MFA.')}</p>
         <div class="c3-chips">${['routing', 'cloud', 'tls'].map(id => CTT.chip(id)).join('')}</div></div></li>
     </ol>
@@ -12065,7 +12082,7 @@ const CH = {
   /* chapter names as on Home (50_home.js) — ch1 was 「…深夜の通信」, which implied JUNET only ran at night */
   1: { yr: '1984', ja: '第1章', en: 'Ch.1', name: { ja: 'バケツリレーと電話代（JUNET）', en: 'Bucket relays and phone bills (JUNET)' } },
   2: { yr: '1995–2001', ja: '第2章', en: 'Ch.2', name: { ja: '常時接続とブロードバンド革命', en: 'Always-on and the broadband revolution' } },
-  3: { yr: 'NOW', ja: '第3章', en: 'Ch.3', name: { ja: '自律分散とクラウド・AIの基盤', en: 'Resilient networks, cloud and AI' } },
+  3: { yr: 'NOW', ja: '第3章', en: 'Ch.3', name: { ja: '自律分散とクラウド・AIの基盤', en: 'Resilient networks, the cloud and AI' } },
 };
 const SCALE = {
   1: { ja: 'まったく不安でない', en: 'not at all anxious' },
@@ -12773,13 +12790,13 @@ function chSummary(ch) {
         `Disaster-proof network: you linked the cities with ${nl} line${nl === 1 ? '' : 's'}${lc != null ? ` (cost: ${lc}${bud != null ? ` of ${bud}` : ''} coins)` : ''}.`));
     }
     if (sv != null) S.lines.push(J(`災害テストでは、3つの場面のうち${sv}つでメッセージが届きました。`, `In the disaster test, the message got through in ${sv} of 3 scenarios.`));
-    if (cm != null && wm != null) S.lines.push(J(`クラウドの{仕分|しわ}けのミス${cm}回、公衆Wi-Fiの安全チェックのミス${wm}回。`, `Mistakes: ${cm} in the cloud sorting and ${wm} in the public Wi-Fi safety check.`));
+    if (cm != null && wm != null) S.lines.push(J(`クラウドの{仕分|しわ}けのミス${cm}回、公衆Wi-Fiの安全チェックで見直した{項目|こうもく}${wm}個。`, `Mistakes in the cloud sorting: ${cm}. Public Wi-Fi items you had to rethink: ${wm}.`));
     if (nl != null) add(J('つないだ回線', 'Lines built'), J(`${nl}本`, String(nl)));
     const inB = typeof d.withinBudget === 'boolean' ? d.withinBudget : (lc != null && bud != null ? lc <= bud : null);
     if (lc != null) add(J('費用（コイン）', 'Cost (coins)'), J(`${lc}${bud != null ? ' / ' + bud : ''}`, `${lc}${bud != null ? ' / ' + bud : ''}`), inB == null ? '' : inB ? 'ok' : 'ng');
     if (sv != null) add(J('災害テスト', 'Disaster test'), J(`${sv} / 3`, `${sv} / 3`), sv >= 3 ? 'ok' : 'warn');
     if (cm != null) add(J('クラウドのミス', 'Cloud mistakes'), J(`${cm}回`, String(cm)), cm <= 1 ? 'ok' : '');
-    if (wm != null) add(J('Wi-Fiのミス', 'Wi-Fi mistakes'), J(`${wm}回`, String(wm)), wm <= 1 ? 'ok' : '');
+    if (wm != null) add(J('Wi-Fiの見直し', 'Wi-Fi items rethought'), J(`${wm}個`, String(wm)), wm <= 1 ? 'ok' : '');
     S.game = S.stats.length > 0;
   }
   return S;
@@ -13032,7 +13049,7 @@ CTT.screen('note', {
     root.innerHTML = `
       <div class="qz-note">
         <div class="qz-toolbar no-print">
-          <a class="btn ghost sm" href="#/quiz">${icon('left')}${T('まとめクイズ', 'Review quiz')}</a>
+          <div class="btn-row"><a class="btn ghost sm" href="#/quiz">${icon('left')}${T('まとめクイズ', 'Review quiz')}</a><a class="btn ghost sm" href="#/review">${icon('mobile')}${T('{復習|ふくしゅう}メニュー', 'Review menu')}</a></div>
           <div class="btn-row">${tools}</div>
         </div>
         <header class="panel qz-cover">
@@ -13169,14 +13186,14 @@ const CHS = {
 };
 const SUBS = ['cards', 'drill', 'biz'];
 const TITLES = {
-  hub: { ja: '復習メニュー', en: 'Review menu' },
+  hub: { ja: '復習<wbr>メニュー', en: 'Review menu' },
   cards: { ja: 'デジタル単語帳', en: 'Flashcards' },
   drill: { ja: '1分ドリル', en: '1-minute drill' },
   biz: { ja: '就活カード', en: 'Career cards' },
 };
 /* "ホーム" alone was mistaken for the app's home: the first tab is the review menu itself */
 const NAV = [
-  { sub: 'hub', href: 'review', ic: 'home', ja: '復習メニュー', en: 'Review menu' },
+  { sub: 'hub', href: 'review', ic: 'home', ja: '復習<wbr>メニュー', en: 'Review menu' },
   { sub: 'cards', href: 'review/cards', ic: 'card', ja: '単語帳', en: 'Flashcards' },
   { sub: 'drill', href: 'review/drill', ic: 'target', ja: '1分ドリル', en: '1-minute drill' },
   { sub: 'biz', href: 'review/biz', ic: 'briefcase', ja: '就活カード', en: 'Career cards' },
@@ -13194,7 +13211,7 @@ const SVG = inner => `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="
 const ICON_SHUFFLE = SVG('<path d="M3 7h3.5c4.5 0 6.5 10 11 10H21M3 17h3.5c1.8 0 3-1.6 4.2-3.6M13.3 9.6C14.5 8.1 15.8 7 17.5 7H21M18 4l3 3-3 3M18 14l3 3-3 3"/>');
 const ICON_GRID = SVG('<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>');
 /* wording per FACTS itpassport-16 (app-written questions must be labelled as originals, not IPA questions) */
-const ORIG_LABEL = () => T('ITパスポート試験の{出題範囲|しゅつだいはんい}に沿ったオリジナル問題', 'Original questions aligned with the IT Passport exam scope');
+const ORIG_LABEL = () => T('ITパスポート試験の{出題範囲|しゅつだいはんい}を{参考|さんこう}にしたオリジナル問題', 'Original questions based on the IT Passport exam scope');
 const ORIG_NOTE = () => T('【オリジナル問題】ITパスポート試験（IPA）の{出題範囲|しゅつだいはんい}を参考に作成した授業用の練習問題です。実際の試験問題ではありません。',
   'Original questions: practice questions written for this class based on the scope of the IT Passport Examination (IPA). They are not actual exam questions.');
 
@@ -14585,7 +14602,7 @@ const SEGS = [
       { ja: 'ベストエフォート：「最大100Mbps」は技術規格上の最大値で、速度の保証ではない。56kbpsのモデムから100Mbpsの光回線までは理論上約1,800倍（「一気に1万倍」ではない）。', en: 'Best effort: “up to 100 Mbps” is the technical maximum, not a guaranteed speed. From a 56 kbps modem to 100 Mbps fiber is about 1,800 times in theory (not “10,000 times at once”).', src: ['soumu22', 'ntt3'] },
     ] },
   { id: 'ch3', a: 49, b: 65, route: 'ch3', grp: 'main',
-    name: J('第3章　現在 自律分散とクラウド・AIの基盤', 'Ch.3 Now: Resilient networks, the cloud, and the foundations of AI'), short: J('第3章', 'Ch.3'),
+    name: J('第3章　現在 自律分散とクラウド・AIの基盤', 'Ch.3 Now: Resilient networks, the cloud and AI'), short: J('第3章', 'Ch.3'),
     /* step names as in 33_ch3.js STEPS */
     sub: J('ポケットの中のネット → 壊れても届く → 賢いのは端っこ → クラウドを使い分ける → カフェのWi-Fiで守る → 2026年に帰還', 'Internet in your pocket → A network that survives → Smart at the edges → Choosing a cloud service → Safe on café Wi-Fi → Back to 2026'),
     points: [
@@ -15480,6 +15497,8 @@ function parsePaste(text) {
     if (!fc) {
       /* a column-header line: names the code column and has no digits (or is the first line) — not a student who typed "コードなし" */
       if (/学習コード|コード|code/i.test(raw) && (!/\d/.test(raw) || !seenData)) { out.headers++; seenData = true; return; }
+      /* the first line of an LMS export is a header whatever its wording (e.g. 「学籍番号\t提出内容」) */
+      if (!seenData && !/\d/.test(raw)) { out.headers++; seenData = true; return; }
       seenData = true;
       out.errors.push({ ln, raw: raw0, err: J('学習コードが見つかりません。', 'No learning code found.') }); return;
     }
@@ -16090,7 +16109,7 @@ const MYTHS = [
       yes: J('TLSはブラウザとサーバーの間の中身を暗号化するが、本物と同じ名前（SSID）の偽アクセスポイントにつながってしまうことや、TLSを使わないアプリの通信の盗み見までは防げない。大事な手続きは避ける（必要ならモバイル回線やVPN）、ファイル共有と自動接続をオフにする、などがよく勧められている（総務省なども注意を呼びかけている）。', 'TLS encrypts content between browser and server, but it does not stop you from joining a fake access point that uses a genuine network’s name (SSID), or others reading traffic from apps that do not use TLS. Common advice: avoid important procedures (use mobile data or a VPN if needed) and turn off file sharing and auto-connect (MIC and others also warn about this).'), src: [] },
     /* concepts-35, -37, domains-business-09 + lead notes 4, 6 */
     { no: J('パスワードは定期的に変えるべき（総務省もNISTも同じ考え）。', 'Passwords should be changed regularly (MIC and NIST agree).'),
-      yes: J('総務省の国民向けサイトは、長く複雑なパスワードをサービスごとに使い分けることを勧め、定期的な変更は不要（流出のおそれがあるときはすぐ変更）としている。NIST SP 800-63Bも理由のない定期変更を求めないが、文字種の組み合わせを強制しないよう求めており、両者が一致するのは「定期変更は不要」という点だけ。なお、NISCは2025年7月に内閣官房 国家サイバー統括室に改組された（引用するなら「NISC（当時）」）。', 'MIC’s public site recommends long, complex passwords that differ per service and says periodic changes are not needed (change at once if a leak is suspected). NIST SP 800-63B also does not require arbitrary periodic changes, but it advises against forcing character-type rules, so the two agree only on “no periodic change”. Also note that NISC was reorganized in July 2025 (cite it as “NISC (at the time)”).'), src: ['itmedia4', 'github2'] },
+      yes: J('総務省の国民向けサイトは、長く複雑なパスワードをサービスごとに使い分けることを勧め、定期的な変更は不要（流出のおそれがあるときはすぐ変更）としている。NIST SP 800-63Bも理由のない定期変更を求めないが、文字種の組み合わせを強制しないよう求めており、両者が一致するのは「定期変更は不要」という点だけ。なお、NISCは2025年7月に内閣官房 国家サイバー統括室に改組された（引用するなら「NISC（当時）」）。', 'MIC’s public site recommends long, complex passwords that differ per service and says periodic changes are not needed (change at once if a leak is suspected). NIST SP 800-63B also does not require arbitrary periodic changes, but it advises against forcing character-type rules, so the two agree only on “no periodic change”. Also note that in July 2025 NISC was reorganized into the Cabinet Secretariat\'s <span lang="ja">国家サイバー統括室</span> (cite it as “NISC (at the time)”).'), src: ['itmedia4', 'github2'] },
     /* domains-business-04, -06 */
     { no: J('co.jp のメールやサイトなら信頼できる。', 'Mail or sites under co.jp can be trusted.'),
       yes: J('co.jp は日本で登記された会社が原則1つだけ登録できるドメインで、その目印にはなるが、会社やメール・サイトの内容が信頼できることの保証ではない。送信者の偽装や、本物に似せた別のドメインにも注意する。', 'co.jp can be registered only by a company registered in Japan (as a rule one per organization), so it signals that, but it does not guarantee that the company or its mail and sites can be trusted. Watch out for spoofed senders and look-alike domains.'), src: [] },
@@ -16425,8 +16444,8 @@ function methodHTML() {
       'Dates and figures were checked against primary sources first: documents from public bodies, companies and standards organizations such as JPNIC, JPRS, IANA, Japan\'s Ministry of Internal Affairs and Communications (MIC), the NTT group, NTT DOCOMO, IIJ, the WIDE Project, the IETF (RFCs), NIST, the ITU and CERN.'],
     ['一次資料で確かめきれなかったことや、資料によって記述が違うことは、確かな範囲だけを書き、「〜とされる」と表記しています。多くの資料は、ページを直接開けなかったため、検索結果に表示された{抜粋|ばっすい}で内容を確かめています。',
       'Where a primary source could not confirm a point, or sources disagree, the app states only what is certain and says “reportedly” or “is said to.” Many sources could not be opened directly and were checked through the excerpts shown in search results.'],
-    ['出典一覧には、手がかりとして参照した報道記事や二次資料（Wikipediaなど）も含まれます。',
-      'The source list also includes news articles and secondary sources (such as Wikipedia) that were used as leads.'],
+    ['出典一覧には、一次資料のほか、手がかりとして参照した報道記事や解説記事などの二次資料も含まれます。',
+      'The source list also includes news articles and other secondary sources that were used as leads.'],
     ['本文の [1] のような番号は、このページの出典一覧の番号です。押すと、その出典の場所に移動します。',
       'Numbers like [1] in the app refer to the source list on this page. Click one to jump to that source.'],
     ['確認した時点：2026年10月。サービスの料金や仕様、試験の制度は変わることがあります。',
@@ -16505,8 +16524,8 @@ function listHTML() {
   return `<section class="sr-sec" id="sr-list" aria-labelledby="sr-h-list">
     <div class="stack-sm">
       <h2 id="sr-h-list" tabindex="-1">${T('出典一覧', 'List of sources')}</h2>
-      <p class="muted">${T('番号は、アプリの中の [1] のような番号と同じです。リンクは新しいタブで開きます。タイトルは原文のまま（多くは日本語）表示しています。',
-        'The numbers match the [1]-style numbers used in the app. Links open in a new tab. Most sources are in Japanese; titles are shown in their original language.')}</p>
+      <p class="muted">${T('番号は、アプリの中の [1] のような番号と同じです。リンクは新しいタブで開きます。多くの出典は日本語です。タイトルは原文の言語で表示していますが、（ ）内の補足と、一部の説明的なタイトル（「〜記事」など）はこのアプリで付けたものです。',
+        'The numbers match the [1]-style numbers used in the app. Links open in a new tab. Most sources are in Japanese. Titles are shown in their original language; notes in parentheses and a few descriptive titles (such as “… article”) were added for this app.')}</p>
     </div>
     <div class="sr-filter row">
       <div class="field"><label for="sr-filter">${T('出典を探す（発行元・タイトル）', 'Search sources (publisher or title)')}</label>
@@ -16714,7 +16733,7 @@ CTT.screen('home', {
           <p class="lead">${T('電話{回線|かいせん}でデータを「バケツリレー」した1984年から、{常時接続|じょうじせつぞく}のブロードバンド、そしてクラウドとAIの時代へ。各時代のネットワークを自分の手で組み立てながら、ITパスポート試験の学習にも{役立|やくだ}つ{基本用語|きほんようご}をカードとして集めていきます。',
             'Travel from 1984, when data was relayed over telephone lines, through the broadband boom to today\'s cloud and AI. You build each era\'s network yourself and collect, as cards, basic terms that will also help you prepare for Japan\'s IT Passport exam.')}</p>
           <div class="btn-row">
-            <a class="btn primary lg" href="#/${started ? next : 'opening'}">${icon('play')}${started ? T('つづきから：' + (nextRail ? nextRail.ja : '{復習|ふくしゅう}ノート'), 'Continue: ' + (nextRail ? nextRail.en : 'Notebook')) : T('{授業|じゅぎょう}をはじめる', 'Start the lesson')}</a>
+            <a class="btn primary lg" href="#/${started ? next : 'opening'}">${icon('play')}${started ? (nextRail ? T('つづきから：' + nextRail.ja, 'Continue: ' + nextRail.en) : T('マイ{復習|ふくしゅう}ノートを{開|ひら}く', 'Open my review notebook')) : T('{授業|じゅぎょう}をはじめる', 'Start the lesson')}</a>
             <a class="btn lg" href="#/review">${icon('mobile')}${T('スマホで{復習|ふくしゅう}する', 'Review on your phone')}</a>
           </div>
           <div class="panel sunk stack">
@@ -16738,7 +16757,7 @@ CTT.screen('home', {
               { id: 'opening', yr: '2026 → 1984', ja: '{導入|どうにゅう}：「{従量課金|じゅうりょうかきん}」の時代へタイムスリップ', en: 'Intro: travel back to pay-per-minute days', min: 15 },
               { id: 'ch1', yr: '1984', ja: '第1章　バケツリレーと電話代（JUNET）', en: 'Ch.1 Bucket relays and phone bills (JUNET)', min: 17 },
               { id: 'ch2', yr: '1995–2001', ja: '第2章　{常時接続|じょうじせつぞく}とブロードバンド{革命|かくめい}', en: 'Ch.2 Always-on and the broadband revolution', min: 17 },
-              { id: 'ch3', yr: 'NOW', ja: '第3章　{自律分散|じりつぶんさん}とクラウド・AIの{基盤|きばん}', en: 'Ch.3 Resilient networks, cloud and AI', min: 16 },
+              { id: 'ch3', yr: 'NOW', ja: '第3章　{自律分散|じりつぶんさん}とクラウド・AIの{基盤|きばん}', en: 'Ch.3 Resilient networks, the cloud and AI', min: 16 },
               { id: 'quiz', yr: 'REVIEW', ja: '{振|ふ}り{返|かえ}り：まとめクイズと{復習|ふくしゅう}ノート', en: 'Review: review quiz and notebook', min: 25 },
             ].map(r => `<li class="${CTT.isDone(r.id) ? 'done' : ''}"><span class="stn" aria-hidden="true"></span>
               <a href="#/${r.id}"><span class="yr">${r.yr}</span><span class="nm">${T(r.ja, r.en)}</span><span class="mins no-both">${T(r.min + '分' + (CTT.isDone(r.id) ? ' · {完了|かんりょう}' : ''), r.min + ' min' + (CTT.isDone(r.id) ? ' · done' : ''))}</span></a></li>`).join('')}
