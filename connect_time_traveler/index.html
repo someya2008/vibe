@@ -1564,9 +1564,11 @@ table.t tr:last-child td{border-bottom:0}
 .c3-map .link.down{stroke:var(--ng);stroke-dasharray:6 6;stroke-width:4}
 .c3-map .link.c3-hot{stroke:var(--signal);stroke-width:7;stroke-dasharray:none}
 .c3-hit{fill:none;stroke:transparent;stroke-width:24;pointer-events:stroke}
-.is-build .c3-lk{cursor:pointer}
-.is-build .c3-lk:hover .link.none,.c3-lk.hl .link.none{stroke:var(--signal);stroke-width:4}
-.is-build .c3-lk:hover .link.on,.c3-lk.hl .link.on{stroke-width:7}
+.is-build.c3-pick{cursor:pointer}
+/* .hl: lit from the line list (mouse or keyboard focus); .hov: the line a mouse click on the map would toggle
+   (set from script, so it matches the click; CSS :hover would stick after a tap and follow the topmost band) */
+.c3-lk.hl .link.none,.c3-lk.hov .link.none{stroke:var(--signal);stroke-width:4}
+.c3-lk.hl .link.on,.c3-lk.hov .link.on{stroke-width:7}
 .c3-lk.key .link.none{stroke:var(--signal);stroke-width:5;animation:c3-pulse 1.1s ease-in-out infinite}
 @keyframes c3-pulse{50%{opacity:.35}}
 .c3-map.locked .c3-lk{cursor:default}
@@ -1584,6 +1586,25 @@ table.t tr:last-child td{border-bottom:0}
 .c3-xm.cut circle{opacity:1}
 .c3-pkt{transition:fill .2s}
 .c3-legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+/* step 2 demo: the three buttons in order, the current one highlighted */
+.c3-flow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 8px;font-size:.9rem}
+.c3-flow li{display:flex;align-items:center;gap:6px;padding:3px 10px 3px 4px;border-radius:999px;color:var(--muted);box-shadow:inset 0 0 0 1.5px var(--line)}
+.c3-flow .c3-fn{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--paper-2);box-shadow:inset 0 0 0 1.5px var(--line-2);font-weight:700;font-size:.8rem;flex-shrink:0}
+.c3-flow li.now{color:var(--era-ink);font-weight:700;background:var(--era-soft);box-shadow:inset 0 0 0 2px var(--era)}
+.c3-flow li.now .c3-fn{background:var(--era-ink);color:var(--paper);box-shadow:none}
+.c3-flow li.done{color:var(--ok-ink)}
+.c3-flow li.done .c3-fn{background:var(--ok-bg);box-shadow:inset 0 0 0 1.5px var(--ok)}
+.c3-skip{margin:0}
+/* "this one next": the button named by a tap on the map or the step guide blinks */
+.c3-nudge{animation:c3-nudge .55s ease-in-out 3}
+@keyframes c3-nudge{50%{box-shadow:0 0 0 5px var(--focus)}}
+@media (prefers-reduced-motion:reduce){.c3-nudge{box-shadow:0 0 0 4px var(--focus)}}
+.c3-tolist{display:none;margin:0}
+/* a short message for a map tap, floating just below the top bar (top is set from script); taps go through it */
+.c3-maphint{position:fixed;z-index:45;left:50%;transform:translateX(-50%);top:80px;width:max-content;max-width:min(calc(100vw - 32px),30rem);margin:0;display:flex;gap:6px;align-items:flex-start;padding:6px 10px;border-radius:var(--r-sm);background:var(--warn-bg);color:var(--warn-ink);box-shadow:0 0 0 1.5px var(--warn),var(--shadow);font-size:.88rem;font-weight:700;line-height:1.45;pointer-events:none}
+.c3-maphint .icon{flex-shrink:0;margin-top:.15em}
+@media (max-width:960px){.c3-tolist{display:block}}
+.c3-skip .btn{min-height:44px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 .c3-lg{display:inline-block;width:26px;height:0;border-top:5px solid var(--era);border-radius:3px;margin-right:-8px;vertical-align:middle}
 .c3-lg.none{border-top:3px dashed var(--line-2)}
 .c3-lg.cost{width:auto;height:auto;border:1.5px solid var(--line-2);border-radius:999px;padding:0 7px;font-family:var(--f-mono);font-size:.74rem;margin-right:-6px}
@@ -3588,12 +3609,16 @@ CTT.audio = () => {
 CTT.tone = (freq, dur, opt) => {
   const ac = CTT.audio(); if (!ac) return;
   opt = opt || {};
-  const t0 = ac.currentTime + (opt.delay || 0);
-  const o = ac.createOscillator(), g = ac.createGain();
-  o.type = opt.type || 'sine'; o.frequency.setValueAtTime(freq, t0);
-  if (opt.to) o.frequency.linearRampToValueAtTime(opt.to, t0 + dur);
-  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(opt.vol || 0.12, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  o.connect(g).connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+  /* a sound must never break a game: older WebKit's connect() returns nothing (no chaining) and some
+     audio calls can throw, so connect one by one and ignore any audio error */
+  try {
+    const t0 = ac.currentTime + (opt.delay || 0);
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = opt.type || 'sine'; o.frequency.setValueAtTime(freq, t0);
+    if (opt.to) o.frequency.linearRampToValueAtTime(opt.to, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(opt.vol || 0.12, t0 + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+  } catch (e) { /* no sound */ }
 };
 CTT.sfx = name => {
   if (!CTT.state.sound) return;
@@ -10467,18 +10492,27 @@ function later(fn, ms) {
 }
 const wait = ms => new Promise(res => later(res, quick() ? 0 : ms));
 function frame(fn) { const id = requestAnimationFrame(t => { frames.delete(id); fn(t); }); frames.add(id); }
-function stopAll() { gen++; FAST = false; timers.forEach(clearTimeout); timers.clear(); frames.forEach(cancelAnimationFrame); frames.clear(); }
+function stopAll() { gen++; FAST = false; timers.forEach(clearTimeout); timers.clear(); frames.forEach(cancelAnimationFrame); frames.clear(); hideHint(); }
 const ease = k => k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+/* draw(k) for k = 0 … 1 over ms on animation frames. It always finishes: a drawing error is ignored, and a
+   timer ends it if frames stop coming (hidden tab, a stalled engine), so a game can never get stuck. */
+function tween(ms, draw) {
+  return new Promise(res => {
+    const g = gen; let fin = false, t0 = null;
+    const put = k => { try { draw(k); } catch (e) { /* drawing only */ } };
+    const end = () => { if (fin) return; fin = true; put(1); res(); };
+    if (quick() || !(ms > 0)) { end(); return; }
+    const step = t => { if (fin || !live(g)) return; if (t0 == null) t0 = t; const k = Math.min(1, (t - t0) / ms); if (k < 1) { put(k); frame(step); } else end(); };
+    frame(step);
+    later(end, ms + 800);
+  });
+}
+/* SVG path length, or 0 if this browser cannot measure it */
+function pathLen(path) { try { return path ? path.getTotalLength() || 0 : 0; } catch (e) { return 0; } }
 /* move along an SVG path; cb(x, y) */
 function along(path, rev, ms, cb) {
-  return new Promise(res => {
-    const g = gen, L = path.getTotalLength();
-    const put = k => { const p = path.getPointAtLength((rev ? 1 - k : k) * L); cb(p.x, p.y); };
-    if (quick()) { put(1); res(); return; }
-    let t0 = null;
-    const step = t => { if (!live(g)) return; if (t0 == null) t0 = t; const k = Math.min(1, (t - t0) / ms); put(ease(k)); if (k < 1) frame(step); else res(); };
-    frame(step);
-  });
+  const L = pathLen(path);
+  return tween(L ? ms : 0, k => { if (!L) return; const e = ease(k), p = path.getPointAtLength((rev ? 1 - e : e) * L); cb(p.x, p.y); });
 }
 
 /* ============================================================
@@ -10546,6 +10580,12 @@ const BUDGET = 30;
    trunk + the two bypasses (29) passes and visibly reroutes in all 3. Every valid design needs 仙台–名古屋 and 名古屋–広島. */
 const SOLUTION = ['sapporo-sendai', 'sendai-tokyo', 'sendai-nagoya', 'tokyo-nagoya', 'nagoya-osaka', 'nagoya-hiroshima', 'osaka-hiroshima', 'hiroshima-fukuoka'];
 const KEY_LINKS = ['sendai-nagoya', 'nagoya-hiroshima'];
+/* the demo before the rebuild: three buttons in this order (tapJa/tapEn: shown when the map is tapped) */
+const FLOW = [
+  { ja: '送る', en: 'Send', tapJa: 'この地図はまだ変えられません。まず下の「札幌→福岡にメッセージを送る」を押そう。', tapEn: 'You cannot change this map yet. First press “Send a message Sapporo → Fukuoka” below.' },
+  { ja: '東京を{停電|ていでん}させる', en: 'Cut power in Tokyo', tapJa: '次は下の「東京の拠点が停電したら？」を押そう。', tapEn: 'Next, press “What if Tokyo loses power?” below.' },
+  { ja: '作り直す（線を選ぶ）', en: 'Rebuild (choose lines)', tapJa: '線を選ぶには、下の「東京に頼らないネットワークに作り直す」を押そう。', tapEn: 'To choose lines, press “Rebuild it so it does not depend on Tokyo” below.' },
+];
 const SCEN = [
   { id: 'normal', ja: '平常時', en: 'Normal day' },
   { id: 'tokyo', node: 'tokyo', ja: '東京の{拠点|きょてん}が{停電|ていでん}', en: 'Power cut at the Tokyo hub', enWhen: 'the Tokyo hub lost power' },
@@ -11007,11 +11047,13 @@ function starPhase(box) {
   $('#c3-legend', box).innerHTML = '';
   const banner = $('#c3-banner', box);
   setBanner(banner, 'map', T('スタート時のネットワーク：すべての線が東京に集まる「中央集権型」', 'Starting network: every line meets in Tokyo (centralized)'), '');
-  $('#c3-boardctl', box).innerHTML = `<div class="btn-row">
+  $('#c3-boardctl', box).innerHTML = `<ol class="c3-flow" id="c3-flow">${FLOW.map((f, i) => `<li data-f="${i}"><span class="c3-fn" aria-hidden="true">${i + 1}</span>${SP(f.ja, f.en)}<span class="sr c3-fst"></span></li>`).join('')}</ol>
+    <div class="btn-row">
       <button type="button" class="btn era" id="c3-send">${icon('play')}${SP('札幌→福岡にメッセージを送る', 'Send a message Sapporo → Fukuoka')}</button>
       <button type="button" class="btn danger" id="c3-blackout" ${s.starSent && !s.starDown ? '' : 'disabled'}>${icon('bolt')}${SP('東京の拠点が停電したら？', 'What if Tokyo loses power?')}</button>
     </div>
-    <div id="c3-starfb" class="stack-sm" aria-live="polite"></div>`;
+    <div id="c3-starfb" class="stack-sm" aria-live="polite"></div>
+    <p class="c3-skip" id="c3-skip"><button type="button" class="btn ghost sm" id="c3-skipdemo">${SP('うまく進めないときは：線を選ぶ画面（作り直し）へ進む', 'Stuck? Go straight to the rebuild screen')}</button></p>`;
   $('#c3-side2', box).innerHTML = `
     <div class="panel stack">
       <span class="label">${T('ミッション', 'Mission')}</span>
@@ -11026,44 +11068,133 @@ function starPhase(box) {
   const svg = $('#c3-map', box);
   if (s.starDown) { paintStarDown(svg); showStarDown(fb); }
   else if (s.starSent) { fb.innerHTML = callout('ok', 'check', T('届いた！（札幌 → 東京 → 福岡）', 'Delivered! (Sapporo → Tokyo → Fukuoka)')); }
+  paintFlow(box);
 
+  /* The animations below can fail or stall on some devices; whatever happens, the step moves on
+     (try/catch here, and `tween` always finishes), so the rebuild screen can always be reached. */
   $('#c3-send', box).addEventListener('click', async () => {
     if (s.running) return;
+    mapHint(box, null);
     s.running = true; const g = gen;
-    const btns = $$('#c3-boardctl button', box); btns.forEach(b => { b.disabled = true; });
-    clearHot(svg);
-    if (s.starDown) {
-      setBanner(banner, 'alert', T('東京が止まっているので、札幌から先へ進めません', 'Tokyo is down, so the message cannot leave Sapporo'), 'ng');
-      await stuckAt(svg, 'sapporo', 'star-sapporo', true);
-    } else {
-      setBanner(banner, 'play', T('送信中… 札幌 → 東京 → 福岡', 'Sending… Sapporo → Tokyo → Fukuoka'), '');
-      await runPath(svg, [{ link: 'star-sapporo', from: 'sapporo' }, { link: 'star-fukuoka', from: 'tokyo' }], STAR_LINK);
-      if (!live(g)) return;
+    $$('#c3-boardctl .btn-row button', box).forEach(b => { b.disabled = true; });
+    try {
+      clearHot(svg);
+      if (s.starDown) {
+        setBanner(banner, 'alert', T('東京が止まっているので、札幌から先へ進めません', 'Tokyo is down, so the message cannot leave Sapporo'), 'ng');
+        await stuckAt(svg, 'sapporo', 'star-sapporo', true);
+      } else {
+        setBanner(banner, 'play', T('送信中… 札幌 → 東京 → 福岡', 'Sending… Sapporo → Tokyo → Fukuoka'), '');
+        await runPath(svg, [{ link: 'star-sapporo', from: 'sapporo' }, { link: 'star-fukuoka', from: 'tokyo' }], STAR_LINK);
+      }
+    } catch (e) { console.error(e); }
+    if (!live(g)) return;
+    s.running = false;
+    /* every button locked above comes back, including "rebuild" when the message is re-sent after the blackout */
+    $$('#c3-boardctl .btn-row button', box).forEach(b => { b.disabled = false; });
+    if (!s.starDown) {
       s.starSent = true; persist();
       setBanner(banner, 'check', T('届いた！ 東京を通って福岡へ', 'Delivered via Tokyo'), 'ok');
       fb.innerHTML = callout('ok', 'check', T('届いた！（札幌 → 東京 → 福岡）　では、もし東京が止まったら？', 'Delivered! (Sapporo → Tokyo → Fukuoka). But what if Tokyo stops?'));
     }
-    if (!live(g)) return;
-    s.running = false;
-    $('#c3-send', box).disabled = false;
     $('#c3-blackout', box).disabled = !s.starSent || s.starDown;
+    paintFlow(box);
+    /* the next button can be just below the screen edge: always bring it up. Before the blackout, also show as much
+       of the result message under the buttons as fits without pushing the banner under the top bar. */
+    if (s.starDown) { const rb = $('#c3-rebuild', box); if (rb) rb.scrollIntoView({ block: 'nearest', behavior: quick() ? 'auto' : 'smooth' }); }
+    else {
+      const vh = window.innerHeight, room = banner.getBoundingClientRect().top - barBottom() - 8;
+      const need = $('#c3-blackout', box).getBoundingClientRect().bottom + 8 - vh, want = fb.getBoundingClientRect().bottom + 8 - vh;
+      const dy = Math.max(need, Math.min(want, room), 0);
+      if (dy > 0) window.scrollBy({ top: dy, behavior: quick() ? 'auto' : 'smooth' });
+    }
   });
   $('#c3-blackout', box).addEventListener('click', async () => {
     if (s.running || s.starDown) return;
+    mapHint(box, null);
     s.running = true; const g = gen;
-    $$('#c3-boardctl button', box).forEach(b => { b.disabled = true; });
-    clearHot(svg);
-    setBanner(banner, 'bolt', T('シナリオ：東京の拠点が停電！', 'Scenario: power cut at the Tokyo hub!'), 'ng');
-    CTT.sfx('ng');
-    paintStarDown(svg);
-    await wait(500);
-    await stuckAt(svg, 'sapporo', 'star-sapporo', true);
+    $$('#c3-boardctl .btn-row button', box).forEach(b => { b.disabled = true; });
+    try {
+      clearHot(svg);
+      setBanner(banner, 'bolt', T('シナリオ：東京の拠点が停電！', 'Scenario: power cut at the Tokyo hub!'), 'ng');
+      CTT.sfx('ng');
+      paintStarDown(svg);
+      await wait(500);
+      await stuckAt(svg, 'sapporo', 'star-sapporo', true);
+    } catch (e) { console.error(e); }
     if (!live(g)) return;
     s.starDown = true; s.running = false; persist();
+    $('#c3-send', box).disabled = false;
     setBanner(banner, 'x', T('届かない！ 全国がバラバラに', 'Not delivered! The whole country is cut apart'), 'ng');
     showStarDown(fb);
-    $('#c3-send', box).disabled = false;
+    paintFlow(box);
+    const rb = $('#c3-rebuild', fb); if (rb) rb.scrollIntoView({ block: 'nearest', behavior: quick() ? 'auto' : 'smooth' });
   });
+  /* the star map cannot be edited and the step guide is not a button: a tap on either names the next button
+     (over the map), makes it blink and brings it into view */
+  const nudgeNext = () => {
+    if (s.running) return;
+    const n = s.starDown ? 2 : s.starSent ? 1 : 0;
+    mapHint(box, FLOW[n].tapJa, FLOW[n].tapEn);
+    const b = $(['#c3-send', '#c3-blackout', '#c3-rebuild'][n], box);
+    if (!b) return;
+    b.scrollIntoView({ block: 'nearest', behavior: quick() ? 'auto' : 'smooth' });
+    b.classList.remove('c3-nudge'); void b.offsetWidth; b.classList.add('c3-nudge');
+    later(() => b.classList.remove('c3-nudge'), 1800);
+  };
+  svg.addEventListener('click', nudgeNext);
+  $('#c3-flow', box).addEventListener('click', nudgeNext);
+  $('#c3-skipdemo', box).addEventListener('click', () => {
+    if (s.running) { stopAll(); s.running = false; }
+    s.starSent = true; s.starDown = true;
+    openBuild(box);
+  });
+}
+/* A short message for a tap on the map. It floats just below the top bar, so it is always on screen and never
+   changes the layout (a taller banner above the map would move the map under the finger) and never sits on the
+   lines. It goes away after a few seconds, on the next touch of the map, or when the next step starts.
+   It lives in <body>: .screen keeps a transform from its entry animation, which would carry position:fixed. */
+let hintTimer = 0;
+function hideHint() { const h = document.getElementById('c3-maphint'); if (h) { h.hidden = true; h.innerHTML = ''; } }
+function mapHint(box, ja, en) {
+  let h = document.getElementById('c3-maphint');
+  if (!h) { h = document.createElement('p'); h.id = 'c3-maphint'; h.className = 'c3-maphint'; h.setAttribute('role', 'status'); h.hidden = true; document.body.appendChild(h); }
+  if (hintTimer) { clearTimeout(hintTimer); timers.delete(hintTimer); hintTimer = 0; }
+  if (!ja) { hideHint(); return; }
+  h.innerHTML = `${icon('info')}${SP(ja, en)}`;
+  h.style.top = `${barBottom() + 8}px`;
+  h.hidden = false;
+  /* if it would cover the map, use the bottom edge of the screen instead (whichever covers less of the map) */
+  const map = $('#c3-map', box);
+  if (map) {
+    const m = map.getBoundingClientRect(), hh = h.offsetHeight, vh = window.innerHeight;
+    const over = y => Math.max(0, Math.min(y + hh, m.bottom) - Math.max(y, m.top));
+    const top = barBottom() + 8, low = vh - hh - 8;
+    if (over(top) > 0 && over(low) < over(top)) h.style.top = `${low}px`;
+  }
+  hintTimer = later(() => { hintTimer = 0; h.hidden = true; }, 4000);
+}
+/* the mouse preview on the map is set on pointermove, which does not fire when the page scrolls under a resting
+   pointer: drop it on scroll so a lit line always means "a click here toggles this line" */
+window.addEventListener('scroll', () => {
+  if (!ROOT) return;
+  $$('.c3-lk.hov', ROOT).forEach(g => g.classList.remove('hov'));
+  const m = $('.c3-map.c3-pick', ROOT); if (m) m.classList.remove('c3-pick');
+}, { passive: true });
+/* bottom of the sticky top bar on screen (0 when it does not stick, e.g. on short landscape screens) */
+function barBottom() {
+  const t = document.querySelector('.topbar');
+  return t && getComputedStyle(t).position === 'sticky' ? Math.max(0, t.getBoundingClientRect().bottom) : 0;
+}
+/* where the student is in the 3-step demo */
+function paintFlow(box) {
+  const s = S.s2, now = s.starDown ? 2 : s.starSent ? 1 : 0;
+  $$('#c3-flow li', box).forEach((li, i) => {
+    li.classList.toggle('done', i < now); li.classList.toggle('now', i === now);
+    if (i === now) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    const st = $('.c3-fst', li); if (st) st.innerHTML = i < now ? T('（済み）', ' (done)') : i === now ? T('（いまここ）', ' (now)') : '';
+  });
+  /* once the rebuild button is on screen, the shortcut is not needed */
+  const sk = $('#c3-skip', box); if (sk) sk.hidden = now === 2;
 }
 function paintStarDown(svg) {
   const t = $('[data-node="tokyo"]', svg); t.classList.add('down'); t.classList.remove('on');
@@ -11074,14 +11205,16 @@ function paintStarDown(svg) {
 function showStarDown(fb) {
   fb.innerHTML = `${callout('ng', 'alert', T('<b>届かない！</b> 東京が1か所止まっただけで、どの都市どうしも通信できなくなりました。すべてを1か所に集める形は、そこが弱点（{単一障害点|たんいつしょうがいてん}）になります。', '<b>Not delivered!</b> With just one site down, no city can reach any other. When everything runs through one place, that place is a single point of failure.'))}
     <div class="btn-row"><button type="button" class="btn primary lg" id="c3-rebuild">${icon('right')}${SP('東京に頼らないネットワークに作り直す', 'Rebuild it so it does not depend on Tokyo')}</button></div>`;
-  $('#c3-rebuild', fb).addEventListener('click', () => {
-    S.s2.phase = 'build'; persist();
-    const box = fb.closest('.c3-step');
-    $('#c3-res', box).innerHTML = '';
-    buildPhase(box);
-    const h = $('#c3-side2 h3', box); if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
-    $('#c3-banner', box).scrollIntoView({ block: 'start', behavior: quick() ? 'auto' : 'smooth' });
-  });
+  $('#c3-rebuild', fb).addEventListener('click', () => openBuild(fb.closest('.c3-step')));
+}
+function openBuild(box) {
+  mapHint(box, null);
+  S.s2.phase = 'build'; persist();
+  $('#c3-res', box).innerHTML = '';
+  buildPhase(box);
+  CTT.refreshAttrs(box);
+  const h = $('#c3-side2 h3', box); if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
+  $('#c3-banner', box).scrollIntoView({ block: 'start', behavior: quick() ? 'auto' : 'smooth' });
 }
 
 /* ---- phase B: design a resilient network ---- */
@@ -11089,13 +11222,14 @@ function buildPhase(box) {
   const s = S.s2;
   $('#c3-mapwrap', box).innerHTML = mapSVG('build');
   $('#c3-legend', box).innerHTML = `<span class="c3-lg on"></span>${SP('つないだ線', 'Built')}<span class="c3-lg none"></span>${SP('つなげる候補', 'Candidate')}<span class="c3-lg cost">5</span>${SP('費用（コイン）', 'Cost (coins)')}`;
-  setBanner($('#c3-banner', box), 'target', T('線をクリックしてつなぎ、「災害テスト」で確かめよう', 'Click lines to build them, then run the disaster test'), '');
-  $('#c3-boardctl', box).innerHTML = '';
+  setBanner($('#c3-banner', box), 'target', T('線をタップ（クリック）してつなぎ、「災害テスト」で確かめよう', 'Tap (click) lines to build them, then run the disaster test'), '');
+  /* one-column layout (phones, iPad portrait): the line buttons are far below the map */
+  $('#c3-boardctl', box).innerHTML = `<p class="c3-tolist"><button type="button" class="btn ghost sm" id="c3-tolist">${icon('right')}${SP('線の一覧へ（ボタンで選ぶ）', 'Go to the line list (choose with buttons)')}</button></p>`;
   $('#c3-side2', box).innerHTML = `
     <div class="panel stack">
       <div><span class="label">${T('ミッション（ゲーム上の設定）', 'Mission (game setting)')}</span>
         <h3>${T('壊れても届くネットワークを作れ', 'Build a network that survives')}</h3></div>
-      <p class="small">${T('つなぐ線を選ぼう（地図の線をクリックしても選べます）。数字は費用。メッセージはふだん合計がいちばん小さい道を通り、その道が使えないときだけ別の道を探します。', 'Choose lines to build (you can also click them on the map). The number is the cost. A message normally takes the route with the smallest total, and looks for another only when that route is blocked.')}</p>
+      <p class="small">${T('つなぐ線を下のボタンで選ぼう。地図の線をタップ（クリック）しても選べます。数字は費用。メッセージはふだん合計がいちばん小さい道を通り、その道が使えないときだけ別の道を探します。', 'Choose lines to build with the buttons below; you can also tap (click) them on the map. The number is the cost. A message normally takes the route with the smallest total, and looks for another only when that route is blocked.')}</p>
       <ul class="c3-goals" id="c3-goals"></ul>
       <div id="c3-budget"></div>
       <ul class="c3-lklist" id="c3-lklist">${LINKS.map(l => `<li><button type="button" class="c3-lkbtn" data-link="${l.id}" aria-pressed="false">
@@ -11108,16 +11242,52 @@ function buildPhase(box) {
       <div id="c3-hint" class="stack-sm" aria-live="polite"></div>
     </div>`;
   const svg = $('#c3-map', box);
-  svg.addEventListener('click', e => {
+  /* Which line a map tap means (lineAt). A cost badge: its line. On a line's tap band: the nearest line (bands
+     overlap where lines meet). A finger off the bands (lines are thin on a phone): the nearest line if it is
+     within 22 px and clearly nearer than the next one. A mouse is precise: nothing off the bands. On a city dot
+     or name: a line only if the tap is on that line's band and clearly nearest; otherwise a hint, not a guess.
+     With a mouse, the line that a click would toggle lights up first (the same lineAt). */
+  let ptr = '';
+  const lineAt = (e, kind) => {
     const g = e.target.closest('.c3-lk');
-    if (g) toggleLink(box, g.dataset.link);
+    if (g && e.target.closest('.c3-cost')) return g.dataset.link;
+    if (e.target.closest('.node')) return nearestLink(svg, e.clientX, e.clientY, 'city');
+    if (g) return nearestLink(svg, e.clientX, e.clientY, 'band') || g.dataset.link;
+    return kind === 'mouse' ? null : nearestLink(svg, e.clientX, e.clientY, '');
+  };
+  const setHov = id => {
+    $$('.c3-lk.hov', svg).forEach(g => { if (g.dataset.link !== id) g.classList.remove('hov'); });
+    if (id) { const n = $(`.c3-lk[data-link="${id}"]`, svg); if (n) n.classList.add('hov'); }
+    svg.classList.toggle('c3-pick', !!id);
+  };
+  svg.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') setHov(s.running || s.done ? null : lineAt(e, 'mouse')); });
+  svg.addEventListener('pointerleave', () => setHov(null));
+  svg.addEventListener('pointerdown', e => { ptr = e.pointerType || ''; mapHint(box, null); });
+  svg.addEventListener('click', e => {
+    const kind = ptr; ptr = '';
+    if (s.running || s.done) return;
+    const id = lineAt(e, kind);
+    if (id) toggleLink(box, id, $(`.c3-lk[data-link="${id}"]`, svg));
+    else if (e.target.closest('.node')) mapHint(box, '都市ではなく、都市と都市を結ぶ線をタップ（クリック）しよう。', 'Tap (click) the lines between the cities, not the cities.');
+    else mapHint(box, '線の上をタップ（クリック）しよう。線の一覧のボタンでも選べます。', 'Tap (click) right on a line, or use the buttons in the line list.');
   });
   const list = $('#c3-lklist', box);
-  list.addEventListener('click', e => { const b = e.target.closest('[data-link]'); if (b) toggleLink(box, b.dataset.link); });
+  list.addEventListener('click', e => { const b = e.target.closest('[data-link]'); if (b) toggleLink(box, b.dataset.link, b); });
+  /* a list button lights up its line on the map: for a mouse pointer and for keyboard focus only
+     (a tap would leave the light on, and a removed line would still look chosen) */
   const hl = (id, on) => { const g = $(`.c3-lk[data-link="${id}"]`, svg); if (g) g.classList.toggle('hl', on); };
-  ['mouseover', 'focusin'].forEach(ev => list.addEventListener(ev, e => { const b = e.target.closest('[data-link]'); if (b) hl(b.dataset.link, true); }));
-  ['mouseout', 'focusout'].forEach(ev => list.addEventListener(ev, e => { const b = e.target.closest('[data-link]'); if (b) hl(b.dataset.link, false); }));
-  $('#c3-clear', box).addEventListener('click', () => { if (s.running || s.done) return; s.links = []; afterEdit(box); });
+  const lkb = e => e.target.closest && e.target.closest('[data-link]');
+  const focusVis = el => { try { return el.matches(':focus-visible'); } catch (err) { return true; } };
+  list.addEventListener('pointerover', e => { const b = lkb(e); if (b && e.pointerType === 'mouse') hl(b.dataset.link, true); });
+  list.addEventListener('pointerout', e => { const b = lkb(e); if (b) hl(b.dataset.link, false); });
+  list.addEventListener('focusin', e => { const b = lkb(e); if (b && focusVis(b)) hl(b.dataset.link, true); });
+  list.addEventListener('focusout', e => { const b = lkb(e); if (b) hl(b.dataset.link, false); });
+  $('#c3-tolist', box).addEventListener('click', () => {
+    if (s.running) return;
+    $('#c3-budget', box).scrollIntoView({ block: 'start', behavior: quick() ? 'auto' : 'smooth' });
+    const first = $('.c3-lkbtn', box); if (first) first.focus({ preventScroll: true });
+  });
+  $('#c3-clear', box).addEventListener('click', e => { if (s.running || s.done) return; s.links = []; keepPlace(e.currentTarget, () => afterEdit(box)); persist(); });
   $('#c3-test', box).addEventListener('click', () => runTests(box));
   $('#c3-fast', box).addEventListener('click', () => { FAST = true; });
   paintBuild(box);
@@ -11126,15 +11296,53 @@ function buildPhase(box) {
   if (s.done) { lockBuild(box); setBanner($('#c3-banner', box), 'star', T('防衛成功！ 3つの災害をすべて乗りこえた', 'Defense complete! The network survived all three disasters'), 'ok'); }
   else showHint(box);
 }
-function toggleLink(box, id) {
+function toggleLink(box, id, from) {
   const s = S.s2;
   if (s.running || s.done || !LINK[id]) return;
+  mapHint(box, null);
   const i = s.links.indexOf(id);
   if (i >= 0) s.links.splice(i, 1); else s.links.push(id);
   s.links.sort((a, b) => LINKS.indexOf(LINK[a]) - LINKS.indexOf(LINK[b]));
   CTT.sfx('click');
-  afterEdit(box);
+  keepPlace(from, () => afterEdit(box));
   persist();
+}
+/* Keep the tapped element where it was on screen. An edit can make the content above the line list taller
+   (the "last results" note, a budget line that wraps); Safari does not hold the scroll position for that,
+   so the list would slide down under the finger and the next tap would hit another line. */
+function keepPlace(el, fn) {
+  const y0 = el && el.isConnected ? el.getBoundingClientRect().top : null;
+  fn();
+  if (y0 == null || !el.isConnected) return;
+  const dy = el.getBoundingClientRect().top - y0;
+  if (Math.abs(dy) > 1) window.scrollBy(0, dy);
+}
+/* the line nearest to a tap (client px). where = 'band': on a line's tap band (12 map units each side), the
+   nearest line wins. 'city': on a city dot or name, only a line whose band the tap is on and that is clearly
+   nearer than the next one. '': off the bands, within 22 px and clearly nearer than the next one
+   (1.4 times + 2 px), so taps where lines meet are not guessed. */
+function nearestLink(svg, cx, cy, where) {
+  const r = svg.getBoundingClientRect(), k = Math.min(r.width / 620, r.height / 500);
+  if (!(k > 0)) return null;
+  const x = (cx - r.left - (r.width - 620 * k) / 2) / k, y = (cy - r.top - (r.height - 500 * k) / 2) / k;
+  const ds = LINKS.map(l => ({ id: l.id, d: linkDist(l, x, y) })).sort((a, b) => a.d - b.d);
+  const clear = ds[1].d >= ds[0].d * 1.4 + 2 / k;
+  if (where === 'band') return ds[0].d <= 12 ? ds[0].id : null;
+  if (where === 'city') return ds[0].d <= 12 && clear ? ds[0].id : null;
+  return ds[0].d <= 22 / k && clear ? ds[0].id : null;
+}
+/* distance from (x, y) to a line drawn by linkD (a straight line or a quadratic curve), in map units */
+function linkDist(l, x, y) {
+  const A = NODES[l.a], B = NODES[l.b], C = l.c || [(A.x + B.x) / 2, (A.y + B.y) / 2];
+  let best = Infinity, px = A.x, py = A.y;
+  for (let i = 1; i <= 24; i++) {
+    const t = i / 24, u = 1 - t;
+    const qx = u * u * A.x + 2 * u * t * C[0] + t * t * B.x, qy = u * u * A.y + 2 * u * t * C[1] + t * t * B.y;
+    const dx = qx - px, dy = qy - py, L = dx * dx + dy * dy, k = L ? CTT.clamp(((x - px) * dx + (y - py) * dy) / L, 0, 1) : 0;
+    best = Math.min(best, Math.hypot(x - px - k * dx, y - py - k * dy));
+    px = qx; py = qy;
+  }
+  return best;
 }
 function afterEdit(box) {
   paintBuild(box);
@@ -11171,7 +11379,8 @@ function paintBuild(box) {
 }
 function lockBuild(box) {
   $$('.c3-lkbtn', box).forEach(b => { b.disabled = true; });
-  ['#c3-test', '#c3-clear', '#c3-fast'].forEach(sel => { const b = $(sel, box); if (b) b.hidden = true; });
+  ['#c3-test', '#c3-clear', '#c3-fast', '#c3-tolist'].forEach(sel => { const b = $(sel, box); if (b) b.hidden = true; });
+  mapHint(box, null);
   const svg = $('#c3-map', box); if (svg) svg.classList.add('locked');
   const h = $('#c3-hint', box);
   if (h) h.innerHTML = clearedMsg();
@@ -11234,15 +11443,17 @@ function clearHot(svg) {
   $$('.c3-hot', svg).forEach(p => p.classList.remove('c3-hot'));
   const pk = $('.c3-pkt', svg); if (pk) { pk.setAttribute('cx', -40); pk.setAttribute('cy', -40); pk.classList.remove('bad'); }
 }
-function clearMarks(svg) { const m = $('.c3-marks', svg); if (m) m.innerHTML = ''; }
-function markNode(svg, id) {
-  const n = NODES[id];
-  $('.c3-marks', svg).insertAdjacentHTML('beforeend', `<g class="c3-xm" transform="translate(${n.x} ${n.y})"><circle r="22"/><path d="M-9 -9L9 9M9 -9L-9 9"/></g>`);
+function clearMarks(svg) { const m = $('.c3-marks', svg); if (m) m.textContent = ''; }
+/* SVG elements are built with createElementNS (no HTML parsing inside SVG, which older engines handle differently) */
+function svgEl(tag, attrs) { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); Object.keys(attrs).forEach(k => e.setAttribute(k, attrs[k])); return e; }
+function markX(svg, x, y, r, d, cls) {
+  const m = $('.c3-marks', svg); if (!m) return;
+  const g = svgEl('g', { class: cls, transform: `translate(${x} ${y})` });
+  g.appendChild(svgEl('circle', { r })); g.appendChild(svgEl('path', { d }));
+  m.appendChild(g);
 }
-function markCut(svg, id) {
-  const [x, y] = linkMid(LINK[id]);
-  $('.c3-marks', svg).insertAdjacentHTML('beforeend', `<g class="c3-xm cut" transform="translate(${x} ${y})"><circle r="13"/><path d="M-6 -6L6 6M6 -6L-6 6"/></g>`);
-}
+function markNode(svg, id) { const n = NODES[id]; markX(svg, n.x, n.y, 22, 'M-9 -9L9 9M9 -9L-9 9', 'c3-xm'); }
+function markCut(svg, id) { const [x, y] = linkMid(LINK[id]); markX(svg, x, y, 13, 'M-6 -6L6 6M6 -6L-6 6', 'c3-xm cut'); }
 async function runPath(svg, hops, table) {
   const pk = $('.c3-pkt', svg);
   pk.classList.remove('bad');
@@ -11259,18 +11470,11 @@ async function stuckAt(svg, from, linkId, star) {
   const pk = $('.c3-pkt', svg), n = NODES[from];
   pk.classList.add('bad');
   pk.setAttribute('cx', n.x); pk.setAttribute('cy', n.y);
-  const el = linkId && $(`.c3-lk[data-link="${linkId}"] .link`, svg);
-  if (el) {
-    const l = (star ? STAR_LINK : LINK)[linkId], rev = l.a !== from, L = el.getTotalLength();
-    const g = gen;
-    if (!quick()) {
-      await new Promise(res => {
-        let t0 = null;
-        const step = t => { if (!live(g)) return; if (t0 == null) t0 = t; const k = Math.min(1, (t - t0) / 500); const d = (rev ? 1 - k * .35 : k * .35) * L; const p = el.getPointAtLength(d); pk.setAttribute('cx', p.x); pk.setAttribute('cy', p.y); if (k < 1) frame(step); else res(); };
-        frame(step);
-      });
-      await wait(250);
-    }
+  const el = linkId && $(`.c3-lk[data-link="${linkId}"] .link`, svg), L = pathLen(el);
+  if (L && !quick()) {
+    const l = (star ? STAR_LINK : LINK)[linkId], rev = l.a !== from, g = gen;
+    await tween(500, k => { const p = el.getPointAtLength((rev ? 1 - k * .35 : k * .35) * L); pk.setAttribute('cx', p.x); pk.setAttribute('cy', p.y); });
+    await wait(250);
     if (!live(g)) return;
     pk.setAttribute('cx', n.x); pk.setAttribute('cy', n.y);
   }
@@ -11291,6 +11495,7 @@ async function runTests(box) {
   $('#c3-test', box).disabled = true; $('#c3-clear', box).disabled = true;
   const fast = $('#c3-fast', box); fast.hidden = quick();
   $('#c3-hint', box).innerHTML = '';
+  mapHint(box, null);
   const res = $('#c3-res', box); res.innerHTML = ''; res.classList.remove('stale');
   paintGoals(box, null);
   const banner = $('#c3-banner', box);
@@ -11300,19 +11505,22 @@ async function runTests(box) {
   if (br.top < top || mr.bottom > window.innerHeight) banner.scrollIntoView({ block: 'start', behavior: quick() ? 'auto' : 'smooth' });
   for (let i = 0; i < SCEN.length; i++) {
     const sc = SCEN[i], r = ev.res[i];
-    paintBuild(box);
-    if (sc.node) { const n = $(`[data-node="${sc.node}"]`, svg); n.classList.add('down'); n.classList.remove('on'); markNode(svg, sc.node);
-      $$('.c3-lk', svg).forEach(gl => { const l = LINK[gl.dataset.link]; if ((l.a === sc.node || l.b === sc.node) && gl.classList.contains('built')) $('.link', gl).classList.add('down'); }); }
-    if (sc.link) { markCut(svg, sc.link); const gl = $(`.c3-lk[data-link="${sc.link}"]`, svg); if (gl.classList.contains('built')) $('.link', gl).classList.add('down'); }
-    setBanner(banner, i ? 'alert' : 'play', T(`テスト${i + 1}/4：${sc.ja}`, `Test ${i + 1}/4: ${sc.en}`), i ? 'warn' : '');
-    if (i) CTT.sfx('ng');
-    await wait(i ? 650 : 250);
-    if (!live(g)) return;
-    if (r.path.ok) await runPath(svg, r.path.hops, LINK);
-    else {
-      const out = s.links.find(id => { const l = LINK[id]; return (l.a === 'sapporo' || l.b === 'sapporo') && id !== sc.link && l.a !== sc.node && l.b !== sc.node; });
-      await stuckAt(svg, 'sapporo', out || null, false);
-    }
+    /* the result is already computed (evaluate); the animation only shows it, so an error in it is skipped */
+    try {
+      paintBuild(box);
+      if (sc.node) { const n = $(`[data-node="${sc.node}"]`, svg); n.classList.add('down'); n.classList.remove('on'); markNode(svg, sc.node);
+        $$('.c3-lk', svg).forEach(gl => { const l = LINK[gl.dataset.link]; if ((l.a === sc.node || l.b === sc.node) && gl.classList.contains('built')) $('.link', gl).classList.add('down'); }); }
+      if (sc.link) { markCut(svg, sc.link); const gl = $(`.c3-lk[data-link="${sc.link}"]`, svg); if (gl.classList.contains('built')) $('.link', gl).classList.add('down'); }
+      setBanner(banner, i ? 'alert' : 'play', T(`テスト${i + 1}/4：${sc.ja}`, `Test ${i + 1}/4: ${sc.en}`), i ? 'warn' : '');
+      if (i) CTT.sfx('ng');
+      await wait(i ? 650 : 250);
+      if (!live(g)) return;
+      if (r.path.ok) await runPath(svg, r.path.hops, LINK);
+      else {
+        const out = s.links.find(id => { const l = LINK[id]; return (l.a === 'sapporo' || l.b === 'sapporo') && id !== sc.link && l.a !== sc.node && l.b !== sc.node; });
+        await stuckAt(svg, 'sapporo', out || null, false);
+      }
+    } catch (e) { console.error(e); }
     if (!live(g)) return;
     setBanner(banner, r.ok ? 'check' : 'x', r.ok ? (r.detour ? T('自動で{迂回|うかい}！', 'Rerouted automatically!') : i ? T('届いた！（いつもの道）', 'Delivered (usual route)') : T('全都市がつながっている', 'All cities connected')) : T('届かない…', 'Not delivered…'), r.ok ? 'ok' : 'ng');
     res.insertAdjacentHTML('beforeend', resultRow(i, r));
@@ -11399,8 +11607,10 @@ function showHint(box) {
   KEY_LINKS.forEach(id => { const gl = svg && $(`.c3-lk[data-link="${id}"]`, svg); if (gl) gl.classList.toggle('key', s.fails >= 3); });
   const sb = $('#c3-show', box);
   if (sb) sb.addEventListener('click', () => {
-    s.shown = true; s.links = SOLUTION.slice(); afterEdit(box);
+    s.shown = true; s.links = SOLUTION.slice(); keepPlace(el, () => afterEdit(box)); persist();
     el.innerHTML = callout('plain', 'bulb', T(`解答例（費用${costOf(SOLUTION)}コイン）：札幌から福岡までの{幹線|かんせん}（札幌–仙台–東京–名古屋–大阪–広島–福岡）に、迂回路として 仙台–名古屋 と 名古屋–広島 を足した形。「災害テスト」で確かめよう。`, `Sample answer (${costOf(SOLUTION)} coins): the main line Sapporo–Sendai–Tokyo–Nagoya–Osaka–Hiroshima–Fukuoka, plus two bypasses: Sendai–Nagoya and Nagoya–Hiroshima. Run the disaster test to check it.`));
+    const er = el.getBoundingClientRect();
+    el.scrollIntoView({ block: er.top < barBottom() || er.height > window.innerHeight - barBottom() ? 'start' : 'nearest', behavior: quick() ? 'auto' : 'smooth' });
   });
 }
 
@@ -11588,8 +11798,7 @@ async function sendPackets(box) {
       if (k >= 1 && n !== 3 && !arrived.has(n)) { arrived.add(n); fillBoxes(box, Array.from(arrived)); }
     });
   };
-  if (quick()) draw(total);
-  else await new Promise(res => { let t0 = null; const step = t => { if (!live(g)) return; if (t0 == null) t0 = t; const e = t - t0; draw(e); if (e < total) frame(step); else res(); }; frame(step); });
+  await tween(total, k => draw(k * total));
   if (!live(g)) return;
   layer.innerHTML = '';
   fillBoxes(box, [1, 2, 4]); lostMark(box, true);
@@ -11628,13 +11837,7 @@ async function answered3(box, anim) {
   more3($('#c3-more3', box), anim);
 }
 function tweenX(el, x0, x1, y, ms) {
-  return new Promise(res => {
-    const g = gen;
-    if (quick()) { el.setAttribute('transform', `translate(${x1} ${y})`); res(); return; }
-    let t0 = null;
-    const step = t => { if (!live(g)) return; if (t0 == null) t0 = t; const k = Math.min(1, (t - t0) / ms); el.setAttribute('transform', `translate(${(x0 + (x1 - x0) * ease(k)).toFixed(1)} ${y})`); if (k < 1) frame(step); else res(); };
-    frame(step);
-  });
+  return tween(ms, k => el.setAttribute('transform', `translate(${(x0 + (x1 - x0) * ease(k)).toFixed(1)} ${y})`));
 }
 function more3(el, anim) {
   el.innerHTML = `<div class="panel stack-lg ${anim ? 'reveal' : ''}">
